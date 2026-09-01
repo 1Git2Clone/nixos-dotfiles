@@ -6,6 +6,11 @@
 # NOTE: the stowed config is Lua (Hyprland 0.55+ "Luaification"), so the
 # Hyprland package must be new enough to read hyprland.lua. nixos-unstable is.
 { pkgs, ... }:
+let
+  # Vendored from the dotfiles repo — see pkgs/hutao-cursor.nix for why it is
+  # a package rather than a stowed directory.
+  hutao-cursor = pkgs.callPackage ../pkgs/hutao-cursor.nix { };
+in
 {
   # ── Stylix ───────────────────────────────────────────────────────────────
   stylix = {
@@ -52,13 +57,14 @@
 
     opacity.terminal = 0.92;
 
-    # env.lua sets XCURSOR_THEME=Hutao-Cursor, which is a hand-installed theme
-    # not in nixpkgs. Stylix needs *a* cursor package, so this is the fallback;
-    # the stowed env.lua still wins at runtime if you install Hutao-Cursor into
-    # ~/.local/share/icons or ~/.icons.
+    # env.lua sets XCURSOR_THEME=Hutao-Cursor. That used to be a stowed
+    # directory in ~/.local/share/icons, which meant Stylix had nothing real to
+    # point at and SDDM never saw the theme at all. It is a package now, so the
+    # env var and Stylix finally name the same thing and the greeter matches
+    # the session.
     cursor = {
-      package = pkgs.bibata-cursors;
-      name = "Bibata-Modern-Classic";
+      package = hutao-cursor;
+      name = "Hutao-Cursor";
       size = 24;
     };
   };
@@ -221,8 +227,8 @@
     # misc from the Arch list
     ntfs3g
     pinentry-gnome3
-    xorg.xauth
-    xorg.xhost
+    xauth
+    xhost
   ];
 
   programs.gamemode.enable = true;
