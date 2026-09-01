@@ -4,13 +4,13 @@
 #   ├── p1  ESP   2G    vfat, unencrypted  -> /boot   (kernels + initrd)
 #   └── p2  LUKS2       "cryptroot"
 #         └── LVM PV -> vg "pool"
-#               ├── lv swap  12G  (resume target for hibernation)
-#               ├── lv root  90G  ext4 -> /
+#               ├── lv swap  20G  (resume target for hibernation)
+#               ├── lv root  120G ext4 -> /
 #               └── lv home  rest ext4 -> /home
 #
 # disko only runs when you explicitly invoke it. `nixos-rebuild switch`
 # never repartitions — after install this file is inert description.
-{ ... }:
+_:
 let
   disk = import ./disk.nix;
 in
@@ -18,7 +18,7 @@ in
   disko.devices = {
     disk.main = {
       type = "disk";
-      device = disk.device;
+      inherit (disk) device;
       content = {
         type = "gpt";
         partitions = {

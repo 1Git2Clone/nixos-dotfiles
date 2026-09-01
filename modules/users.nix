@@ -1,27 +1,17 @@
-# Immutable users, passwords from sops.
+# ==============================================================================
+# Users
+# ==============================================================================
+# Immutable accounts whose passwords come from sops. The sops wiring itself —
+# which file, which identities, which keys — lives in modules/sops.nix; this
+# file only consumes the rendered paths.
 #
-# The bootstrap ordering that makes this work at all:
-#   1. install.sh generates the machine's ed25519 host key BEFORE install
-#   2. ssh-to-age converts its pubkey into an age recipient in .sops.yaml
-#   3. the private key is placed at /mnt/etc/ssh/ssh_host_ed25519_key
-#   4. sops.age.sshKeyPaths points at it, so first-boot activation can decrypt
-#   5. neededForUsers lands the hashes in /run/secrets-for-users, which is
-#      populated *before* user creation
-#
-# Break any link and you get a machine you cannot log into. That is why root
-# also gets a hash: it is the emergency door.
+# `mutableUsers = false` means passwd(1) cannot change anything: the hashes in
+# the encrypted file are the whole truth. That is the point, and it is also why
+# root gets a hash too. If the display manager breaks or the hutao account is
+# somehow unusable, root on a TTY is the emergency door — without it a bad
+# graphical session is a reinstall.
 { config, pkgs, ... }:
 {
-  sops = {
-    defaultSopsFile = ../secrets/secrets.yaml;
-    age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-
-    secrets = {
-      "hutao-password".neededForUsers = true;
-      "root-password".neededForUsers = true;
-    };
-  };
-
   users.mutableUsers = false;
 
   users.users.hutao = {

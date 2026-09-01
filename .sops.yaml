@@ -1,0 +1,26 @@
+# Who can decrypt this repo's encrypted values.
+#
+# Committed on purpose: these are age *public* keys. Adding a recipient after
+# a value has been encrypted does not grant access retroactively — the file
+# must be rewritten with `sops updatekeys secrets/secrets.yaml` — so it is
+# much cheaper to list everyone up front than to rekey later.
+#
+# Lose every private key listed here and the encrypted values are gone. There
+# is no recovery path, by design.
+keys:
+  # Your personal key: ~/.sops-nix/key.txt on a workstation,
+  # /var/lib/sops-nix/key.txt on each installed host. The same key already
+  # decrypts the vps repo, which is what lets one identity cover every machine.
+  - &primary age1hxd7xtvy5e52pe9d8x2p7g6yls0zmsp668p0rvu0qw02dd7dryuqrvuq7h
+
+  # Offline recovery key, carried over from the vps repo so a single lost
+  # laptop is not a total loss. Drop this line if you would rather the two
+  # repos not share a recovery identity.
+  - &backup age1twlfuf88nxhdevt070c3yrklljm0xc0jpyut0722av342ux4tqzqtl3mpz
+
+creation_rules:
+  - path_regex: secrets/[^/]+\.yaml$
+    key_groups:
+      - age:
+          - *primary
+          - *backup
