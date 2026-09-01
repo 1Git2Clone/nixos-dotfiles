@@ -49,6 +49,9 @@ used. Leaves ~370G for `/home`.
 | `schemes/hu-tao-dark.txt` | the caelestia scheme itself |
 | `assets/Hutao-Cursor/` | the cursor theme, vendored from the dotfiles repo |
 | `pkgs/hutao-cursor.nix` | that theme, wrapped as a package |
+| `assets/sddm-hu-tao/` | the greeter theme, vendored — see its `ORIGIN.md` |
+| `pkgs/sddm-hu-tao.nix` | that theme, wrapped as a package |
+| `modules/neovim.nix` | neovim, and the LSP toolchain mason cannot install |
 | `home/hutao.nix` | home-manager: caelestia + neovim (thin, on purpose) |
 | **testing** | |
 | `vm/install-test.sh` | the install rehearsal — disko, LUKS, sops, Limine |
@@ -191,8 +194,14 @@ below it cannot see.
 | --- | --- | --- | --- |
 | lint | `nix develop -c pre-commit run --all-files` | formatting, nix antipatterns, shell bugs, leaked tokens | seconds |
 | evaluate | `nix eval '.#nixosConfigurations.hutao-vm.config.system.build.toplevel.drvPath'` | renamed packages, wrong option names, module conflicts | ~1 min |
-| boot the desktop | `nix run .#vm` | does Hyprland/SDDM/caelestia actually come up | ~20 min first time |
-| rehearse the install | `vm/install-test.sh all` | disko, LUKS, LVM, the sops bootstrap, Limine, first boot | ~45 min |
+| boot the desktop | `nix run .#vm` | does Hyprland/SDDM/the greeter theme actually come up | minutes, after one build |
+| rehearse the install | `vm/install-test.sh all` | disko, LUKS, LVM, the sops bootstrap, Limine, first boot | ~10 min seeded |
+
+**Use `nix run .#vm` for anything in the desktop layer.** Reinstalling to look
+at a theme change is thirty minutes to answer a question the VM answers in
+two, and it was the single biggest waste of time in building this. The
+rehearsal is for changes to the *install path* — `install.sh`, `disko.nix`,
+`modules/sops.nix`, the bootloader. Nothing else needs it.
 
 ### Lint
 
@@ -223,6 +232,10 @@ so a bad config costs a minute rather than the disk.
 no LUKS, no sops — just the desktop layer, with `hutao` / `vm` as the login
 and sshd on port 2223.
 
+It stops at the greeter rather than logging in automatically, because the SDDM
+theme is part of the desktop layer and autoLogin would skip the exact screen
+you most often want to look at.
+
 QEMU has no GPU, so the VM sets `WLR_RENDERER_ALLOW_SOFTWARE` and friends;
 Hyprland refuses to start on llvmpipe without them. That is a VM-only
 workaround, not something the laptop needs.
@@ -236,6 +249,23 @@ the laptop — same script, same non-interactive path, same age key.
 ```bash
 vm/install-test.sh all      # or: build / up / install / boot / unlock / shot
 ```
+
+### Why it is not thirty minutes any more
+
+`up` starts from a blank disk, so the guest's nix store starts empty and it
+used to download the entire desktop closure from cache.nixos.org on *every*
+run. That, not the install, was the whole cost.
+
+`_seed_store` now builds the `hutao-vm` closure on the host — which shares
+`modules/system.nix`, `modules/desktop.nix`, `modules/neovim.nix`,
+home-manager, stylix and caelestia with the laptop — and pushes it into the
+guest over ssh with `nix copy`. `nixos-install` is then left fetching only
+genuinely laptop-specific paths: kernel modules for the detected hardware,
+limine, the sops units.
+
+The host build is a one-time cost, and it is the same download the guest was
+doing repeatedly. `SEED=0` skips it, which is also how you measure what it is
+worth.
 
 The ISO (`hosts/installer/default.nix`) exists because the stock one cannot be
 automated: it leaves `nixos` and `root` with **empty** passwords, and sshd

@@ -66,17 +66,16 @@
   # in without provisioning a key into a throwaway machine.
   services.openssh.settings.PasswordAuthentication = lib.mkForce true;
 
-  # Straight into Hyprland — the point is to see whether the session starts.
-  # defaultSession is not optional here: with several sessions registered,
-  # autoLogin without it lands on whichever SDDM picks, and a VM that silently
-  # logs into the wrong session looks like Hyprland failing to start.
-  services.displayManager = {
-    autoLogin = {
-      enable = true;
-      user = "hutao";
-    };
-    defaultSession = "hyprland";
-  };
+  # Stop at the greeter rather than logging straight in.
+  #
+  # This VM is the fast path for anything in the desktop layer, and the SDDM
+  # theme is part of that layer — autoLogin would skip the exact screen you
+  # most often want to look at. Log in as hutao / vm to get to Hyprland.
+  #
+  # defaultSession still matters: with several sessions registered, SDDM would
+  # otherwise preselect whichever it likes, and landing in the wrong session
+  # looks identical to Hyprland failing to start.
+  services.displayManager.defaultSession = "hyprland";
 
   # QEMU has no GPU. Mesa falls back to llvmpipe, but wlroots refuses a
   # software renderer unless told explicitly, and Hyprland just exits without

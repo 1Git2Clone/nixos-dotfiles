@@ -21,6 +21,9 @@
 #   vm/install-test.sh clean      kill the VM and delete the disk
 #
 # Nothing here touches the host's disks. The only state is $WORK.
+#
+# SEED=0 disables seeding the guest's nix store from the host, which is what
+# keeps a rehearsal to minutes rather than half an hour. See _seed_store.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -189,6 +192,50 @@ _wait_ssh() {
   info "guest reachable ✓  $(ssh_g 'uname -sr')"
 }
 
+# ── seed ────────────────────────────────────────────────────────────────────
+# The dominant cost of a rehearsal is not the install — it is the guest
+# downloading the entire desktop closure from cache.nixos.org, every single
+# run, because `up` starts from a blank disk with an empty store. That is the
+# difference between a 30-minute cycle and a 5-minute one.
+#
+# The host already has nearly all of it, or can build it once: hosts/vm shares
+# modules/system.nix, modules/desktop.nix, modules/neovim.nix, home-manager,
+# stylix and caelestia with the laptop. Pushing that closure over ssh first
+# leaves nixos-install fetching only genuinely laptop-specific paths — the
+# kernel modules for the detected hardware, limine, the sops units.
+#
+# SEED=0 skips this, which is also how you measure what it is worth.
+_seed_store() {
+  if [[ ${SEED:-1} != 1 ]]; then
+    info "SEED=0 — guest will download its own closure"
+    return 0
+  fi
+
+  bold "── Seeding the guest store from the host ──"
+  info "building the shared closure on the host (cached after the first run)"
+
+  local top
+  if ! top=$(nix build "$REPO#nixosConfigurations.hutao-vm.config.system.build.toplevel" \
+    --no-link --print-out-paths 2>/dev/null); then
+    warn "host build failed — the guest will download everything itself"
+    return 0
+  fi
+
+  local bytes size
+  bytes=$(nix path-info -S "$top" 2>/dev/null | awk '{print $2}')
+  size=$(awk -v b="${bytes:-0}" 'BEGIN { printf "%.1f GiB", b/1073741824 }')
+  info "copying $size into the guest"
+
+  # NIX_SSHOPTS, not a store URI query: the ssh store has no `port` parameter,
+  # so the non-standard port has to reach ssh itself.
+  if ! NIX_SSHOPTS="-i $KEY -p $SSH_PORT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR" \
+    nix copy --to "ssh-ng://root@localhost" --no-check-sigs "$top" 2>&1 | tail -3; then
+    warn "nix copy failed — the guest will download instead"
+    return 0
+  fi
+  info "store seeded ✓"
+}
+
 # ── install ─────────────────────────────────────────────────────────────────
 cmd_install() {
   vm_running || die "No VM running. Run: $0 up"
@@ -217,6 +264,8 @@ cmd_install() {
     "$AGE_KEY" root@localhost:/tmp/age.key
   ssh_g 'chmod 600 /tmp/age.key'
   info "age key staged into the guest"
+
+  _seed_store
 
   bold "── Running install.sh ──"
   warn "this builds the whole desktop closure in the guest — expect 20-45 min"
