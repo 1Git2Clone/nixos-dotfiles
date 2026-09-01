@@ -292,7 +292,30 @@ nix --extra-experimental-features "nix-command flakes" \
 info "Partitioned and mounted:"
 findmnt -R /mnt
 
-# ── 7. Seed the age key BEFORE install ──────────────────────────────────────
+# ── 7. Turn the target's swap on ────────────────────────────────────────────
+# disko creates the swap LV and runs mkswap on it, but does NOT activate it —
+# `swapon --show` is empty after a destroy,format,mount run. Meanwhile the
+# live environment's / is a tmpfs, so every temporary file written during the
+# build is competing for the same RAM the build needs.
+#
+# On this laptop (8GB) that combination kills the install outright:
+#
+#   nixos-install: line 289: … Killed    nix build …
+#
+# and nixos-install exits 137 well into the closure, after twenty minutes of
+# downloads. Found by the VM rehearsal, where 6GB reproduces it exactly.
+#
+# The target's own 20G swap is already sitting there formatted, so use it.
+bold ""
+bold "── Swap ──"
+if swapon /dev/pool/swap 2>/dev/null; then
+  info "swap on: $(swapon --show=NAME,SIZE --noheadings | tr -s ' ')"
+else
+  warn "could not enable /dev/pool/swap — a machine with little RAM may OOM"
+  warn "during the build below. Check 'lvs' if the install dies with 'Killed'."
+fi
+
+# ── 8. Seed the age key BEFORE install ──────────────────────────────────────
 # This is the step that matters. nixos-install runs activation, which renders
 # the sops values — including the user password hashes. With
 # users.mutableUsers = false and no key in place, the install fails at its last
@@ -300,7 +323,7 @@ findmnt -R /mnt
 install -Dm600 "$AGE_KEY" /mnt/var/lib/sops-nix/key.txt
 info "age key seeded to /mnt/var/lib/sops-nix/key.txt ✓"
 
-# ── 8. Install ──────────────────────────────────────────────────────────────
+# ── 9. Install ──────────────────────────────────────────────────────────────
 bold ""
 bold "── Installing ──"
 mkdir -p /mnt/etc/nixos
