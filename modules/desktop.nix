@@ -10,6 +10,10 @@ let
   # Vendored from the dotfiles repo — see pkgs/hutao-cursor.nix for why it is
   # a package rather than a stowed directory.
   hutao-cursor = pkgs.callPackage ../pkgs/hutao-cursor.nix { };
+
+  # The greeter theme. Vendored, not pkgs.sddm-astronaut — see
+  # assets/sddm-hu-tao/ORIGIN.md.
+  sddm-hu-tao = pkgs.callPackage ../pkgs/sddm-hu-tao.nix { };
 in
 {
   # ── Stylix ───────────────────────────────────────────────────────────────
@@ -79,9 +83,27 @@ in
   services.hypridle.enable = true;
 
   # ── SDDM ─────────────────────────────────────────────────────────────────
+  # Stylix cannot theme SDDM — there is no stylix.targets.sddm, only lightdm
+  # and regreet — so the greeter is themed by hand. Without this it comes up
+  # in stock blue while the session behind it is on the hu-tao palette, which
+  # is exactly what the first rehearsal boot showed.
   services.displayManager.sddm = {
     enable = true;
     wayland.enable = true;
+
+    # Matches the directory name the package installs and the Theme-Id in its
+    # metadata.desktop. SDDM falls back to its default silently if this does
+    # not resolve, so a mismatch reads as "the theme did not apply".
+    theme = "sddm-hu-tao";
+
+    # Main.qml imports QtMultimedia and QtQuick.VirtualKeyboard, and the icons
+    # in Assets/ are SVG. These have to be visible to the greeter process
+    # itself; putting them in systemPackages is not enough.
+    extraPackages = with pkgs.kdePackages; [
+      qtsvg
+      qtmultimedia
+      qtvirtualkeyboard
+    ];
   };
 
   # ── Audio ────────────────────────────────────────────────────────────────
@@ -160,6 +182,10 @@ in
     # formatter toolchain they need.
     kitty
     nautilus
+
+    # The greeter theme has to be installed for SDDM to find it under
+    # /run/current-system/sw/share/sddm/themes.
+    sddm-hu-tao
 
     # launcher + session  (keybindings.lua: SUPER+Space, SUPER+M)
     wofi

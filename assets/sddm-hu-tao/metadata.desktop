@@ -1,0 +1,13 @@
+[SddmGreeterTheme]
+Name=sddm-hu-tao
+Description=pixel_sakura from sddm-astronaut, on the hu-tao background
+Author=keyitdev
+Website=https://github.com/Keyitdev/sddm-astronaut-theme
+License=GPL-3.0-or-later
+Type=sddm-theme
+Version=1.4
+ConfigFile=Themes/hu-tao.conf
+MainScript=Main.qml
+Theme-Id=sddm-hu-tao
+Theme-API=2.0
+QtVersion=6

@@ -17,17 +17,25 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
+      # assets/sddm-hu-tao/ is vendored GPL code from upstream. Keeping it
+      # byte-identical is the point: a linter silently adding a newline to
+      # someone else's file makes the next diff against upstream noisy for no
+      # benefit. ORIGIN.md is ours, so it stays linted.
       - id: trailing-whitespace
+        exclude: ^assets/sddm-hu-tao/(?!ORIGIN\.md)
       - id: end-of-file-fixer
+        exclude: ^assets/sddm-hu-tao/(?!ORIGIN\.md)
       - id: check-merge-conflict
       - id: check-yaml
         # secrets/secrets.yaml is sops output: valid YAML, but the parser has
         # no reason to walk it and nothing here would act on the result.
         exclude: ^secrets/.*\.yaml$
       - id: check-added-large-files
-        # The largest vendored cursor is ~49K; 1M leaves room without letting a
-        # stray ISO or qcow2 in.
-        args: [--maxkb=1024]
+        # 5M, sized for assets/sddm-hu-tao/Backgrounds/hu-tao.png (4.4M) — a
+        # 2218x1421 PNG that is deliberately tracked so the greeter background
+        # can be swapped by replacing one file. Still far below a stray ISO or
+        # qcow2, which is what this hook is actually guarding against.
+        args: [--maxkb=5120]
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
 

@@ -128,6 +128,8 @@
 
         hutao-cursor = pkgs.callPackage ./pkgs/hutao-cursor.nix { };
 
+        sddm-hu-tao = pkgs.callPackage ./pkgs/sddm-hu-tao.nix { };
+
         # Build-only check: does the laptop's real closure exist? The cheapest
         # way to catch a renamed package. Needs hardware-configuration.nix and
         # the encrypted hashes, so it only works post-install.
