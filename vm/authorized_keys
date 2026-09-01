@@ -1,0 +1,7 @@
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPCqI7o7y3YDF0GCLrpk5m1eWoRKnaiQPPh+h0b4/je2 nixos-vm-test (throwaway)
+# Keys above may log into the installer ISO as root and nixos.
+#
+# The first entry is a THROWAWAY key generated for VM testing only; its
+# private half lives outside this repo and is not a personal identity.
+# Add your own public key below before writing this ISO to a USB stick for
+# real hardware — otherwise you cannot reach the installer over SSH.

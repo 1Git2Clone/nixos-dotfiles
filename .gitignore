@@ -2,8 +2,20 @@ result
 result-*
 .direnv/
 
-# Never commit decrypted secrets. secrets/secrets.yaml IS committed —
-# it is sops-encrypted and that is the whole point.
+# Agent scratch state — logs and pids, not configuration.
+.remember/
+
+# VM rehearsal artifacts. The harness keeps these in ~/.cache/nixos-vm-test by
+# default, but WORK= can point it here.
+*.qcow2
+*.iso
+*.ppm
+OVMF_VARS.fd
+serial.log
+monitor.sock
+
+# The encrypted hash file IS committed — it is sops ciphertext and that is the
+# whole point. These patterns catch the plaintext forms of it.
 *.dec
 *.plain
 secrets/*.yaml.tmp
