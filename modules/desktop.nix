@@ -1,11 +1,10 @@
 # Hyprland + SDDM + Stylix.
 #
-# Vanilla Hyprland on purpose — your existing hypr configs keep coming from
+# Hyprland itself is vanilla: hyprland.lua and modules/*.lua keep coming from
 # stow, exactly as on Arch. Nothing here writes to ~/.config.
 #
-# Stylix at the NixOS level themes SDDM, the TTY console, GTK/Qt system
-# theming, cursors and fonts. App-level theming (kitty, neovim) needs the
-# home-manager module — a separate decision, not smuggled in here.
+# NOTE: the stowed config is Lua (Hyprland 0.55+ "Luaification"), so the
+# Hyprland package must be new enough to read hyprland.lua. nixos-unstable is.
 { pkgs, ... }:
 {
   # ── Stylix ───────────────────────────────────────────────────────────────
@@ -18,9 +17,9 @@
     base16Scheme = ../hu-tao.yaml;
 
     # Placeholder: a solid base00 field so the config always evaluates.
-    # Drop a real wallpaper in and point this at it — Stylix can also derive
-    # the whole palette from an image if you'd rather, by removing
-    # base16Scheme above.
+    # Your real wallpapers live in dot-config/hypr/backgrounds/ — point this
+    # at one once the dotfiles are stowed, e.g.
+    #   image = /home/hutao/.config/hypr/backgrounds/Hu_Tao_1.png;
     image = pkgs.runCommand "hu-tao-bg.png" { } ''
       ${pkgs.imagemagick}/bin/magick -size 2560x1440 xc:'#130a0c' $out
     '';
@@ -52,6 +51,16 @@
     };
 
     opacity.terminal = 0.92;
+
+    # env.lua sets XCURSOR_THEME=Hutao-Cursor, which is a hand-installed theme
+    # not in nixpkgs. Stylix needs *a* cursor package, so this is the fallback;
+    # the stowed env.lua still wins at runtime if you install Hutao-Cursor into
+    # ~/.local/share/icons or ~/.icons.
+    cursor = {
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Classic";
+      size = 24;
+    };
   };
 
   # ── Hyprland ─────────────────────────────────────────────────────────────
@@ -70,30 +79,56 @@
   };
 
   # ── Audio ────────────────────────────────────────────────────────────────
+  # wireplumber provides wpctl, which the XF86Audio* keybinds call.
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    wireplumber.enable = true;
   };
 
   # ── Portals ──────────────────────────────────────────────────────────────
-  # Screen sharing and file pickers under Wayland. programs.hyprland already
-  # pulls xdg-desktop-portal-hyprland; gtk covers the rest.
   xdg.portal = {
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
-  # ── Japanese input — from your fcitx5-mozc setup ─────────────────────────
+  # ── Services that autostart.lua starts by absolute Arch path ─────────────
+  # autostart.lua execs /usr/lib/polkit-gnome/... and /usr/lib/geoclue-2.0/...
+  # Neither path exists on NixOS. Declaring the services here means they are
+  # already running, so those two exec_cmd lines simply fail harmlessly.
+  # See README — they can be deleted from autostart.lua.
+  security.polkit.enable = true;
+  services.gnome.gnome-keyring.enable = true;
+  services.geoclue2.enable = true;
+
+  # polkit-gnome has no NixOS option; this is the documented user-service form.
+  systemd.user.services.polkit-gnome-authentication-agent-1 = {
+    description = "polkit-gnome-authentication-agent-1";
+    wantedBy = [ "graphical-session.target" ];
+    wants = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+      Restart = "on-failure";
+    };
+  };
+
+  # mpris-proxy (autostart.lua) ships with bluez.
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
+  # ── Japanese input — from fcitx5-mozc in the Arch package list ───────────
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
     fcitx5.addons = with pkgs; [
       fcitx5-mozc
       fcitx5-gtk
-      fcitx5-configtool
+      qt6Packages.fcitx5-configtool
     ];
   };
 
@@ -103,27 +138,102 @@
     noto-fonts-cjk-sans
     noto-fonts-cjk-serif
     noto-fonts-color-emoji
+    dejavu_fonts
+    liberation_ttf
   ];
 
-  # ── Desktop packages — the subset of your Arch list that applies ─────────
+  # ── Packages ─────────────────────────────────────────────────────────────
+  # Ported from required_packages_archlinux.txt, PLUS everything the stowed
+  # shell scripts and keybinds actually call. The Arch list had drifted —
+  # ydotool, grim, slurp, swappy, tesseract, cliphist, wlogout, espanso and
+  # gammastep are all used by dot-config/programs/shell_scripts but were
+  # never recorded in it.
   environment.systemPackages = with pkgs; [
+    # terminal / file manager / editor  (programs.lua)
     kitty
+    nautilus
+    neovide
+    neovim
+
+    # launcher + session  (keybindings.lua: SUPER+Space, SUPER+M)
+    wofi
+    wlogout
+
+    # hypr tooling
     hyprpaper
     hyprshot
-    nautilus
-    neovim
-    neovide
+    hyprpicker
+
+    # clipboard  (SUPER+CTRL+V, autostart cliphist watchers)
+    wl-clipboard
+    cliphist
+
+    # screenshots + OCR  (screenshot-*.sh, tesseract-screenshot.sh)
+    grim
+    slurp
+    swappy
+    tesseract
+
+    # autoclicker.sh / sckey.sh
+    ydotool
+
+    # notifications used by 12 call sites across the scripts
+    libnotify
+
+    # media + brightness keys
+    playerctl
+    brightnessctl
+    pavucontrol
+
+    # autostart.lua
+    gnome-keyring
+    polkit_gnome
+    gammastep
+    espanso
+    trash-cli # trash-empty
+    glib # gsettings
+
+    # shell / cli  (from the Arch list)
+    btop
+    fzf
+    ripgrep
+    lsd
+    zoxide
+    starship
     lazygit
     fastfetch
+    tmux
+    stow
+    jq
+    wget
+    unzip
+    git
+    git-lfs
+
+    # dev
+    clang
+    nodejs
+
+    # gaming
     mangohud
     gamemode
-    wl-clipboard
-    brightnessctl
-    playerctl
-    pavucontrol
+
+    # misc from the Arch list
+    ntfs3g
+    pinentry
+    xorg.xauth
+    xorg.xhost
   ];
 
   programs.gamemode.enable = true;
+  services.power-profiles-daemon.enable = true; # powerprofilesctl, power-mode.sh
 
-  services.power-profiles-daemon.enable = true;
+  # ydotool needs its daemon for the autoclicker scripts to work.
+  programs.ydotool.enable = true;
+
+  # zsh plugins from the Arch list (zsh itself is enabled in users.nix).
+  programs.zsh = {
+    autosuggestions.enable = true;
+    syntaxHighlighting.enable = true;
+  };
 }

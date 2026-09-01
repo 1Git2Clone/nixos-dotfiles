@@ -40,6 +40,8 @@ used. Leaves ~370G for `/home`.
 | `modules/desktop.nix` | Hyprland, SDDM, Stylix, pipewire, fcitx5 |
 | `hu-tao.yaml` | base16 scheme derived from your caelestia palette |
 | `home/hutao.nix` | home-manager: caelestia shell (thin, on purpose) |
+| `verify.sh` | evaluate the flake in a container, no NixOS needed |
+| `reference/monitors.lua` | laptop monitor config — gitignored in dotfiles |
 | `schemes/hu-tao-dark.txt` | the caelestia scheme itself |
 | `secrets/secrets.yaml` | sops-encrypted password hashes (safe to commit) |
 
@@ -104,6 +106,77 @@ Only recipients listed in `.sops.yaml` can decrypt. Adding one afterwards
 requires `sops updatekeys`, which is why `install.sh` offers to add a second
 recipient up front.
 
+## Verifying before install
+
+```bash
+./verify.sh
+```
+
+Runs the real Nix evaluator in a container against a stubbed
+`hardware-configuration.nix` and stubbed secrets. It catches wrong option
+names and module conflicts — the class of error that would otherwise strand
+you on a live ISO at 2am.
+
+It does **not** build anything and does not prove the system boots. It proves
+the configuration evaluates.
+
+`install.sh` runs the same evaluation on the target before disko touches the
+disk, so a bad config costs a minute rather than the disk.
+
+## Relationship to the dotfiles repo
+
+This repo is the **system**. `~/dotfiles` (branch `main`) is still the
+**user** layer, stowed exactly as on Arch:
+
+```bash
+git clone <dotfiles> ~/dotfiles && cd ~/dotfiles && ./stow-setup.sh
+```
+
+Hyprland's config — `hyprland.lua` and `modules/*.lua` — comes from there
+untouched. This repo's job is to make sure every binary those keybinds invoke
+actually exists, and to provide the services the config assumes.
+
+### Post-install steps that are NOT automated
+
+**1. `monitors.lua` must be created or Hyprland will not load.**
+
+`hyprland.lua` does `require("modules.monitors")`, but
+`dot-config/hypr/modules/monitors.lua` is gitignored — it is setup-specific
+and does not exist in a fresh clone. Without it Hyprland fails to load its
+config and you get a bare compositor with no keybinds.
+
+```bash
+cp ~/nixos-dotfiles/reference/monitors.lua \
+   ~/dotfiles/dot-config/hypr/modules/monitors.lua
+```
+
+Check the panel name first with `hyprctl monitors all`.
+
+**2. Two `autostart.lua` lines are dead on NixOS.**
+
+```lua
+hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
+hl.exec_cmd("/usr/lib/geoclue-2.0/demos/agent")
+```
+
+Neither FHS path exists here. Both services are declared in
+`modules/desktop.nix` instead — polkit-gnome as a systemd user unit, geoclue
+via `services.geoclue2` — so they are already running and these two lines
+just fail harmlessly. Delete them when convenient.
+
+**3. `~/.config/systemd/user/ydotoold.service` is superseded.**
+
+It hardcodes `/usr/bin/ydotoold`. `programs.ydotool.enable = true` provides
+the daemon properly. Do not `systemctl --user enable ydotoold` on this
+machine.
+
+**4. `Hutao-Cursor` comes from stow and works.**
+
+It is tracked (`!/dot-local/share/icons/Hutao-Cursor`, 95 files) and lands in
+`~/.local/share/icons/`. `env.lua` sets `XCURSOR_THEME` to it. Stylix's
+cursor setting is only a fallback for apps that ask Stylix rather than read
+the env var.
+
 ## Rebuilding
 
 ```bash
@@ -114,6 +187,24 @@ sudo nixos-rebuild switch --flake .#hutao-laptop
 description — it cannot repartition anything.
 
 ## Carried over from the Arch setup
+
+### Packages
+
+`modules/desktop.nix` ports `required_packages_archlinux.txt` **plus
+everything the stowed configs actually call.** The hand-maintained Arch list
+had drifted: `ydotool`, `grim`, `slurp`, `swappy`, `tesseract`, `cliphist`,
+`wlogout`, `espanso`, `gammastep`, `libnotify` and `jq` are all invoked by
+`dot-config/programs/shell_scripts/` or by keybinds in `keybindings.lua`, and
+none of them were in the list.
+
+That drift is the thing this repo structurally prevents: if a package is not
+declared here, it is not on the machine.
+
+Dropped deliberately: `paru` (AUR helper, no meaning here), `picom` (X11
+compositor, unused under Wayland), `base`/`base-devel`/`fakeroot`/`sudo`
+(provided by NixOS itself).
+
+### System tuning
 
 `system/install.sh` in the dotfiles repo is fully replaced:
 
