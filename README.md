@@ -39,6 +39,8 @@ used. Leaves ~370G for `/home`.
 | `modules/users.nix` | immutable users, sops wiring |
 | `modules/desktop.nix` | Hyprland, SDDM, Stylix, pipewire, fcitx5 |
 | `hu-tao.yaml` | base16 scheme derived from your caelestia palette |
+| `home/hutao.nix` | home-manager: caelestia shell (thin, on purpose) |
+| `schemes/hu-tao-dark.txt` | the caelestia scheme itself |
 | `secrets/secrets.yaml` | sops-encrypted password hashes (safe to commit) |
 
 ## Install
@@ -145,11 +147,52 @@ theming (kitty, neovim) needs the home-manager module, which would mean
 moving those configs out of stow. That is a separate decision and is
 deliberately not taken here.
 
+## The shell
+
+[caelestia](https://github.com/caelestia-dots/shell) — Quickshell, and the
+one Quickshell desktop with a **first-party** home-manager module rather than
+a third-party flake.
+
+It is the only reason home-manager is here. `home/hutao.nix` is deliberately
+thin: it enables the shell and nothing else. Everything else in `~/.config`
+still comes from stow.
+
+Stylix's home-manager targets come along for free — its NixOS module detects
+home-manager and wires them itself, so kitty, GTK and Qt now get the hu-tao
+palette too, not just SDDM and the console.
+
+### shell.json has one owner: stow
+
+`programs.caelestia.settings` is left empty. Upstream warns that option
+defaults drift across updates and leave a stale config, and
+`~/.config/caelestia/shell.json` already comes from stow. Move settings into
+Nix later if you want them declarative — but pick one owner, not both.
+
+### What this retires
+
+`caelestia/install.sh` in the dotfiles repo — the dependency checks, the
+`python3 -c` scheme-directory lookup, the sudo guard — is all replaced by
+`programs.caelestia.enable = true`.
+
+Its one trick that does *not* port: it sudo-copied the hu-tao scheme into the
+caelestia Python package's own data directory. `/nix/store` is read-only, so
+the scheme is placed in the user config dir instead. **Verify on first boot**
+with `caelestia scheme list`; if hu-tao is missing, find where the CLI
+actually looks and adjust the `xdg.configFile` path in `home/hutao.nix`.
+
+### Considered and rejected
+
+[pctrade/end4-pC](https://github.com/pctrade/end4-pC) needs
+illogical-impulse, which has no upstream Nix support — only third-party
+flakes, the most prominent being 7 commits and self-described as incomplete.
+end4-pC itself is only QML files in `~/.config/quickshell/`, so switching
+later means declaring illogical-impulse's dependencies and stowing the
+configs — not a migration.
+
 ## Not here yet
 
-- the `illogical-impulse` shell, which has no upstream Nix packaging and will
-  need either a community flake or a local derivation
-- home-manager, if the app-level Stylix targets turn out to be worth it
+- moving more of `~/.config` off stow and into home-manager, if the
+  declarative version earns its keep
 
 ## Hardware note
 
