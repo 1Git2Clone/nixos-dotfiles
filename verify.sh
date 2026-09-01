@@ -18,7 +18,10 @@
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-command -v docker >/dev/null || { echo "docker not found"; exit 1; }
+command -v docker >/dev/null || {
+  echo "docker not found"
+  exit 1
+}
 
 # Named volume keeps /nix/store between runs — first run downloads
 # nixpkgs, later runs are fast.

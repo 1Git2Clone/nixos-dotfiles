@@ -1,0 +1,13 @@
+# markdownlint ruleset.
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+#
+# Disabled rules, with reasons:
+#   MD013  line-length     — the README carries wide tables (disk layout,
+#                            Arch-to-NixOS mappings) that do not wrap.
+#   MD033  no-inline-html  — not currently used, but kept off to match the
+#                            dotfiles repo's ruleset rather than diverge.
+#   MD041  first-line-h1   — off for parity with the dotfiles repo.
+default: true
+MD013: false
+MD033: false
+MD041: false

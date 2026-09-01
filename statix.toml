@@ -1,0 +1,15 @@
+# statix configuration.
+
+# W20 repeated_keys — disabled deliberately.
+#
+# It objects to `services.pipewire = {...}` and `services.geoclue2 = ...`
+# appearing as separate attributes, wanting them collapsed into one
+# `services = { ... }` block. For a NixOS module that is the wrong shape: these
+# files are organised into commented sections by concern (Audio, Portals,
+# Japanese input), and each section sets attributes under several different
+# top-level keys. Collapsing by key would scatter every section across the
+# file and leave the explanatory comments pointing at nothing.
+#
+# The lint is aimed at genuine accidental duplication in plain attribute sets,
+# which the NixOS module system merges by design.
+disabled = ["repeated_keys"]

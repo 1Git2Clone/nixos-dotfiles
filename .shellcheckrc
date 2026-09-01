@@ -1,0 +1,11 @@
+# shellcheck configuration.
+# https://github.com/koalaman/shellcheck/blob/master/shellcheckrc
+
+# Every script here uses `#!/usr/bin/env bash`. Unlike the dotfiles repo, this
+# one runs its scripts from a NixOS live environment where /bin/bash is not
+# guaranteed to exist — env(1) is, so the indirection is load-bearing rather
+# than stylistic.
+shell=bash
+
+# SC1090/SC1091: sourced paths that cannot be resolved statically.
+disable=SC1090,SC1091

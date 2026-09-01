@@ -1,0 +1,21 @@
+# gitleaks configuration.
+#
+# The two things in this tree that pattern-match as sensitive and are not:
+#
+#   .sops.yaml          age PUBLIC keys. Publishing them is the entire point —
+#                       they identify who a value is encrypted TO.
+#   vm/authorized_keys  the public half of a throwaway VM-test ssh identity.
+#
+# secrets/secrets.yaml is deliberately NOT allowlisted. It should always be
+# sops ciphertext, and if a plaintext hash ever lands there, gitleaks failing
+# is exactly the outcome we want.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "age public keys are recipients, not sensitive values"
+paths = ['''^\.sops\.yaml$''']
+
+[[allowlists]]
+description = "public half of the throwaway VM test key"
+paths = ['''^vm/authorized_keys$''']

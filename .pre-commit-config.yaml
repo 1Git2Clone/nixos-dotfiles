@@ -1,0 +1,89 @@
+# ==============================================================================
+# pre-commit — the checks that run before a commit, and again in CI
+# ==============================================================================
+# One definition, two consumers: `pre-commit install` wires these to the local
+# commit hook, and .github/workflows/ci.yml runs the very same file with
+# `pre-commit run --all-files`. A check cannot pass locally and fail in CI
+# because of drift between two lists, because there is only one list.
+#
+# The nix tools run through `nix develop .#ci`, NOT from bare $PATH. A bare
+# `language: system` entry resolves whatever happens to be on the PATH of the
+# process invoking git — which for an editor or lazygit is not the dev shell.
+# Going through the flake means one pinned version answers everywhere.
+#
+#   nix develop -c pre-commit install       # once, per clone
+#   nix develop -c pre-commit run --all-files
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-yaml
+        # secrets/secrets.yaml is sops output: valid YAML, but the parser has
+        # no reason to walk it and nothing here would act on the result.
+        exclude: ^secrets/.*\.yaml$
+      - id: check-added-large-files
+        # The largest vendored cursor is ~49K; 1M leaves room without letting a
+        # stray ISO or qcow2 in.
+        args: [--maxkb=1024]
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+
+  - repo: local
+    hooks:
+      - id: nixfmt
+        name: nixfmt-rfc-style
+        description: Every .nix file in this repo is formatted with nixfmt-rfc-style.
+        entry: nix develop .#ci -c nixfmt --check
+        language: system
+        files: \.nix$
+
+      - id: statix
+        name: statix
+        description: Lint for nix antipatterns.
+        entry: nix develop .#ci -c statix check
+        language: system
+        files: \.nix$
+        pass_filenames: false
+
+      - id: deadnix
+        name: deadnix
+        description: Unused let-bindings and function arguments.
+        entry: nix develop .#ci -c deadnix --fail
+        language: system
+        files: \.nix$
+
+      - id: shellcheck
+        name: shellcheck
+        description: install.sh and the VM harness are the only way this repo
+          touches a disk; they get linted like production code.
+        entry: nix develop .#ci -c shellcheck
+        language: system
+        files: \.sh$
+
+      - id: shfmt
+        name: shfmt
+        entry: nix develop .#ci -c shfmt --diff
+        language: system
+        files: \.sh$
+
+      - id: markdownlint
+        name: markdownlint
+        entry: nix develop .#ci -c markdownlint
+        language: system
+        files: \.md$
+
+      # gitleaks over a hand-rolled "is it still encrypted" grep: it scans the
+      # staged diff against a maintained ruleset, so it catches a pasted token
+      # anywhere in the tree rather than only a decrypted secrets.yaml.
+      #
+      # --staged, not a directory scan: a directory scan reads gitignored files
+      # too. Full-history scanning belongs in CI, where it is a separate step.
+      - id: gitleaks
+        name: gitleaks (staged changes)
+        entry: nix develop .#ci -c gitleaks git --staged --redact --no-banner
+        language: system
+        pass_filenames: false
+        always_run: true

@@ -6,7 +6,10 @@
   nixpkgs.config.allowUnfree = true;
 
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
     auto-optimise-store = true;
     # 16GB. Bounded so a big rebuild does not starve the desktop.
     max-jobs = 4;

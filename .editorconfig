@@ -1,0 +1,31 @@
+# shfmt reads .editorconfig, and ONLY .editorconfig — it has no config file of
+# its own. A .shfmt.toml (as in the dotfiles repo) is silently ignored, which
+# is why the hook kept demanding tabs while the file said indent = 2.
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+
+[*.sh]
+indent_style = space
+indent_size = 2
+# Keep `case` arms indented inside the case block; shfmt's default flattens
+# them against the left margin, which reads badly in install-test.sh.
+switch_case_indent = true
+# space_redirects deliberately off: it rewrites `2>/dev/null` into
+# `2> /dev/null`, which is not how anyone writes shell.
+space_redirects = false
+
+[*.nix]
+indent_style = space
+indent_size = 2
+
+[*.{yaml,yml}]
+indent_style = space
+indent_size = 2
+
+[Makefile]
+indent_style = tab
