@@ -1,0 +1,9 @@
+result
+result-*
+.direnv/
+
+# Never commit decrypted secrets. secrets/secrets.yaml IS committed —
+# it is sops-encrypted and that is the whole point.
+*.dec
+*.plain
+secrets/*.yaml.tmp
