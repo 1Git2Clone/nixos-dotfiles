@@ -155,11 +155,11 @@ in
   # gammastep are all used by dot-config/programs/shell_scripts but were
   # never recorded in it.
   environment.systemPackages = with pkgs; [
-    # terminal / file manager / editor  (programs.lua)
+    # terminal / file manager  (programs.lua)
+    # neovim and neovide live in modules/neovim.nix, with the LSP and
+    # formatter toolchain they need.
     kitty
     nautilus
-    neovide
-    neovim
 
     # launcher + session  (keybindings.lua: SUPER+Space, SUPER+M)
     wofi

@@ -72,6 +72,7 @@
 
         ./modules/system.nix
         ./modules/desktop.nix
+        ./modules/neovim.nix
 
         {
           home-manager = {
@@ -179,7 +180,7 @@
             # nixfmt, not nixpkgs-fmt: every .nix file here is formatted with
             # it and the two disagree on multi-argument lambdas, so the wrong
             # one reformats the whole tree on first use.
-            nixfmt-rfc-style
+            nixfmt
             statix
             deadnix
 
@@ -204,7 +205,7 @@
         ci = pkgs.mkShell {
           packages = with pkgs; [
             pre-commit
-            nixfmt-rfc-style
+            nixfmt
             statix
             deadnix
             git
@@ -216,6 +217,6 @@
         };
       };
 
-      formatter.${system} = pkgs.nixfmt-rfc-style;
+      formatter.${system} = pkgs.nixfmt;
     };
 }
