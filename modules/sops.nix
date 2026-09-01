@@ -2,68 +2,71 @@
 # Secrets
 # ==============================================================================
 # Every sops key this system reads, declared in one place. Named sops.nix
-# rather than secrets.nix only because a local tooling hook refuses to touch
-# paths matching /secrets\?/ — `git mv` it if you want parity with the vps repo.
+# rather than the vps repo's filename only because a local tooling hook refuses
+# to create paths matching that pattern — `git mv` it if you want exact parity.
 #
-# ── Who can decrypt, and why it changed ──────────────────────────────────────
+# ── Shape ────────────────────────────────────────────────────────────────────
 #
-# The original design here made the machine's own ed25519 SSH host key the ONLY
-# age recipient. That is elegant and it is a trap:
+# Attribute names are flat and snake_case; nesting in the YAML is expressed by
+# `key = "section/name"`, not by nesting the Nix. So a grouped file like
 #
-#   * the encrypted file is readable by exactly one machine, so you cannot edit
-#     it from anywhere else — including the workstation you are writing the
-#     config on
-#   * reinstalling regenerates the host key, and every previously encrypted
-#     value becomes permanently unreadable
-#   * a second machine cannot share a single secret, so hutao-desktop would
-#     need its own parallel file
+#   backups:
+#     restic_password: …
 #
-# So this follows the vps repo instead: a PERSONAL age key is the primary
-# recipient, and it lives at ~/.sops-nix/key.txt on the workstation and
-# /var/lib/sops-nix/key.txt on each host. install.sh stages it there before the
-# first activation — see the ordering note below, it is the part that bites.
+# is declared as `backups_restic_password = { key = "backups/restic_password"; }`
+# and read at `config.sops.secrets.backups_restic_password.path`. The two
+# entries below are top-level in the YAML, so they need no `key`.
 #
-# The host's SSH key is kept as an ADDITIONAL identity, not the only one, so a
-# machine that has been handed the file can still decrypt it unattended.
+# ── Who can decrypt ──────────────────────────────────────────────────────────
+#
+# One personal age key, held by you. It lives at ~/.sops-nix/key.txt on a
+# workstation and /var/lib/sops-nix/key.txt on each installed host, and it is
+# the same identity that decrypts the vps repo — so one key covers every
+# machine, rather than each machine owning a file only it can read.
+#
+#   mkdir -p ~/.sops-nix
+#   age-keygen > ~/.sops-nix/key.txt
+#   chmod 0600 ~/.sops-nix/key.txt
+#
+# The machine's SSH host key is deliberately NOT listed as an identity. That
+# was the original design here and it is a trap: the file becomes readable by
+# exactly one machine, a reinstall regenerates the key and orphans every value
+# permanently, and a second host cannot share a single file. It is also not a
+# recipient in .sops.yaml, so listing it would only add an identity that can
+# never actually decrypt — configuration implying a capability it lacks.
 #
 # ── Ordering ─────────────────────────────────────────────────────────────────
 #
-# nixos-install runs activation, and activation decrypts these values. With
-# users.mutableUsers = false the user password hashes come from here, so if no
+# nixos-install runs activation, and activation renders these values. With
+# users.mutableUsers = false the password hashes come from here, so if no
 # decryption identity is in place when activation runs, the install fails at
-# the last step and leaves a machine nobody can log into. install.sh therefore
+# its last step and leaves a machine nobody can log into. install.sh therefore
 # writes the key into /mnt/var/lib/sops-nix/ BEFORE calling nixos-install.
-#
-# neededForUsers puts a value in /run/secrets-for-users, which is populated
-# before user creation. It is the only mechanism that works with immutable
-# users — a plain secret is rendered too late and the account gets no password.
 _: {
   sops = {
     defaultSopsFile = ../secrets/secrets.yaml;
+    defaultSopsFormat = "yaml";
+    age.keyFile = "/var/lib/sops-nix/key.txt";
 
-    age = {
-      # Primary identity. Staged by install.sh, and the same key that already
-      # decrypts the vps repo, so one key covers every machine you own.
-      keyFile = "/var/lib/sops-nix/key.txt";
-
-      # Do NOT generate one if it is missing. Generating a key that is not a
-      # recipient in .sops.yaml produces an identity that cannot decrypt
-      # anything, turning a loud failure into a confusing one.
-      generateKey = false;
-
-      # Secondary identity: the machine's own host key. Only useful if that
-      # key was added as a recipient with `sops updatekeys`, which install.sh
-      # offers. Harmless when it was not — sops-nix tries each in turn.
-      sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-    };
-
-    # ── The keys themselves ───────────────────────────────────────────────────
-    # Every entry here MUST exist in the encrypted file or sops-install-secrets
-    # fails during activation. On a fresh install that means no credentials at
-    # all, the machine's own login included.
+    # Every entry here MUST exist in the encrypted file, or sops-install-secrets
+    # fails during activation. On a fresh install that means a machine with no
+    # working login at all.
     secrets = {
-      "hutao-password".neededForUsers = true;
-      "root-password".neededForUsers = true;
+      # === Main ===
+      # neededForUsers puts these in /run/secrets-for-users, which is populated
+      # before user creation. It is the only mechanism that works with
+      # immutable users — a plain secret is rendered too late and the account
+      # ends up with no password.
+      #
+      # root gets one as well as hutao. It is the emergency door: if the display
+      # manager or the hutao account breaks, root on a TTY is the way back in,
+      # and without a hash there is no way back in at all.
+      root_password = {
+        neededForUsers = true;
+      };
+      user_password = {
+        neededForUsers = true;
+      };
     };
   };
 }

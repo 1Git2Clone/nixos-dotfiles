@@ -136,9 +136,29 @@ ed25519 key the *only* recipient means:
 - a second machine cannot share a secret, so `hutao-desktop` would need its
   own parallel file
 
-The host key is still listed as a *secondary* identity in `modules/sops.nix`,
-so a machine that has been handed the file can decrypt unattended. It is just
-no longer the only way in.
+The host key is not listed as a fallback identity either. It is not a
+recipient in `.sops.yaml`, so declaring it would only add an identity that can
+never actually decrypt — configuration implying a capability it does not have.
+
+### How keys are declared
+
+`modules/sops.nix` follows the same shape as the vps repo: attribute names are
+flat and snake_case, and nesting in the YAML is expressed with
+`key = "section/name"` rather than by nesting the Nix. A grouped file like
+
+```yaml
+backups:
+  restic_password: …
+```
+
+is declared as `backups_restic_password = { key = "backups/restic_password"; }`
+and read at `config.sops.secrets.backups_restic_password.path`. The two
+entries here today — `root_password` and `user_password` — are top-level, so
+they need no `key`.
+
+`user_password` rather than `hutao_password` on purpose: the same encrypted
+file is meant to serve `hutao-desktop` too, and the account is `hutao` on
+both.
 
 `neededForUsers = true` puts the hashes in `/run/secrets-for-users`, which is
 populated before user creation — the only mechanism that works with immutable

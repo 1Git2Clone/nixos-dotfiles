@@ -24,11 +24,11 @@
       "audio"
       "input"
     ];
-    hashedPasswordFile = config.sops.secrets."hutao-password".path;
+    hashedPasswordFile = config.sops.secrets.user_password.path;
     shell = pkgs.zsh;
   };
 
-  users.users.root.hashedPasswordFile = config.sops.secrets."root-password".path;
+  users.users.root.hashedPasswordFile = config.sops.secrets.root_password.path;
 
   # Required whenever a user's shell is zsh — without it the shell is not
   # registered in /etc/shells and login fails.

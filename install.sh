@@ -209,8 +209,8 @@ ROOT_HASH=$(printf '%s' "$ROOT_PASS" | mkpasswd -m sha-512 --stdin)
 umask 077
 mkdir -p "$REPO/secrets"
 cat >"$PLAIN_HASHES" <<EOF
-hutao-password: "$HUTAO_HASH"
-root-password: "$ROOT_HASH"
+root_password: "$ROOT_HASH"
+user_password: "$HUTAO_HASH"
 EOF
 
 sops --config "$REPO/.sops.yaml" -e -i "$PLAIN_HASHES" ||
