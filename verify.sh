@@ -10,6 +10,9 @@
 # the configuration evaluates — which is the class of error that would
 # otherwise strand you on a live ISO.
 #
+# Uses the committed flake.lock, so it does not re-resolve inputs against the
+# GitHub API (which rate-limits at 60 req/h unauthenticated).
+#
 # Usage:  ./verify.sh          (needs docker; on NixOS just use nixos-rebuild)
 #
 set -euo pipefail
@@ -20,8 +23,15 @@ command -v docker >/dev/null || { echo "docker not found"; exit 1; }
 # Named volume keeps /nix/store between runs — first run downloads
 # nixpkgs, later runs are fast.
 docker volume create nixos-verify-store >/dev/null
-docker run --rm -v "$PWD":/cfg:ro -v nixos-verify-store:/nix nixos/nix:latest sh -c '
+
+# Optional: unauthenticated GitHub allows 60 API req/h, and resolving flake
+# inputs burns them fast. Export a read-only token to raise it. Not required
+# once flake.lock is committed.
+#   export GH_TOKEN=ghp_...
+docker run --rm -e GH_TOKEN="${GH_TOKEN:-}" \
+  -v "$PWD":/cfg:ro -v nixos-verify-store:/nix nixos/nix:latest sh -c '
   set -e
+  [ -n "$GH_TOKEN" ] && echo "access-tokens = github.com=$GH_TOKEN" >> /etc/nix/nix.conf
   mkdir -p /tmp/w && cp -r /cfg/. /tmp/w/ && cd /tmp/w && rm -rf .git
 
   # Generated at install time by nixos-generate-config.
@@ -45,5 +55,5 @@ HW
 
   nix --extra-experimental-features "nix-command flakes" \
     eval ".#nixosConfigurations.hutao-laptop.config.system.build.toplevel.drvPath" \
-    --no-write-lock-file
+    --no-update-lock-file
 ' 2>&1 | grep -vE '^(unpacking|copying|warning: not writing|• Added|    .(follows|github:|git\+))'

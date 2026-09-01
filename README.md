@@ -170,7 +170,29 @@ It hardcodes `/usr/bin/ydotoold`. `programs.ydotool.enable = true` provides
 the daemon properly. Do not `systemctl --user enable ydotoold` on this
 machine.
 
-**4. `Hutao-Cursor` comes from stow and works.**
+**4. Stow and home-manager both touch `~/.config` — order matters.**
+
+home-manager activates during the **first boot**, before you clone and stow
+the dotfiles. That order is the safe one: home-manager creates
+`~/.config/caelestia/schemes/` and `~/.config/systemd/user/` as real
+directories, so stow then descends into them and symlinks individual files
+alongside, rather than replacing the whole directory.
+
+If you stow *first*, stow may symlink `~/.config/caelestia` as a single
+directory link into the dotfiles repo, which shadows the scheme home-manager
+placed there.
+
+`stow-setup.sh` uses `stow --adopt`, which **moves** conflicting files into
+the dotfiles repo. It has no reason to touch a `/nix/store` symlink, but
+after your first stow run:
+
+```bash
+cd ~/dotfiles && git status --short
+```
+
+If anything unexpected got adopted, `git restore` it.
+
+**5. `Hutao-Cursor` comes from stow and works.**
 
 It is tracked (`!/dot-local/share/icons/Hutao-Cursor`, 95 files) and lands in
 `~/.local/share/icons/`. `env.lua` sets `XCURSOR_THEME` to it. Stylix's

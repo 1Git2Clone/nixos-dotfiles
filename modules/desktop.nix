@@ -220,7 +220,7 @@
 
     # misc from the Arch list
     ntfs3g
-    pinentry
+    pinentry-gnome3
     xorg.xauth
     xorg.xhost
   ];
