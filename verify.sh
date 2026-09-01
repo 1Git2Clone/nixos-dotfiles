@@ -27,7 +27,7 @@ docker volume create nixos-verify-store >/dev/null
 # Optional: unauthenticated GitHub allows 60 API req/h, and resolving flake
 # inputs burns them fast. Export a read-only token to raise it. Not required
 # once flake.lock is committed.
-#   export GH_TOKEN=ghp_...
+#   export GH_TOKEN="$(gh auth token)"   # read-only; never committed
 docker run --rm -e GH_TOKEN="${GH_TOKEN:-}" \
   -v "$PWD":/cfg:ro -v nixos-verify-store:/nix nixos/nix:latest sh -c '
   set -e
