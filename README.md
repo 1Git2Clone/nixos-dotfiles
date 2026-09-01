@@ -123,6 +123,29 @@ the configuration evaluates.
 `install.sh` runs the same evaluation on the target before disko touches the
 disk, so a bad config costs a minute rather than the disk.
 
+### What verification has already found
+
+Run against real Nix in a container, before any hardware was involved:
+
+| Check | Result |
+|---|---|
+| all flake inputs resolve | pass — incl. caelestia's quickshell from git.outfoxxed.me |
+| `caelestia.homeManagerModules.default` exists | pass — `homeModules` does *not*, the guess was right |
+| `fcitx5-configtool` | **FAIL** — renamed to `qt6Packages.fcitx5-configtool`, fixed |
+| `pinentry` | **FAIL** — removed, needs a variant; now `pinentry-gnome3`, fixed |
+| full system eval | incomplete — GitHub API rate limit (60/h unauthenticated) |
+
+The last row is an environment limit, not a config error. It resolves on its
+own within the hour, or immediately with `GH_TOKEN` exported, or simply by
+running `nixos-rebuild` on the laptop itself.
+
+Still unverified by evaluation, because eval stopped before reaching them:
+package names `ntfs3g`, `hyprpicker`, `swappy`, `gammastep`, `espanso`,
+`trash-cli`, `polkit_gnome`, `dejavu_fonts`, `liberation_ttf`,
+`nerd-fonts.jetbrains-mono`, and every `stylix.*` option name. Expect one or
+two more renames of the same kind — `install.sh` catches them before the disk
+is touched.
+
 ## Relationship to the dotfiles repo
 
 This repo is the **system**. `~/dotfiles` (branch `main`) is still the
