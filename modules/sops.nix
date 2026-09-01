@@ -48,6 +48,19 @@ _: {
     defaultSopsFormat = "yaml";
     age.keyFile = "/var/lib/sops-nix/key.txt";
 
+    # Explicitly empty, and NOT redundant. sops-nix defaults this from
+    # services.openssh.hostKeys, so leaving it unset does not mean "unused" —
+    # it means the host's ed25519 key is tried first. On a fresh install sshd
+    # has not generated one yet, so activation prints
+    #
+    #   Cannot read ssh key '/etc/ssh/ssh_host_ed25519_key': no such file …
+    #
+    # in the middle of nixos-install. Harmless, since the age key above is what
+    # actually works, but alarming at precisely the moment you are watching for
+    # trouble — and it names an identity that is not a recipient in .sops.yaml
+    # anyway, so it could never have decrypted anything.
+    age.sshKeyPaths = [ ];
+
     # Every entry here MUST exist in the encrypted file, or sops-install-secrets
     # fails during activation. On a fresh install that means a machine with no
     # working login at all.
