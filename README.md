@@ -266,15 +266,33 @@ sudo dd if=result/iso/*.iso of=/dev/sdX bs=4M status=progress oflag=sync
 | sops creation rule | **FAIL** — `install.sh` encrypted from `/tmp`, which never matched `secrets/<name>.yaml`; it now writes in place |
 | `install.sh` step order | **FAIL** — the pre-disko evaluation needed `hardware-configuration.nix`, which was only generated after disko, so it could never succeed on a fresh clone; detection moved earlier |
 | `install-test.sh` ssh wait | **FAIL** — `(( … )) && { … }` under `set -e` aborted the wait loop on its first iteration; now an `if` |
+| disko's wipe prompt | **FAIL** — prompts on stdin, unanswerable over ssh; `--yes-wipe-all-disks` now passed in non-interactive mode only |
+| target swap | **FAIL** — disko formats the swap LV but never activates it, and the live `/` is tmpfs, so `nixos-install` was OOM-killed (exit 137) building the initrd. Now `swapon` before the build |
+| `sops.age.sshKeyPaths` | **FAIL** — sops-nix defaults it from `services.openssh.hostKeys`, so activation still tried a host key that does not exist yet; now explicitly `[ ]` |
+| **install end to end** | **pass** — `installation finished!` |
+| **first boot** | **pass** — Limine → initrd → LUKS unlock → LVM → SDDM greeter |
+| **login as `hutao`** | **pass** — the sops-decrypted hash authenticates |
+| **Hyprland session** | **pass** — starts even in QEMU with no GPU; screen is a solid `#130a0c`, the `stylix.image` placeholder |
+| SDDM theming | **FAIL** — no `stylix.targets.sddm` exists; greeter is stock blue. See Theming |
 
 The package names previously listed as unverified — `ntfs3g`, `hyprpicker`,
 `swappy`, `gammastep`, `espanso`, `trash-cli`, `polkit_gnome`, `dejavu_fonts`,
 `liberation_ttf`, `nerd-fonts.jetbrains-mono` — are all confirmed by the full
 evaluation above.
 
-Still unproven: that the installed system **boots**. Evaluation says the
-closure exists; only the rehearsal says Limine, the initrd and the LUKS prompt
-work.
+The rehearsal has now been run end to end against a blank 512G virtual NVMe
+and the installed system boots, unlocks and logs in. Four of the failures
+above — the disko prompt, the swap, the step order and `sshKeyPaths` — were
+found only by running it, not by reading it, and three of the four would have
+stopped a real install dead.
+
+Still unproven, and only real hardware can say:
+
+- **suspend/resume**, the one known hazard on this model (see Hardware note)
+- **the caelestia shell**, which needs `~/dotfiles` stowed; the VM boots to a
+  bare themed Hyprland with no bar
+- **amdgpu**, since QEMU has no GPU — the VM proves the session starts, not
+  that it accelerates
 
 ## Relationship to the dotfiles repo
 
@@ -424,9 +442,33 @@ compositor, unused under Wayland), `base`/`base-devel`/`fakeroot`/`sudo`
 
 `hu-tao.yaml` is a base16 scheme derived from
 `caelestia/schemes/hu-tao/default/dark.txt` in the dotfiles repo — the same
-palette, remapped onto base16's sixteen slots. Stylix drives SDDM, the TTY
-console, GTK/Qt and cursors from it, so the system is themed before any
-userspace config loads.
+palette, remapped onto base16's sixteen slots. Stylix drives the TTY console,
+GTK/Qt, the cursor and the Limine boot menu from it.
+
+### SDDM is not themed, and cannot be by Stylix
+
+This file used to claim Stylix drove SDDM. It does not, and never could —
+there is no `stylix.targets.sddm`. The full NixOS target list is:
+
+```text
+chromium console feh fish fontconfig font-packages glance gnome
+gnome-text-editor grub gtk gtksourceview kmscon lightdm limine nixos-icons
+nixvim nvf plymouth qt regreet spicetify
+```
+
+The only display managers there are **lightdm** and **regreet**. The first
+real boot confirmed it: the greeter comes up in stock SDDM blue while the
+session behind it is correctly on `#130a0c`.
+
+Three ways out, none of them done here:
+
+1. switch to `regreet`, which Stylix themes for free and is Wayland-native
+2. keep SDDM and theme it by hand — `services.displayManager.sddm.theme` plus
+   a theme package, maintained separately from the base16 scheme
+3. leave it. It is fifteen seconds of blue before a correctly themed session
+
+`stylix.targets.limine` is enabled though, so the boot menu ahead of it does
+follow the palette.
 
 Fonts match `kitty.conf`: JetBrainsMono Nerd Font at 9pt, Noto Color Emoji
 fallback.
@@ -452,7 +494,7 @@ still comes from stow.
 
 Stylix's home-manager targets come along for free — its NixOS module detects
 home-manager and wires them itself, so kitty, GTK and Qt now get the hu-tao
-palette too, not just SDDM and the console.
+palette too, not just the console.
 
 ### shell.json has one owner: stow
 
