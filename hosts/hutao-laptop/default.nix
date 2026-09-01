@@ -48,5 +48,5 @@
 
   # Never change this after install. It is not a version to keep current —
   # it tells NixOS which stateful-data migrations have already been applied.
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.05";
 }

@@ -163,6 +163,18 @@ bold "── Partitioning ──"
 printf '%s' "$LUKS_PASS" > "$LUKS_KEY"
 chmod 600 "$LUKS_KEY"
 
+# Evaluate the flake BEFORE touching the disk. An eval error found here
+# costs a minute; found after disko it costs your whole disk plus a reboot.
+info "Dry-evaluating the flake (nothing destructive yet)..."
+cd "$REPO"
+git add -A >/dev/null 2>&1 || true
+if ! nix --extra-experimental-features "nix-command flakes" \
+      eval ".#nixosConfigurations.$HOST.config.system.build.toplevel.drvPath" \
+      >/dev/null; then
+  die "The flake does not evaluate. Disk untouched. Fix the error above and re-run."
+fi
+info "Flake evaluates ✓"
+
 confirm "Last chance. Run disko and destroy $DISK?"
 
 cd "$REPO"
