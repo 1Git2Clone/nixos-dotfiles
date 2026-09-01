@@ -5,8 +5,8 @@
   # change between boots and disko would happily wipe the wrong disk.
   device = "/dev/disk/by-id/REPLACE_ME";
 
-  # Sized for 8GB soldered RAM. swap >= RAM is the hibernation requirement;
-  # 12G gives headroom without burning a quarter of a 256GB disk.
-  swapSize = "12G";
-  rootSize = "90G";
+  # Sized for 16GB RAM on a 512GB disk. swap >= RAM is the hibernation
+  # requirement; 20G gives headroom. Leaves ~370G for /home.
+  swapSize = "20G";
+  rootSize = "120G";
 }

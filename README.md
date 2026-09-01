@@ -13,17 +13,17 @@ nvme
 ├── p1  ESP   2G    vfat, unencrypted  -> /boot     kernels + initrd
 └── p2  LUKS2       "cryptroot"                     one passphrase at boot
       └── LVM PV -> vg "pool"
-            ├── lv swap  12G   resume target (hibernation)
-            ├── lv root  90G   ext4 -> /
+            ├── lv swap  20G   resume target (hibernation)
+            ├── lv root  120G  ext4 -> /
             └── lv home  rest  ext4 -> /home
 ```
 
 LVM-on-LUKS, not LUKS-on-LVM: a single encrypted container holds the whole
 volume group, so you type one passphrase rather than three.
 
-Swap is sized for hibernation on 8GB of RAM (`swap >= RAM`), not the 32G a
-larger machine would want — on a 256GB disk that would have burned 12.5% of
-the drive on space that can never be used.
+Swap is sized for hibernation on 16GB of RAM (`swap >= RAM`), not the 32G
+originally specified — that would have spent 12G on space that can never be
+used. Leaves ~370G for `/home`.
 
 ## Files
 
@@ -37,6 +37,8 @@ the drive on space that can never be used.
 | `hosts/hutao-laptop/hardware-configuration.nix` | generated at install |
 | `modules/system.nix` | sysctl, zram, scx, I/O scheduler, nix settings |
 | `modules/users.nix` | immutable users, sops wiring |
+| `modules/desktop.nix` | Hyprland, SDDM, Stylix, pipewire, fcitx5 |
+| `hu-tao.yaml` | base16 scheme derived from your caelestia palette |
 | `secrets/secrets.yaml` | sops-encrypted password hashes (safe to commit) |
 
 ## Install
@@ -123,15 +125,31 @@ description — it cannot repartition anything.
 `scx` needs kernel 6.12+, so `kernelPackages` is pinned to
 `linuxPackages_latest`.
 
+## Theming
+
+`hu-tao.yaml` is a base16 scheme derived from
+`caelestia/schemes/hu-tao/default/dark.txt` in the dotfiles repo — the same
+palette, remapped onto base16's sixteen slots. Stylix drives SDDM, the TTY
+console, GTK/Qt and cursors from it, so the system is themed before any
+userspace config loads.
+
+Fonts match `kitty.conf`: JetBrainsMono Nerd Font at 9pt, Noto Color Emoji
+fallback.
+
+`stylix.image` is currently a generated solid `#130a0c` field so the config
+always evaluates. Point it at a real wallpaper when you have one — or delete
+`base16Scheme` and let Stylix derive the palette from the image instead.
+
+**Scope:** Stylix's NixOS module themes system-level targets. App-level
+theming (kitty, neovim) needs the home-manager module, which would mean
+moving those configs out of stow. That is a separate decision and is
+deliberately not taken here.
+
 ## Not here yet
 
-Deliberately scoped to the core system. Still to come:
-
-- `modules/desktop.nix` — Hyprland, SDDM, portals
-- **Stylix** — one wallpaper themes GTK/Qt/terminal/editor/lockscreen, which
-  replaces `caelestia/install.sh` and the hand-maintained `mocha` scheme
 - the `illogical-impulse` shell, which has no upstream Nix packaging and will
   need either a community flake or a local derivation
+- home-manager, if the app-level Stylix targets turn out to be worth it
 
 ## Hardware note
 

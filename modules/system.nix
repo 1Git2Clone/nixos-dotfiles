@@ -8,8 +8,8 @@
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
     auto-optimise-store = true;
-    # 8GB soldered. Unbounded parallel builds will OOM on this machine.
-    max-jobs = 2;
+    # 16GB. Bounded so a big rebuild does not starve the desktop.
+    max-jobs = 4;
   };
 
   nix.gc = {
@@ -46,7 +46,7 @@
   zramSwap = {
     enable = true;
     algorithm = "zstd";
-    memoryPercent = 50;
+    memoryPercent = 40;
     priority = 100;
   };
 

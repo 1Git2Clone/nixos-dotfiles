@@ -15,6 +15,11 @@
     };
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
+
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -24,6 +29,7 @@
       disko,
       sops-nix,
       nixos-hardware,
+      stylix,
       ...
     }:
     {
@@ -32,6 +38,7 @@
         modules = [
           disko.nixosModules.disko
           sops-nix.nixosModules.sops
+          stylix.nixosModules.stylix
 
           # Generic profiles — safe and always present.
           # A model-specific ideapad profile may also exist; check with
@@ -44,6 +51,7 @@
           ./hosts/hutao-laptop
           ./modules/system.nix
           ./modules/users.nix
+          ./modules/desktop.nix
         ];
       };
     };
