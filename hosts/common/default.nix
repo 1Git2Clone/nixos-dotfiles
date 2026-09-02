@@ -1,4 +1,4 @@
-# Shared by every real machine. hosts/vm deliberately does not import this:
+# Shared by every real machine. hosts/hutao-vm deliberately does not import this:
 # Limine, sops and immutable users all need real firmware or a real install.
 # stateVersion stays per-host.
 { pkgs, ... }:
@@ -21,6 +21,11 @@
     # services.scx needs 6.12+; pinned so a channel bump cannot drop below it.
     kernelPackages = pkgs.linuxPackages_latest;
   };
+
+  # Also makes nixos-hardware's common-cpu-amd default updateMicrocode to
+  # true, matching what nixos-generate-config writes. Leave it false and the
+  # two mkDefaults conflict and the host stops evaluating.
+  hardware.enableRedistributableFirmware = true;
 
   hardware.graphics = {
     enable = true;

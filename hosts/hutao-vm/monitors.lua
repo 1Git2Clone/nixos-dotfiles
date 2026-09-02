@@ -1,0 +1,3 @@
+-- Required by hyprland.lua. Empty on purpose: QEMU's virtual output has no
+-- fixed name, and Hyprland's default for an unmatched monitor is already
+-- `preferred, auto, 1`.

@@ -1,0 +1,17 @@
+# Reference only — nothing reads this file. It is what
+#   SOPS_AGE_KEY_FILE=~/.sops-nix/key.txt nix develop -c sops secrets/secrets.yaml
+# shows you, decrypted. The real file is sops ciphertext and is committed.
+#
+# Generate a hash with `mkpasswd -m yescrypt`. install.sh does both of these
+# for you on a fresh install; this is for adding values afterwards.
+
+root_password: $y$j9T$SALTSALTSALTSALT$HASHHASHHASHHASHHASHHASHHASHHASHHASHHASH
+user_password: $y$j9T$SALTSALTSALTSALT$HASHHASHHASHHASHHASHHASHHASHHASHHASHHASH
+
+# Nesting is allowed here; modules/sops.nix reaches it with a `key` path and
+# keeps its own attribute names flat:
+#
+#   backups_restic_password = { key = "backups/restic_password"; };
+#
+# backups:
+#   restic_password: ...

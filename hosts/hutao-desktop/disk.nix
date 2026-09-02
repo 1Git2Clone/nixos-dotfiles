@@ -1,0 +1,16 @@
+# Written by hand from the live machine; install.sh seds `device` if you let it.
+{
+  # Stable path. NEVER use /dev/nvme0n1 here: kernel enumeration order can
+  # change between boots and disko would happily wipe the wrong disk.
+  device = "/dev/disk/by-id/nvme-TS512GMTE220S_G023790001";
+
+  # 16GB RAM on a 512GB NVMe. swap >= RAM is the hibernation requirement.
+  swapSize = "20G";
+  rootSize = "120G";
+
+  # The 2TB HDD. disko never touches it — it holds Windows-side data and
+  # backups, so it is only mounted. Change these two lines to move or rename
+  # the mount; `lsblk -o NAME,UUID,FSTYPE` gives you the UUID.
+  hddUuid = "E464BEF164BEC618";
+  hddMount = "/mnt/hdd";
+}

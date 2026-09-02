@@ -1,9 +1,9 @@
-# Hyprland + SDDM + Stylix. Nothing here writes to ~/.config — hyprland.lua
-# and modules/*.lua still come from stow.
+# Hyprland + SDDM + Stylix, and every binary the dotfiles call. ~/.config
+# itself is home/hutao.nix's job.
 #
 # That config is Lua (Hyprland 0.55+), so the package must be new enough to
 # read hyprland.lua. nixos-unstable is.
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 let
   hutao-cursor = pkgs.callPackage ../pkgs/hutao-cursor.nix { };
 
@@ -18,10 +18,9 @@ in
     # Derived from caelestia/schemes/hu-tao/default/dark.txt.
     base16Scheme = ../hu-tao.yaml;
 
-    # Placeholder solid base00. Point at a real wallpaper once stowed.
-    image = pkgs.runCommand "hu-tao-bg.png" { } ''
-      ${pkgs.imagemagick}/bin/magick -size 2560x1440 xc:'#130a0c' $out
-    '';
+    # The one hyprpaper.conf names. base16Scheme above is explicit, so this is
+    # only used as the wallpaper — nothing is derived from it.
+    image = "${inputs.dotfiles}/dot-config/hypr/backgrounds/Hu_Tao_00056_1.png";
 
     fonts = {
       monospace = {
@@ -66,7 +65,10 @@ in
   };
 
   programs.hyprlock.enable = true;
-  services.hypridle.enable = true;
+
+  # No hypridle: caelestia's shell.json owns idle (general.idle.timeouts —
+  # lock at 3min, dpms at 5, suspend-then-hibernate at 10). Running both
+  # locks the session twice.
 
   # ── SDDM ─────────────────────────────────────────────────────────────────
   # Stylix has no sddm target (only lightdm and regreet), so the greeter is
@@ -98,6 +100,7 @@ in
   };
 
   # ── Portals ──────────────────────────────────────────────────────────────
+  # dot-config/xdg-desktop-portal/hyprland-portals.conf asks for hyprland;gtk.
   xdg.portal = {
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
@@ -154,6 +157,7 @@ in
     # terminal / file manager  (neovim is in modules/neovim.nix)
     kitty
     nautilus
+    floorp-bin
 
     # Installed so SDDM finds it under /run/current-system/sw.
     sddm-hu-tao
@@ -161,6 +165,7 @@ in
     # launcher + session  (keybindings.lua: SUPER+Space, SUPER+M)
     wofi
     wlogout
+    app2unit # how caelestia launches everything it launches
 
     # hypr tooling
     hyprpaper
@@ -192,9 +197,21 @@ in
     gnome-keyring
     polkit_gnome
     gammastep
-    espanso
+    espanso-wayland # the plain espanso build cannot see a Wayland session
     trash-cli # trash-empty
     glib # gsettings
+
+    # what .zshrc and dot-profile.d/*.sh call
+    atuin
+    libsecret # secret-tool, in environment.sh
+    python3 # urlencode/urldecode in aliases.sh, and programs/py_scripts
+    mpv # caelestia general.apps.playback
+    libqalculate # qalc, the launcher's calculator action
+    xdg-utils # xdg-open, in the shell_scripts
+    xcursorgen # add-icon.sh
+    ffmpeg # compress_video.py
+    bluez # mpris-proxy, in autostart.lua
+    nano
 
     # shell / cli  (from the Arch list)
     btop
@@ -234,8 +251,9 @@ in
   # ydotool needs its daemon for the autoclicker scripts to work.
   programs.ydotool.enable = true;
 
-  programs.zsh = {
-    autosuggestions.enable = true;
-    syntaxHighlighting.enable = true;
-  };
+  # oh-my-zsh loads autosuggestions and syntax-highlighting as plugins (see
+  # home/hutao.nix), so the NixOS-level versions would be a second copy.
+  #
+  # ZSH_CACHE_DIR defaults to $ZSH/cache, and $ZSH is a store path here.
+  environment.sessionVariables.ZSH_CACHE_DIR = "$HOME/.cache/oh-my-zsh";
 }

@@ -46,6 +46,16 @@
   # you booted this to look at.
   services.displayManager.defaultSession = "hyprland";
 
+  # caelestia's idle timeouts end in suspend-then-hibernate at 10 minutes.
+  # QEMU has no meaningful suspend — the guest pauses, and the Wayland session
+  # does not survive the wakeup — so an unattended VM eats itself.
+  systemd.targets = {
+    sleep.enable = false;
+    suspend.enable = false;
+    hibernate.enable = false;
+    hybrid-sleep.enable = false;
+  };
+
   # QEMU has no GPU. wlroots refuses llvmpipe unless told explicitly and
   # Hyprland just exits. VM-only.
   environment.sessionVariables = {

@@ -36,6 +36,12 @@
       url = "github:1Git2Clone/nvim-config";
       flake = false;
     };
+
+    # The user layer. home/hutao.nix links it into $HOME instead of stowing it.
+    dotfiles = {
+      url = "git+https://git.hu-tao.dev/hutao/dotfiles";
+      flake = false;
+    };
   };
 
   outputs =
@@ -96,11 +102,27 @@
           ];
         };
 
+        # Ryzen 5 3600X, RX 5700 XT, 16GB, NVMe + an NTFS HDD it only mounts.
+        hutao-desktop = nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit inputs; };
+          modules = desktopModules ++ [
+            disko.nixosModules.disko
+            sops-nix.nixosModules.sops
+
+            nixos-hardware.nixosModules.common-cpu-amd
+            nixos-hardware.nixosModules.common-gpu-amd
+            nixos-hardware.nixosModules.common-pc-ssd
+
+            ./hosts/hutao-desktop
+          ];
+        };
+
         # Same desktop, under QEMU, no install required.  nix run .#vm
         hutao-vm = nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = { inherit inputs; };
-          modules = desktopModules ++ [ ./hosts/vm ];
+          modules = desktopModules ++ [ ./hosts/hutao-vm ];
         };
 
         # The installer image the rehearsal boots.  nix build .#installer-iso
@@ -119,8 +141,8 @@
 
         sddm-hu-tao = pkgs.callPackage ./pkgs/sddm-hu-tao.nix { };
 
-        # Post-install only: needs hardware-configuration.nix.
         laptop = self.nixosConfigurations.hutao-laptop.config.system.build.toplevel;
+        desktop = self.nixosConfigurations.hutao-desktop.config.system.build.toplevel;
 
         default = self.packages.${system}.installer-iso;
       };

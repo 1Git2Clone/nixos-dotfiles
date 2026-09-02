@@ -3,7 +3,7 @@
 _: {
   imports = [
     ../common
-    ./disko.nix
+    (import ../../modules/disk-layout.nix (import ./disk.nix))
     ./hardware-configuration.nix
   ];
 

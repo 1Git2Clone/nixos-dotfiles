@@ -8,14 +8,14 @@
 # Bring your age key — see AGE_KEY below.
 set -euo pipefail
 
-HOST="hutao-laptop"
+HOST="${HOST:-hutao-laptop}"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # INSTALL_* overrides are honoured only with INSTALL_NONINTERACTIVE=1 set
 # explicitly, so a stray variable cannot skip the destructive confirmation.
 NONINTERACTIVE="${INSTALL_NONINTERACTIVE:-0}"
 
-LUKS_KEY="/tmp/luks.key"
+LUKS_KEY="/tmp/luks-passphrase" # must match modules/disk-layout.nix
 PLAIN_HASHES="$REPO/secrets/secrets.yaml"
 
 # The identity .sops.yaml is encrypted to. Getting it here is the one manual

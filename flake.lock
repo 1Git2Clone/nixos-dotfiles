@@ -135,6 +135,22 @@
         "type": "github"
       }
     },
+    "dotfiles": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788070400,
+        "narHash": "sha256-uuQzUBKnxVkZPxgDYCh+6FJosWgNoE2U3cxseieLOyU=",
+        "ref": "refs/heads/main",
+        "rev": "3d65c31381d67afe829b790d472e1a2866e2b4c0",
+        "revCount": 595,
+        "type": "git",
+        "url": "https://git.hu-tao.dev/hutao/dotfiles"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.hu-tao.dev/hutao/dotfiles"
+      }
+    },
     "firefox-gnome-theme": {
       "flake": false,
       "locked": {
@@ -324,11 +340,11 @@
     "nvim-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1788293919,
-        "narHash": "sha256-Eex+yhJZmWPq9s6IzZkgyhQLDv3GegAKC/+BPKDvRow=",
+        "lastModified": 1788370525,
+        "narHash": "sha256-lj9zEcxC4+Hqk17ijydBMcaxExXSsNoFs6UJ4tyY0ec=",
         "owner": "1Git2Clone",
         "repo": "nvim-config",
-        "rev": "fdb621d27b6e4ab51c5c58734ac809d1c4feafce",
+        "rev": "c033c5570113f4cef401e7483af4aa811ee7570b",
         "type": "github"
       },
       "original": {
@@ -362,6 +378,7 @@
       "inputs": {
         "caelestia-shell": "caelestia-shell",
         "disko": "disko",
+        "dotfiles": "dotfiles",
         "home-manager": "home-manager",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Install rehearsal: install.sh end to end against a blank virtual disk.
-# Covers what hosts/vm cannot — disko, LUKS, LVM, the sops bootstrap, Limine,
+# Covers what hosts/hutao-vm cannot — disko, LUKS, LVM, the sops bootstrap, Limine,
 # first boot. Use `nix run .#vm` for anything else; it is far faster.
 #
 #   all  build  up  install  boot  unlock  shot  ssh  down  clean
@@ -168,7 +168,7 @@ _wait_ssh() {
 
 # ── seed ────────────────────────────────────────────────────────────────────
 # `up` starts from a blank disk, so without this the guest re-downloads the
-# whole desktop closure every run. hosts/vm shares nearly all of it with the
+# whole desktop closure every run. hosts/hutao-vm shares nearly all of it with the
 # laptop, so pushing that closure leaves only host-specific paths to fetch.
 _seed_store() {
   if [[ ${SEED:-1} != 1 ]]; then

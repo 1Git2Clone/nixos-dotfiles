@@ -1,19 +1,17 @@
 # LVM-on-LUKS: one encrypted container, one passphrase prompt at boot.
 #
-#   nvme
+#   disk
 #   ├── p1  ESP   2G    vfat, unencrypted  -> /boot   (kernels + initrd)
 #   └── p2  LUKS2       "cryptroot"
 #         └── LVM PV -> vg "pool"
-#               ├── lv swap  20G  (resume target for hibernation)
-#               ├── lv root  120G ext4 -> /
+#               ├── lv swap  (resume target for hibernation)
+#               ├── lv root  ext4 -> /
 #               └── lv home  rest ext4 -> /home
 #
 # Only runs when invoked. `nixos-rebuild` never repartitions.
-_:
-let
-  disk = import ./disk.nix;
-in
-{
+#
+# Applied per host as `(import ../../modules/disk-layout.nix (import ./disk.nix))`.
+disk: _: {
   disko.devices = {
     disk.main = {
       type = "disk";
@@ -46,7 +44,7 @@ in
               # install.sh writes this with `printf %s` (no trailing newline)
               # and shreds it afterwards. A stray \n would be baked into the
               # passphrase and you could never type it at the boot prompt.
-              passwordFile = "/tmp/luks.key";
+              passwordFile = "/tmp/luks-passphrase";
               content = {
                 type = "lvm_pv";
                 vg = "pool";
