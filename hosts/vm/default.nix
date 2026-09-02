@@ -1,22 +1,7 @@
-# hutao-vm — the desktop layer under QEMU, for testing without an install.
+# The desktop layer under QEMU. Fast path for anything in modules/desktop.nix
+# or modules/neovim.nix — no install, no LUKS, no sops.
 #
-# This is NOT the install rehearsal. It deliberately skips the three things
-# that need real hardware and a real install:
-#
-#   disko    the VM gets a plain qcow2 from qemu-vm.nix, no LUKS, no LVM
-#   sops     no host key exists to derive an age identity from, so the
-#            password hashes cannot be decrypted; users get a known password
-#   Limine   qemu-vm.nix boots the kernel directly, bypassing any bootloader
-#
-# What it DOES test is everything else, which is most of the risk surface:
-# every package name in modules/desktop.nix, every stylix.* option, the
-# home-manager wiring, caelestia, and whether Hyprland and SDDM actually come
-# up. Those are the errors that otherwise surface on the laptop at 2am.
-#
-#   nix run .#vm                   build and boot it
-#   ssh -p 2223 hutao@localhost    password: vm
-#
-# The full install rehearsal — disko, LUKS, sops, Limine — is vm/install-test.sh.
+#   nix run .#vm     then log in as hutao / vm
 {
   modulesPath,
   pkgs,
@@ -29,22 +14,15 @@
   networking.hostName = "hutao-vm";
 
   boot = {
-    # Unused under direct kernel boot, but NixOS wants a bootloader declared
-    # and this keeps the VM honest about being UEFI like the laptop.
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = false;
-
-    # Same pin as the laptop: services.scx needs 6.12+ and this is one of the
-    # things worth confirming actually boots.
     kernelPackages = pkgs.linuxPackages_latest;
   };
 
   hardware.graphics.enable = true;
 
-  # ── Users: plain passwords, since sops cannot work here ──────────────────
-  # modules/users.nix is deliberately NOT imported — it is entirely sops-driven
-  # and cannot evaluate without the encrypted hashes and a host key to unlock
-  # them with. The install rehearsal covers that path instead.
+  # modules/users.nix is sops-driven and cannot evaluate without the encrypted
+  # file, so the VM declares its own throwaway accounts.
   users.mutableUsers = false;
   users.users.hutao = {
     isNormalUser = true;
@@ -62,24 +40,14 @@
   users.users.root.password = "vm";
   programs.zsh.enable = true;
 
-  # The laptop keeps password auth off; the VM turns it back on so you can get
-  # in without provisioning a key into a throwaway machine.
   services.openssh.settings.PasswordAuthentication = lib.mkForce true;
 
-  # Stop at the greeter rather than logging straight in.
-  #
-  # This VM is the fast path for anything in the desktop layer, and the SDDM
-  # theme is part of that layer — autoLogin would skip the exact screen you
-  # most often want to look at. Log in as hutao / vm to get to Hyprland.
-  #
-  # defaultSession still matters: with several sessions registered, SDDM would
-  # otherwise preselect whichever it likes, and landing in the wrong session
-  # looks identical to Hyprland failing to start.
+  # No autoLogin: the greeter is part of the desktop layer and is usually what
+  # you booted this to look at.
   services.displayManager.defaultSession = "hyprland";
 
-  # QEMU has no GPU. Mesa falls back to llvmpipe, but wlroots refuses a
-  # software renderer unless told explicitly, and Hyprland just exits without
-  # it. This is a VM-only workaround; the laptop has amdgpu.
+  # QEMU has no GPU. wlroots refuses llvmpipe unless told explicitly and
+  # Hyprland just exits. VM-only.
   environment.sessionVariables = {
     WLR_RENDERER_ALLOW_SOFTWARE = "1";
     WLR_NO_HARDWARE_CURSORS = "1";
@@ -89,13 +57,10 @@
   virtualisation = {
     memorySize = 6144;
     cores = 4;
-    # The desktop closure alone is well over 10G.
     diskSize = 32768;
     graphics = true;
-    # No custom -vga/-display here on purpose. qemu-vm.nix already picks a
-    # display when graphics = true, and passing a second -display makes qemu
-    # refuse to start — a confusing failure for something that is only meant
-    # to open a window.
+    # No -vga/-display here: qemu-vm.nix sets one and a second makes qemu
+    # refuse to start.
     forwardPorts = [
       {
         from = "host";

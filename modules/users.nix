@@ -1,15 +1,7 @@
-# ==============================================================================
-# Users
-# ==============================================================================
-# Immutable accounts whose passwords come from sops. The sops wiring itself —
-# which file, which identities, which keys — lives in modules/sops.nix; this
-# file only consumes the rendered paths.
+# Immutable accounts; hashes come from modules/sops.nix.
 #
-# `mutableUsers = false` means passwd(1) cannot change anything: the hashes in
-# the encrypted file are the whole truth. That is the point, and it is also why
-# root gets a hash too. If the display manager breaks or the hutao account is
-# somehow unusable, root on a TTY is the emergency door — without it a bad
-# graphical session is a reinstall.
+# root gets one too — the emergency door if the display manager or the hutao
+# account breaks.
 { config, pkgs, ... }:
 {
   users.mutableUsers = false;
@@ -30,8 +22,7 @@
 
   users.users.root.hashedPasswordFile = config.sops.secrets.root_password.path;
 
-  # Required whenever a user's shell is zsh — without it the shell is not
-  # registered in /etc/shells and login fails.
+  # Without this zsh is not in /etc/shells and login fails.
   programs.zsh.enable = true;
 
   security.sudo.wheelNeedsPassword = true;

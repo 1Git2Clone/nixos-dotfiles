@@ -1,6 +1,4 @@
-# Shared system tuning. Host-agnostic on purpose: when the desktop joins,
-# it imports this same file and the two machines stay identical below the
-# hardware line. This is the bit that replaces `system/install.sh`.
+# Host-agnostic tuning. Replaces the dotfiles repo's system/install.sh.
 { pkgs, ... }:
 {
   nixpkgs.config.allowUnfree = true;
@@ -26,8 +24,6 @@
 
   networking.networkmanager.enable = true;
 
-  # sshd is not optional here: sops-nix derives its age identity from the
-  # ed25519 host key, so this must stay enabled or secrets stop decrypting.
   services.openssh = {
     enable = true;
     hostKeys = [
@@ -42,10 +38,8 @@
     };
   };
 
-  # ── zram ────────────────────────────────────────────────────────────────
-  # Compressed RAM swap. Close to mandatory at 8GB. Coexists fine with the
-  # on-disk swap LV: zram takes the higher priority for runtime paging,
-  # the LV exists for hibernation.
+  # Compressed RAM swap; near-mandatory at 8GB. Higher priority than the swap
+  # LV, which exists for hibernation.
   zramSwap = {
     enable = true;
     algorithm = "zstd";
@@ -53,7 +47,7 @@
     priority = 100;
   };
 
-  # ── sysctl — translated from system/sysctl.d/99-custom.conf ─────────────
+  # From the dotfiles repo's sysctl.d/99-custom.conf.
   boot.kernel.sysctl = {
     # Virtual memory
     # Low swappiness: prefer keeping processes in RAM, let ZRAM handle overflow
@@ -93,7 +87,6 @@
     "net.ipv6.conf.all.forwarding" = 1;
   };
 
-  # ── I/O scheduler — from system/udev/rules.d/60-io-scheduler.rules ──────
   services.udev.extraRules = ''
     # NVMe and SSDs: none (lowest latency, hardware handles queuing)
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="none"
@@ -103,15 +96,12 @@
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
   '';
 
-  # ── sched_ext — replaces system/systemd/system/scx-lavd.service ─────────
-  # Your hand-written unit, upstream. Requires kernel 6.12+.
+  # Replaces the hand-written scx-lavd.service. Needs kernel 6.12+.
   services.scx = {
     enable = true;
     scheduler = "scx_lavd";
   };
 
-  # Deliberately minimal: this repo is the *core system*. The desktop
-  # (Hyprland, SDDM, Stylix) lands in modules/desktop.nix as a follow-up.
   environment.systemPackages = with pkgs; [
     git
     vim

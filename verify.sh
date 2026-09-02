@@ -10,8 +10,6 @@
 # the configuration evaluates — which is the class of error that would
 # otherwise strand you on a live ISO.
 #
-# Uses the committed flake.lock, so it does not re-resolve inputs against the
-# GitHub API (which rate-limits at 60 req/h unauthenticated).
 #
 # Usage:  ./verify.sh          (needs docker; on NixOS just use nixos-rebuild)
 #

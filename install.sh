@@ -1,53 +1,28 @@
 #!/usr/bin/env bash
 #
-# NixOS install for hutao-laptop, run from a NixOS live environment.
+# NixOS install for hutao-laptop, from a live environment. LVM-on-LUKS.
 #
-#   LVM-on-LUKS. One passphrase at boot. Immutable users whose password
-#   hashes come from a sops file encrypted to your personal age key.
+#   ./install.sh                                        # this repo's ISO
+#   nix-shell -p sops age mkpasswd git --run ./install.sh   # stock ISO
 #
-# Your passwords are read with `read -s`, never echoed, and never written to
-# disk in plaintext except two transient files — the LUKS keyfile and the
-# pre-encryption hash file — both shredded on exit, including on failure and
-# on Ctrl-C.
-#
-# Usage, from the installer ISO built by this repo (which already has the
-# tools):
-#
-#   ./install.sh
-#
-# or from the stock NixOS ISO:
-#
-#   nix-shell -p sops age ssh-to-age mkpasswd git --run ./install.sh
-#
-# You must bring your age private key with you. See "The age key" below.
+# Bring your age key — see AGE_KEY below.
 set -euo pipefail
 
 HOST="hutao-laptop"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# ── Non-interactive mode ────────────────────────────────────────────────────
-# vm/install-test.sh drives this script unattended. Every prompt below has an
-# INSTALL_* override, but they are honoured ONLY when INSTALL_NONINTERACTIVE=1
-# is set explicitly, so a stray variable in someone's environment can never
-# silently skip the "this destroys the disk" confirmation on a real machine.
+# INSTALL_* overrides are honoured only with INSTALL_NONINTERACTIVE=1 set
+# explicitly, so a stray variable cannot skip the destructive confirmation.
 NONINTERACTIVE="${INSTALL_NONINTERACTIVE:-0}"
 
 LUKS_KEY="/tmp/luks.key"
 PLAIN_HASHES="$REPO/secrets/secrets.yaml"
 
-# ── The age key ─────────────────────────────────────────────────────────────
-# The identity that .sops.yaml is encrypted to. On a workstation this is
-# ~/.sops-nix/key.txt; on the installed host it ends up at
-# /var/lib/sops-nix/key.txt, put there by step 8 below.
-#
-# Getting it onto the live environment is the one genuinely manual step:
+# The identity .sops.yaml is encrypted to. Getting it here is the one manual
+# step — a machine cannot bootstrap a decryption key from nothing:
 #
 #   scp ~/.sops-nix/key.txt nixos@<installer-ip>:/tmp/age.key
 #   INSTALL_AGE_KEY=/tmp/age.key ./install.sh
-#
-# There is no way around this. A machine cannot bootstrap a decryption key
-# from nothing, and without one the first activation cannot render the user
-# password hashes — leaving a machine with no way to log in.
 AGE_KEY="${INSTALL_AGE_KEY:-${SOPS_AGE_KEY_FILE:-$HOME/.sops-nix/key.txt}}"
 
 bold() { printf '\033[1m%s\033[0m\n' "$*"; }
@@ -60,9 +35,8 @@ die() {
 
 cleanup() {
   [[ -f $LUKS_KEY ]] && shred -u "$LUKS_KEY" 2>/dev/null
-  # If sops failed between writing and encrypting, this still holds plaintext
-  # password hashes inside the repo. Shredding an already-encrypted file would
-  # destroy the install, so only unencrypted content is removed.
+  # Only shred it if sops never got to it — shredding ciphertext would destroy
+  # the install.
   if [[ -f $PLAIN_HASHES ]] && ! grep -q '^sops:' "$PLAIN_HASHES" 2>/dev/null; then
     warn "removing un-encrypted $PLAIN_HASHES"
     shred -u "$PLAIN_HASHES" 2>/dev/null
@@ -118,9 +92,8 @@ done
 [[ -f $AGE_KEY ]] ||
   die "No age key at $AGE_KEY. Copy it over first, or set INSTALL_AGE_KEY. See the header."
 
-# Fail here, not three minutes into an install, if this key is not actually a
-# recipient. An age key that is not in .sops.yaml produces a machine that
-# installs cleanly and then cannot decrypt its own passwords.
+# Fail now, not mid-install: a key that is not a recipient gives a machine
+# that installs cleanly then cannot decrypt its own passwords.
 AGE_PUB=$(age-keygen -y "$AGE_KEY" 2>/dev/null) ||
   die "$AGE_KEY is not a valid age private key."
 grep -q "$AGE_PUB" "$REPO/.sops.yaml" ||
@@ -136,9 +109,7 @@ bold "── Target disk ──"
 lsblk -o NAME,SIZE,MODEL,TYPE,TRAN
 echo
 info "Stable by-id paths:"
-# A glob rather than `ls | grep`: partition links are filtered by name and the
-# target is resolved properly, so a disk whose model string contains a space
-# does not get split into two columns.
+# Glob, not `ls | grep`: model strings contain spaces.
 for link in /dev/disk/by-id/*; do
   [[ -e $link ]] || continue
   case $link in
@@ -174,8 +145,7 @@ else
   [[ $typed == "$SIZE" ]] || die "Mismatch. Aborted — nothing was touched."
 fi
 
-# Warn if the layout won't fit. These numbers track hosts/hutao-laptop/disk.nix
-# — 2G ESP + 20G swap + 120G root — so a change there needs a change here.
+# Tracks hosts/hutao-laptop/disk.nix — change both together.
 SIZE_G=$(($(lsblk -bdno SIZE "$RESOLVED") / 1024 / 1024 / 1024))
 if ((SIZE_G < 200)); then
   warn "Disk is ${SIZE_G}G. The layout (2G ESP + 20G swap + 120G root) leaves"
@@ -196,16 +166,13 @@ read_secret_twice ROOT_PASS "Password for 'root' (emergency access)" INSTALL_ROO
 bold ""
 bold "── Secrets ──"
 info "Hashing passwords (sha-512 crypt — not sha512sum)."
-# shellcheck disable=SC2153  # read_secret_twice assigns these with `printf -v`,
-# which shellcheck cannot follow, so it reads them as typos of *_HASH.
+# shellcheck disable=SC2153  # set via `printf -v`, which shellcheck cannot see.
 HUTAO_HASH=$(printf '%s' "$HUTAO_PASS" | mkpasswd -m sha-512 --stdin)
 # shellcheck disable=SC2153
 ROOT_HASH=$(printf '%s' "$ROOT_PASS" | mkpasswd -m sha-512 --stdin)
 
-# Written INSIDE the repo and encrypted in place, not piped in from /tmp.
-# .sops.yaml matches on `secrets/<name>.yaml`, and a path like
-# /tmp/plain.yaml does not match that rule — sops then exits with
-# "no matching creation rules" and the install dies at step 3.
+# Written in the repo and encrypted in place: .sops.yaml's creation rule
+# matches on the path, and a /tmp path matches nothing.
 umask 077
 mkdir -p "$REPO/secrets"
 cat >"$PLAIN_HASHES" <<EOF
@@ -218,8 +185,7 @@ sops --config "$REPO/.sops.yaml" -e -i "$PLAIN_HASHES" ||
 grep -q '^sops:' "$PLAIN_HASHES" || die "sops produced a file with no metadata — refusing to continue."
 info "secrets/secrets.yaml encrypted to $AGE_PUB ✓"
 
-# Prove the round trip before the disk is touched. If this fails, the machine
-# would install and then fail activation with no way in.
+# Prove the round trip before the disk is touched.
 SOPS_AGE_KEY_FILE="$AGE_KEY" sops -d "$PLAIN_HASHES" >/dev/null ||
   die "Encrypted file does not decrypt with $AGE_KEY."
 info "decryption round-trip verified ✓"
@@ -230,22 +196,11 @@ grep -q "$DISK" "$REPO/hosts/$HOST/disk.nix" || die "Failed to write disk path i
 info "disk.nix pinned to $DISK"
 
 # ── 5. Hardware detection ───────────────────────────────────────────────────
-# This MUST come before the evaluation below, not after disko.
+# MUST precede the evaluation below. The flake imports
+# hardware-configuration.nix, so generating it after disko means the pre-disko
+# eval can never succeed on a fresh clone.
 #
-# hosts/hutao-laptop/default.nix imports ./hardware-configuration.nix, so the
-# flake cannot evaluate at all until that file exists. Generating it after
-# disko — the obvious order, and what this script used to do — means the
-# pre-disko evaluation always fails on a fresh clone with
-#
-#   error: path '…/hosts/hutao-laptop/hardware-configuration.nix' does not exist
-#
-# which defeats the entire point of evaluating before touching the disk.
-#
-# Nothing here needs /mnt. `--no-filesystems` reports kernel modules, CPU
-# microcode and the host platform, all of which are properties of the machine
-# you are standing at, not of the target filesystem. (It is also required for
-# a different reason: disko owns `fileSystems.*`, and generating those here
-# would be a duplicate definition.)
+# --no-filesystems: nothing here needs /mnt, and disko owns fileSystems.*.
 bold ""
 bold "── Hardware detection ──"
 nixos-generate-config --no-filesystems --dir /tmp/hwcfg
@@ -255,13 +210,11 @@ info "hardware-configuration.nix captured"
 # ── 6. Partition ────────────────────────────────────────────────────────────
 bold ""
 bold "── Partitioning ──"
-# printf %s, NOT echo: a trailing newline becomes part of the passphrase and
-# you would never be able to type it at the boot prompt.
+# printf %s, NOT echo: a trailing newline becomes part of the passphrase.
 printf '%s' "$LUKS_PASS" >"$LUKS_KEY"
 chmod 600 "$LUKS_KEY"
 
-# Evaluate the flake BEFORE touching the disk. An eval error found here costs a
-# minute; found after disko it costs the whole disk plus a reboot.
+# Before touching the disk: an eval error here costs a minute, not the disk.
 info "Dry-evaluating the flake (nothing destructive yet)..."
 cd "$REPO"
 git add -A >/dev/null 2>&1 || true
@@ -276,13 +229,8 @@ confirm "Last chance. Run disko and destroy $DISK?"
 
 git add -A >/dev/null 2>&1 || true # flakes ignore untracked files in a git repo
 
-# disko asks "are you sure you want to wipe" itself, on stdin. Over a
-# non-interactive ssh session there is nothing to answer with and it aborts.
-# By this point install.sh has already asked twice — type-the-disk-size, then
-# "Last chance" — so suppressing disko's third ask loses no real safety in the
-# unattended path, and the interactive path keeps it.
-# The mode value is one comma-separated argument, not three elements — quoted
-# so shellcheck (SC2054) and the reader both see that.
+# disko prompts on stdin, unanswerable over ssh. We have already asked twice
+# by here. Mode is one comma-separated argument, hence the quotes (SC2054).
 disko_args=(--mode "destroy,format,mount" --flake ".#$HOST")
 [[ $NONINTERACTIVE == 1 ]] && disko_args+=(--yes-wipe-all-disks)
 
@@ -293,19 +241,9 @@ info "Partitioned and mounted:"
 findmnt -R /mnt
 
 # ── 7. Turn the target's swap on ────────────────────────────────────────────
-# disko creates the swap LV and runs mkswap on it, but does NOT activate it —
-# `swapon --show` is empty after a destroy,format,mount run. Meanwhile the
-# live environment's / is a tmpfs, so every temporary file written during the
-# build is competing for the same RAM the build needs.
-#
-# On this laptop (8GB) that combination kills the install outright:
-#
-#   nixos-install: line 289: … Killed    nix build …
-#
-# and nixos-install exits 137 well into the closure, after twenty minutes of
-# downloads. Found by the VM rehearsal, where 6GB reproduces it exactly.
-#
-# The target's own 20G swap is already sitting there formatted, so use it.
+# disko formats the swap LV but never activates it, and the live / is tmpfs.
+# On 8GB that combination OOM-kills nixos-install (exit 137) deep into the
+# build. The 20G swap is already formatted; just switch it on.
 bold ""
 bold "── Swap ──"
 if swapon /dev/pool/swap 2>/dev/null; then
@@ -316,10 +254,8 @@ else
 fi
 
 # ── 8. Seed the age key BEFORE install ──────────────────────────────────────
-# This is the step that matters. nixos-install runs activation, which renders
-# the sops values — including the user password hashes. With
-# users.mutableUsers = false and no key in place, the install fails at its last
-# step and you get a machine with no way in.
+# nixos-install runs activation, which renders the password hashes. No key
+# here means an install that fails at its last step, with no way in.
 install -Dm600 "$AGE_KEY" /mnt/var/lib/sops-nix/key.txt
 info "age key seeded to /mnt/var/lib/sops-nix/key.txt ✓"
 
@@ -330,7 +266,7 @@ mkdir -p /mnt/etc/nixos
 cp -r "$REPO"/. /mnt/etc/nixos/
 git -C /mnt/etc/nixos add -A >/dev/null 2>&1 || true
 
-# --no-root-password: root's hash comes from sops, so suppress the prompt.
+# root's hash comes from sops.
 nixos-install --flake "/mnt/etc/nixos#$HOST" --no-root-password
 
 bold ""
@@ -340,9 +276,5 @@ bold "════════════════════════�
 info "Config installed at /mnt/etc/nixos (also still in $REPO)"
 info "Push it:  git remote add origin https://git.hu-tao.dev/hutao/nixos-dotfiles && git push -u origin main"
 echo
-warn "On first boot you will be asked for the LUKS passphrase BEFORE anything"
-warn "graphical appears. If it rejects a passphrase you are sure is right, the"
-warn "cause is almost always a trailing newline in the keyfile — not the case"
-warn "here, but that is the thing to suspect."
-echo
+warn "First boot asks for the LUKS passphrase before anything graphical."
 info "Then: reboot, unlock, log in as hutao."

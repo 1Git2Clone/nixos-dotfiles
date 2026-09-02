@@ -31,9 +31,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Not a flake — just a config tree we symlink into ~/.config/nvim. Pinned
-    # here rather than stowed, so `nix flake update` is what moves it and a
-    # fresh install needs no extra clone. See home/hutao.nix for the tradeoff.
+    # Just a config tree, symlinked into ~/.config/nvim by home/hutao.nix.
     nvim-config = {
       url = "github:1Git2Clone/nvim-config";
       flake = false;
@@ -55,17 +53,10 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
 
-      # The desktop layer, shared by the laptop and the test VM. If it is in
-      # here, booting the VM genuinely exercises it; if it is not, the VM
-      # proves nothing about it.
-      #
-      # hosts/common — bootloader, users, secrets — is deliberately absent:
-      # all of it needs real firmware or a real install. hosts/hutao-laptop
-      # imports it; hosts/vm does not.
+      # Shared by the laptop and the VM. Anything in here is genuinely
+      # exercised by `nix run .#vm`; anything outside it is not.
       desktopModules = [
-        # Stylix's NixOS module automatically sets up its home-manager module
-        # when it detects home-manager running as a NixOS module. Do NOT also
-        # import homeModules.stylix — that double-imports.
+        # Do NOT also import homeModules.stylix — it double-imports.
         stylix.nixosModules.stylix
 
         home-manager.nixosModules.home-manager
@@ -95,9 +86,7 @@
             disko.nixosModules.disko
             sops-nix.nixosModules.sops
 
-            # Generic profiles — safe and always present. A model-specific
-            # ideapad profile may also exist; check with
-            #   nix flake show github:NixOS/nixos-hardware | grep -i ideapad
+            # Generic; a model-specific ideapad profile may also exist.
             nixos-hardware.nixosModules.common-cpu-amd
             nixos-hardware.nixosModules.common-gpu-amd
             nixos-hardware.nixosModules.common-pc-laptop
@@ -130,9 +119,7 @@
 
         sddm-hu-tao = pkgs.callPackage ./pkgs/sddm-hu-tao.nix { };
 
-        # Build-only check: does the laptop's real closure exist? The cheapest
-        # way to catch a renamed package. Needs hardware-configuration.nix and
-        # the encrypted hashes, so it only works post-install.
+        # Post-install only: needs hardware-configuration.nix.
         laptop = self.nixosConfigurations.hutao-laptop.config.system.build.toplevel;
 
         default = self.packages.${system}.installer-iso;
@@ -145,16 +132,12 @@
           program = "${self.packages.${system}.vm}/bin/run-hutao-vm-vm";
         };
 
-        # Full install rehearsal: boots the installer ISO in QEMU against a
-        # blank virtual NVMe and runs install.sh end to end.
         install-test = {
           type = "app";
           program = "${
             pkgs.writeShellApplication {
               name = "install-test";
-              # OVMF is found at runtime, not pinned here: the script has to
-              # work on the Arch host too, where the firmware comes from the
-              # distro rather than the store.
+              # OVMF found at runtime, so this works on non-NixOS hosts.
               runtimeInputs = with pkgs; [
                 qemu
                 socat
@@ -171,28 +154,20 @@
       devShells.${system} = {
         default = pkgs.mkShell {
           packages = with pkgs; [
-            # secrets
             sops
             age
             ssh-to-age
             mkpasswd
 
-            # nix tooling
             nixd
-            # nixfmt, not nixpkgs-fmt: every .nix file here is formatted with
-            # it and the two disagree on multi-argument lambdas, so the wrong
-            # one reformats the whole tree on first use.
             nixfmt
             statix
             deadnix
 
-            # the VM harness
             qemu
             socat
 
-            # hooks — `pre-commit install` once per clone, after which
-            # .pre-commit-config.yaml is enforced on every commit. CI runs the
-            # same file, so the two cannot drift.
+            # `pre-commit install` once per clone; CI runs the same file.
             pre-commit
             gitleaks
             shellcheck
@@ -201,9 +176,7 @@
           ];
         };
 
-        # What CI enters. Deliberately NOT the full dev shell: that one pulls
-        # nixd, qemu and nixos tooling, none of which a lint check needs and
-        # all of which CI would download every run.
+        # What CI enters — no nixd/qemu, which a lint check does not need.
         ci = pkgs.mkShell {
           packages = with pkgs; [
             pre-commit

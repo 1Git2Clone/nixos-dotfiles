@@ -8,8 +8,7 @@
 #               ├── lv root  120G ext4 -> /
 #               └── lv home  rest ext4 -> /home
 #
-# disko only runs when you explicitly invoke it. `nixos-rebuild switch`
-# never repartitions — after install this file is inert description.
+# Only runs when invoked. `nixos-rebuild` never repartitions.
 _:
 let
   disk = import ./disk.nix;
@@ -42,7 +41,6 @@ in
               name = "cryptroot";
               settings = {
                 allowDiscards = true;
-                # Unlock in initrd so the swap LV is available for resume.
                 crypttabExtraOpts = [ "x-initrd.attach" ];
               };
               # install.sh writes this with `printf %s` (no trailing newline)
@@ -80,8 +78,6 @@ in
         };
 
         home = {
-          # If lvcreate rejects this, use "100%" instead — both forms appear
-          # in disko's docs and the accepted one has drifted between releases.
           size = "100%FREE";
           content = {
             type = "filesystem";
