@@ -29,6 +29,7 @@ firmware or a real install.
 | `nix eval '.#nixosConfigurations.hutao-vm.config.system.build.toplevel.drvPath'` | check it evaluates |
 | `vm/install-test.sh all` | full install rehearsal |
 | `nix build .#installer-iso` | installer ISO |
+| `nix develop -c deploy .#hutao-laptop` | deploy to a host over Tailscale, with rollback |
 
 ## VM
 
@@ -128,6 +129,33 @@ Three things sit on top of the plain tree:
   caelestia's active scheme, and `~/Pictures/Wallpapers`. Each is seeded once
   from the pinned copy and then left alone, so `:Lazy update` and
   `caelestia scheme set` still work.
+
+## Deploys
+
+`deploy.nodes` in `flake.nix` drives `deploy-rs` over Tailscale SSH:
+
+```bash
+nix develop -c deploy .#hutao-laptop        # build locally, activate remotely
+nix develop -c deploy --dry-activate .#hutao-laptop
+```
+
+`sshUser = "root"` rather than sudo, so `security.sudo.wheelNeedsPassword`
+stays true and the credential is the tailnet ACL — revocable from the admin
+console instead of baked into the host. `hostname` is the MagicDNS name, so no
+address is pinned in the repo.
+
+`magicRollback` makes the target confirm itself over the tailnet after
+activating and roll back if it cannot, which is the case that matters when the
+link you deploy over is the one you might break. `autoRollback` covers a
+failed activation.
+
+Two things it needs from you: the deploying machine must have Nix (so not a
+stock macOS shell), and the tailnet ACL must not force an interactive SSH
+re-auth mid-deploy or the confirmation step will time out and roll back for no
+reason.
+
+Plain `nixos-rebuild switch --flake .#<host>` still works and is simpler when
+you are sitting at the machine; it just has no rollback on loss of contact.
 
 ## Secrets
 

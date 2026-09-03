@@ -31,6 +31,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    deploy-rs = {
+      url = "github:serokell/deploy-rs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Just a config tree, symlinked into ~/.config/nvim by home/hutao.nix.
     nvim-config = {
       url = "github:1Git2Clone/nvim-config";
@@ -53,6 +58,7 @@
       nixos-hardware,
       stylix,
       home-manager,
+      deploy-rs,
       ...
     }:
     let
@@ -187,6 +193,8 @@
             qemu
             socat
 
+            deploy-rs.packages.${system}.default
+
             # `pre-commit install` once per clone; CI runs the same file.
             pre-commit
             gitleaks
@@ -211,6 +219,27 @@
           ];
         };
       };
+
+      # Remote deploys over Tailscale SSH. sshUser = "root" on purpose: the
+      # tailnet ACL is the credential, so security.sudo.wheelNeedsPassword stays
+      # true and access is revocable from the admin console rather than from the
+      # machine.
+      #
+      # magicRollback makes the target confirm itself over the tailnet after
+      # activating and roll back if it cannot — the failure mode that matters
+      # when the link you deploy over is the one you might break.
+      deploy.nodes.hutao-laptop = {
+        hostname = "hutao-laptop"; # MagicDNS, so no address is pinned here
+        sshUser = "root";
+        magicRollback = true;
+        autoRollback = true;
+        profiles.system = {
+          user = "root";
+          path = deploy-rs.lib.${system}.activate.nixos self.nixosConfigurations.hutao-laptop;
+        };
+      };
+
+      checks.${system} = deploy-rs.lib.${system}.deployChecks self.deploy;
 
       formatter.${system} = pkgs.nixfmt;
     };
