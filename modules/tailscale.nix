@@ -12,6 +12,12 @@
     useRoutingFeatures = "both";
 
     extraUpFlags = [ "--ssh" ];
+
+    # The tailnet name is registered in Tailscale's control plane, not read
+    # from the OS, so networking.hostName alone never renames an existing node.
+    # `tailscale set` runs on every activation, so this also repairs a node
+    # that registered under the wrong name.
+    extraSetFlags = [ "--hostname=${config.networking.hostName}" ];
   };
 
   networking.firewall = {
