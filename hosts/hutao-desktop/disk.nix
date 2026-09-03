@@ -3,7 +3,7 @@
 {
   # Stable path. NEVER use /dev/nvme0n1 here: kernel enumeration order can
   # change between boots and disko would happily wipe the wrong disk.
-  device = "/dev/disk/by-id/nvme-Micron_MTFDKCD512QGN-1BN1AABLA_24384B21C999";
+  device = "/dev/disk/by-id/nvme-TS512GMTE220S_G023790001";
 
   # 16GB RAM on a 512GB NVMe. swap >= RAM is the hibernation requirement.
   swapSize = "20G";
