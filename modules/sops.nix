@@ -21,6 +21,15 @@ _: {
 
       tailscale_authkey = { };
 
+      # An .env-shaped blob (KEY=value per line), not a single value: hermes
+      # reads it with load_hermes_dotenv() and the provider keys travel
+      # together. owner, because home-manager's activation runs as hutao and
+      # the default 0400 root:root is unreadable to it — the sops-nix default
+      # suits a systemd unit's LoadCredential, not a user-level module.
+      "hermes/env" = {
+        owner = "hutao";
+      };
+
       # luks_passphrase is in secrets.yaml but deliberately not declared:
       # it would render the disk's own passphrase to /run/secrets on every
       # boot of the machine it unlocks. Only install.sh needs it.

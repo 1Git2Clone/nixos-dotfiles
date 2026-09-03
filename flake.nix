@@ -36,6 +36,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Imported by home/hutao.nix, not here: hermes keeps one person's
+    # credentials, sessions and memory, so the state belongs in $HOME rather
+    # than in a system service's /var/lib. Upstream's module header says the
+    # same. The NixOS module would also export HERMES_HOME system-wide.
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Just a config tree, symlinked into ~/.config/nvim by home/hutao.nix.
     nvim-config = {
       url = "github:1Git2Clone/nvim-config";

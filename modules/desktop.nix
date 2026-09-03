@@ -231,6 +231,10 @@ in
     hyprshot
     hyprpicker
 
+    # vibe coding
+    claude-code
+    opencode
+
     # clipboard  (SUPER+CTRL+V, autostart cliphist watchers)
     wl-clipboard
     cliphist

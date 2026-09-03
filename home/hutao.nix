@@ -178,7 +178,10 @@ let
   '';
 in
 {
-  imports = [ inputs.caelestia-shell.homeManagerModules.default ];
+  imports = [
+    inputs.caelestia-shell.homeManagerModules.default
+    inputs.hermes-agent.homeManagerModules.default
+  ];
 
   home.stateVersion = "26.05";
 
@@ -207,6 +210,14 @@ in
       # Patched and given its monitors.lua by `df`.
       "hypr".source = "${df}/dot-config/hypr";
 
+      # A store symlink, so ccstatusline's own TUI cannot save over it — this
+      # file is the source of truth and `nixos-rebuild` restores it. Edit
+      # home/ccstatusline.json and rebuild instead of using the picker.
+      #
+      # ~/.claude/settings.json runs it as `npx -y ccstatusline@latest`; there
+      # is no nixpkgs derivation to pin, so the schema is whatever npm serves.
+      "ccstatusline/settings.json".source = ./ccstatusline.json;
+
       # What qt6ct reads for the icon theme; hyprqt6engine.conf is the Arch
       # half of the same setting.
       "qt6ct/qt6ct.conf".text = ''
@@ -230,6 +241,35 @@ in
     systemd.enable = false;
     # shell.json is gitignored upstream, so it is vendored here.
     extraConfig = builtins.readFile ./caelestia-shell.json;
+  };
+
+  # home-manager splits an installation from a daemon, so hermes takes two
+  # option trees: `programs.` puts the CLI on PATH and exports HERMES_HOME,
+  # `services.` owns ~/.hermes. gateway.enable is left at its default false —
+  # nothing runs in the background, this is a command, not a service.
+  programs.hermes-agent.enable = true;
+
+  services.hermes-agent = {
+    # Renders ~/.hermes/config.yaml, which until now was a by-hand file that
+    # dotfiles gitignored — so this is the first time it is reproducible.
+    enable = true;
+
+    # openrouter, because OPENROUTER_API_KEY is what the secret below holds —
+    # one key, so one provider. The model id is the one
+    # dot-hermes/config.example.yaml already routes through openrouter.
+    settings.model = {
+      default = "anthropic/claude-opus-4.8";
+      provider = "openrouter";
+    };
+
+    # A runtime path and a `str`, never a Nix path literal: a path literal
+    # would copy the plaintext key into /nix/store, which every user can
+    # read. modules/sops.nix gives this secret owner = "hutao", because the
+    # activation that reads it is home-manager's and runs unprivileged.
+    #
+    # Guarded, not unconditional: hutao-vm imports no sops module, and
+    # hutao-vm is exactly what CI evaluates.
+    environmentFiles = lib.optional (osConfig ? sops) osConfig.sops.secrets."hermes/env".path;
   };
 
   # caelestia reads ~/.face in dashboard/dash/User.qml and lock/ProfilePic.qml,
