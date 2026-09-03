@@ -93,6 +93,12 @@ in
     ];
   };
 
+  # dot-gitconfig sets commit.gpgSign, so without this every commit fails.
+  programs.gnupg.agent = {
+    enable = true;
+    pinentryPackage = pkgs.pinentry-gnome3;
+  };
+
   # ── Audio ────────────────────────────────────────────────────────────────
   # wireplumber provides wpctl, which the XF86Audio* keybinds call.
   security.rtkit.enable = true;
@@ -242,6 +248,10 @@ in
     # gaming
     mangohud
     gamemode
+
+    # dot-gitconfig's credential helpers. gnupg comes from programs.gnupg.agent.
+    gh
+    git-credential-manager
 
     # misc from the Arch list
     ntfs3g

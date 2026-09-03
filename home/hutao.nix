@@ -50,6 +50,11 @@ let
       --replace-fail '/usr/lib/geoclue-2.0/demos/agent' \
         '${pkgs.geoclue2-with-demo-agent}/libexec/geoclue-2.0/demos/agent'
 
+    # /usr/bin/gh does not exist here, and git reports a failed credential
+    # helper as an auth failure rather than a missing binary.
+    substituteInPlace $out/dot-gitconfig \
+      --replace-fail '/usr/bin/gh' '${pkgs.gh}/bin/gh'
+
     # Every script in dot-config/programs/shell_scripts is #!/bin/bash, and
     # NixOS has no /bin/bash. execve returns ENOENT, Hyprland's exec keybind
     # reports nothing, and Super+S looks like it simply does nothing. Rewrites
