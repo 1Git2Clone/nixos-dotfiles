@@ -3,7 +3,7 @@
 {
   # Stable path. NEVER use /dev/nvme0n1 here: kernel enumeration order can
   # change between boots and disko would happily wipe the wrong disk.
-  device = "/dev/disk/by-id/REPLACE_ME";
+  device = "/dev/disk/by-id/nvme-Micron_MTFDKCD512QGN-1BN1AABLA_24384B21C999";
 
   # Sized for 16GB RAM on a 512GB disk. swap >= RAM is the hibernation
   # requirement; 20G gives headroom. Leaves ~370G for /home.
