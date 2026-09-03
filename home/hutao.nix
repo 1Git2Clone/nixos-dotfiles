@@ -77,6 +77,7 @@ let
     "dot-claude/hooks"
     "dot-config"
     "dot-config/caelestia"
+    "dot-config/vesktop"
     "dot-hermes"
     "dot-local"
     "dot-local/share"
