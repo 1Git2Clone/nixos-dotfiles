@@ -56,6 +56,17 @@ let
       $out/dot-config/hypr/modules/monitors.lua
   '';
 
+  # The hand-written entries in ~/.local/share/applications name icons that
+  # exist nowhere, so the launcher drew Papirus' magenta image-missing. Files
+  # under these exact names in hicolor make normal theme lookup find them; the
+  # .desktop files stay untouched. Swap a file to change the icon.
+  appIcons = lib.mapAttrs' (
+    name: _:
+    lib.nameValuePair ".local/share/icons/hicolor/scalable/apps/${name}" {
+      source = ../assets/app-icons + "/${name}";
+    }
+  ) (lib.filterAttrs (n: _: lib.hasSuffix ".svg" n) (builtins.readDir ../assets/app-icons));
+
   # Read rather than restated, so the two cannot drift.
   ignore =
     lib.filter (l: l != "" && !lib.hasPrefix "#" l) (
@@ -182,7 +193,7 @@ in
   stylix.autoEnable = false;
   stylix.targets.gtk.enable = true;
 
-  home.file = walk "" // {
+  home.file = walk "" // appIcons // {
     # dot-profile and several scripts hardcode $HOME/dotfiles paths.
     "dotfiles".source = df;
 

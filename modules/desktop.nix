@@ -304,6 +304,11 @@ in
     papirus-icon-theme
     qt6Packages.qt6ct
 
+    # Hutao-Cursor's index.theme says Inherits=Adwaita, and Adwaita was not
+    # installed — so any shape it lacks resolved to nothing. This is the
+    # guaranteed floor: it ships cursors/default and cursors/left_ptr.
+    adwaita-icon-theme
+
     # caelestia's launcher favourites reference both.
     vesktop
 
