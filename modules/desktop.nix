@@ -80,6 +80,11 @@ in
     # Must match the package's directory name and its Theme-Id.
     theme = "sddm-hu-tao";
 
+    # stylix.cursor themes the session, not the greeter — stylix has no sddm
+    # target. SDDM reads its own cursor from here, and finds the theme because
+    # hutao-cursor is in systemPackages (i.e. /run/current-system/sw/share/icons).
+    settings.Theme.CursorTheme = "Hutao-Cursor";
+
     # Main.qml's imports must reach the greeter; systemPackages is not enough.
     extraPackages = with pkgs.kdePackages; [
       qtsvg
@@ -243,6 +248,10 @@ in
     pinentry-gnome3
     xauth
     xhost
+
+    # let-bound above, not a pkgs attr — a `let` binding shadows `with pkgs`.
+    # Here so SDDM finds the cursor under /run/current-system/sw/share/icons.
+    hutao-cursor
   ];
 
   programs.gamemode.enable = true;
