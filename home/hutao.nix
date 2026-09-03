@@ -191,6 +191,7 @@ in
     ".atuin/bin/env".text = "";
   };
 
+  # Move the pin with `nix flake update nvim-config`.
   xdg.configFile =
     lib.mapAttrs' (name: _: lib.nameValuePair "nvim/${name}" { source = "${nvimConfig}/${name}"; }) (
       lib.removeAttrs (builtins.readDir nvimSrc) nvimState
@@ -199,7 +200,12 @@ in
       # Patched and given its monitors.lua by `df`.
       "hypr".source = "${df}/dot-config/hypr";
 
-      # Move the pin with `nix flake update nvim-config`.
+      # What qt6ct reads for the icon theme; hyprqt6engine.conf is the Arch
+      # half of the same setting.
+      "qt6ct/qt6ct.conf".text = ''
+        [Appearance]
+        icon_theme=Papirus-Dark
+      '';
 
       # Lives at the dotfiles repo root, which stow does not link.
       "caelestia/schemes/hu-tao/default/dark.txt".source = ../schemes/hu-tao-dark.txt;
@@ -218,6 +224,16 @@ in
     # shell.json is gitignored upstream, so it is vendored here.
     extraConfig = builtins.readFile ./caelestia-shell.json;
   };
+
+  # caelestia reads ~/.face in dashboard/dash/User.qml and lock/ProfilePic.qml,
+  # and its face picker copies into it — so seeded, not linked.
+  home.activation.face = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [ ! -e "${config.home.homeDirectory}/.face" ]; then
+      run cp -L ${df}/dot-config/fastfetch/icons/HuTaoSmall.png \
+        "${config.home.homeDirectory}/.face"
+      run chmod u+w "${config.home.homeDirectory}/.face"
+    fi
+  '';
 
   # lazy.nvim rewrites these, so they cannot be store symlinks. Seeded from the
   # pinned copies, then never touched.

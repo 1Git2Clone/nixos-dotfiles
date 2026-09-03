@@ -57,6 +57,17 @@ in
     };
   };
 
+  # Quickshell is Qt6. stylix's qt target installs qt6ct but sets
+  # platformTheme = "qt5ct", so Qt hunts for libqt5ct.so among the Qt6 plugins,
+  # loads no platform theme, and QIcon::themeName() comes back empty — every
+  # app icon in caelestia's launcher goes missing.
+  #
+  # Set via sessionVariables because the NixOS qt module's platformTheme enum
+  # has no qt6ct value. This is the NixOS-level stylix target; home/hutao.nix
+  # turns off the home-manager autoEnable, which is a separate switch.
+  stylix.targets.qt.enable = false;
+  environment.sessionVariables.QT_QPA_PLATFORMTHEME = "qt6ct";
+
   # ── Hyprland ─────────────────────────────────────────────────────────────
   programs.hyprland = {
     enable = true;
@@ -148,6 +159,9 @@ in
   };
 
   fonts.packages = with pkgs; [
+    # caelestia names its icons "calculate", "palette", "power_settings_new" —
+    # Material Symbols glyphs. Without the font they render as nothing.
+    material-symbols
     nerd-fonts.jetbrains-mono
     noto-fonts
     noto-fonts-cjk-sans
@@ -249,6 +263,14 @@ in
     gh
     git-credential-manager
 
+    # The theme dot-config/hypr/hyprqt6engine.conf already names. qt6ct is what
+    # reads it; stylix used to pull it in as a side effect of its qt target.
+    papirus-icon-theme
+    qt6Packages.qt6ct
+
+    # caelestia's launcher favourites reference both.
+    vesktop
+
     # misc from the Arch list
     ntfs3g
     pinentry-gnome3
@@ -259,6 +281,10 @@ in
     # greeter resolves the cursor theme.
     hutao-cursor
   ];
+
+  # Not a systemPackages entry: steam needs the FHS wrapper and the udev rules
+  # this option installs.
+  programs.steam.enable = true;
 
   programs.gamemode.enable = true;
   services.power-profiles-daemon.enable = true; # powerprofilesctl, power-mode.sh
