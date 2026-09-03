@@ -149,10 +149,21 @@ activating and roll back if it cannot, which is the case that matters when the
 link you deploy over is the one you might break. `autoRollback` covers a
 failed activation.
 
-Two things it needs from you: the deploying machine must have Nix (so not a
-stock macOS shell), and the tailnet ACL must not force an interactive SSH
-re-auth mid-deploy or the confirmation step will time out and roll back for no
-reason.
+It needs three things, all verified the hard way:
+
+- **Nix on the deploying machine.** deploy-rs builds locally and activates
+  remotely; a stock macOS shell cannot drive it.
+- **MagicDNS on the deploying machine** (`tailscale set --accept-dns=true`),
+  because `hostname` is the MagicDNS name. Without it, neither
+  `hutao-laptop` nor `hutao-laptop.<tailnet>.ts.net` resolves and the copy step
+  fails. The tailnet IP works as a fallback if you would rather not rely on DNS.
+- **A different machine.** A host cannot deploy to itself over Tailscale SSH:
+  the connection goes over loopback, tailscaled never intercepts it, and it
+  lands on real sshd — which `PermitRootLogin = "no"` refuses. Use
+  `nixos-rebuild switch` locally.
+
+Also check the tailnet ACL does not force an interactive SSH re-auth, or
+`magicRollback`'s confirmation will time out and roll back a good activation.
 
 Plain `nixos-rebuild switch --flake .#<host>` still works and is simpler when
 you are sitting at the machine; it just has no rollback on loss of contact.
