@@ -1,0 +1,48 @@
+#!/bin/bash
+
+if [[ -f /bin/zsh ]]; then
+  exec zsh
+fi
+
+###############################################################################
+# For non-interactive bash shells
+###############################################################################
+
+# If not running interactively, don't do anything
+#
+# ZSH already ignores non-interactive runs by using `.zshenv` for them rather
+# than `.zshrc`.
+[[ $- != *i* ]] && return
+
+###############################################################################
+# The .profile config for both Bash and Zsh.
+###############################################################################
+
+# shellcheck source=/dev/null
+. ~/.profile
+
+# For some reason bash doesn't pick it up from .profile with that syntax. on
+# zsh it works just fine.
+for script in "$HOME/dotfiles/dot-profile.d/"*; do
+  if [ -f "$script" ]; then
+    # shellcheck source=/dev/null
+    . "$script"
+  fi
+done
+
+PROMPT_COMMAND="$PROFILE_PROMPT_COMMANDS; $PROMPT_COMMAND"
+
+###############################################################################
+# Startup programs in the terminal using eval.
+###############################################################################
+
+# Starship
+# https://github.com/starship/starship
+eval "$(starship init bash)"
+
+# zoxide + fzf
+# https://github.com/ajeetdsouza/zoxide
+eval "$(zoxide init --cmd cd bash)"
+
+. "$HOME/.atuin/bin/env"
+eval "$(atuin init bash)"

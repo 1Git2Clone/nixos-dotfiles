@@ -1,8 +1,8 @@
 # `stow --dotfiles` as a derivation: same tree, same dot-foo -> .foo renaming,
 # same ignore file, but every path lands in the store.
 #
-# So ~/.config is read-only, and a dotfiles change needs
-# `nix flake update dotfiles`. To iterate without pushing, swap `src` for
+# So ~/.config is read-only, and a dotfiles change is a commit to ../dotfiles
+# in this repo plus a rebuild. To iterate without rebuilding, swap `src` for
 #   config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles"
 {
   inputs,
@@ -15,7 +15,7 @@
 let
   # Walked with readDir — a plain path, so no import-from-derivation. `df` is
   # what actually gets linked.
-  src = inputs.dotfiles;
+  src = ../dotfiles;
 
   inherit (osConfig.networking) hostName;
 
@@ -228,8 +228,12 @@ in
         icon_theme=Papirus-Dark
       '';
 
-      # Lives at the dotfiles repo root, which stow does not link.
-      "caelestia/schemes/hu-tao/default/dark.txt".source = ../schemes/hu-tao-dark.txt;
+      # Sits outside the dot-* trees, so .stow-local-ignore skips it and the
+      # walk never reaches it — caelestia/install.sh is what places it on Arch.
+      # Taken straight from the dotfiles copy now that both live in one repo;
+      # schemes/hu-tao-dark.txt was a byte-identical second copy.
+      "caelestia/schemes/hu-tao/default/dark.txt".source =
+        ../dotfiles/caelestia/schemes/hu-tao/default/dark.txt;
 
       # Sourced by caelestia's hyprland integration, which creates them itself
       # — but not before Hyprland reads its config.

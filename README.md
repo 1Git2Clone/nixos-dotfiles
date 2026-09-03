@@ -3,8 +3,9 @@
 NixOS config on `nixos-unstable`: LVM-on-LUKS, immutable users from sops,
 Hyprland + caelestia, Limine.
 
-The user layer is the [dotfiles](https://git.hu-tao.dev/hutao/dotfiles) repo,
-pinned as a flake input and symlinked into `$HOME` by home-manager. No stow.
+The user layer is `dotfiles/` and the neovim config is `nvim/`, both in this
+repo, symlinked into `$HOME` by home-manager. No stow, and no flake input to
+bump: a config change and the system change that needs it are one commit.
 
 ## Hosts
 
@@ -24,7 +25,6 @@ firmware or a real install.
 | --- | --- |
 | `nix run .#vm` | boot the desktop in QEMU (`hutao` / `vm`) |
 | `sudo nixos-rebuild switch --flake .#hutao-desktop` | rebuild |
-| `nix flake update dotfiles` | pull in a dotfiles change |
 | `nix develop -c pre-commit run --all-files` | lint |
 | `nix eval '.#nixosConfigurations.hutao-vm.config.system.build.toplevel.drvPath'` | check it evaluates |
 | `vm/install-test.sh all` | full install rehearsal |
@@ -113,7 +113,7 @@ Then add it to `flake.nix` beside `hutao-desktop`, swapping the
 ## User layer
 
 `home/hutao.nix` replays `stow --dotfiles`: it walks the dotfiles tree, honours
-that repo's own `.stow-local-ignore`, renames `dot-foo` to `.foo`, and symlinks
+`dotfiles/.stow-local-ignore`, renames `dot-foo` to `.foo`, and symlinks
 the result out of the store. Nothing is listed by hand, so nothing gets
 forgotten when the dotfiles gain a file.
 
@@ -122,12 +122,14 @@ Three things sit on top of the plain tree:
 - **NixOS patches**, applied with `--replace-fail` — `/usr/bin/nvim`, the
   hardcoded FHS `XDG_DATA_DIRS` that leaves every launcher empty, and
   `autostart.lua`'s absolute `/usr/lib` paths. Delete each one as it lands in
-  the dotfiles repo; a stale patch is a build error, not a silent no-op.
+  `dotfiles/`; a stale patch is a build error, not a silent no-op. Two of
+  them substitute store paths and have to stay build-time patches; the rest
+  could now simply be edited in place.
 - **`monitors.lua`**, per host, because it is gitignored upstream and
   `hyprland.lua` requires it.
 - **State that has to stay writable**: `lazy-lock.json` / `lazyvim.json`,
   caelestia's active scheme, and `~/Pictures/Wallpapers`. Each is seeded once
-  from the pinned copy and then left alone, so `:Lazy update` and
+  from the tracked copy and then left alone, so `:Lazy update` and
   `caelestia scheme set` still work.
 
 ## Deploys
@@ -225,6 +227,10 @@ host nobody can log into.
 - **Stylix's per-app targets are off** (`stylix.autoEnable = false`). The
   dotfiles already theme those apps, and two writers for one file is a
   conflict.
+- **`dotfiles/` is exempt from markdownlint, shellcheck and shfmt**, because
+  that tree's own linter configs stayed behind in the repo it came from. It is
+  *not* exempt from the whitespace fixers or from gitleaks, both of which still
+  cover it. See the closing note in `.pre-commit-config.yaml`.
 - **mason is disabled on NixOS.** Its prebuilt binaries cannot run here, so
   `modules/neovim.nix` provides the servers instead. Add one there and to
   `nvim/lua/plugins/lspconfig.lua`'s `servers` table together, or it

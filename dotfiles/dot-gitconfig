@@ -1,0 +1,47 @@
+[user]
+	name = Ivan
+	email = ivan@hu-tao.dev
+	signingkey = D7B6F6EB50C776B2A0ABFC2AE656E12B8EADC31C
+[credential]
+	credentialStore = gpg
+	helper = cache --timeout=3600
+[init]
+	defaultBranch = main
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[url "https://github.com/1Git2Clone/"]
+  insteadOf = "gh/1g2c/"
+[url "https://github.com/"]
+  insteadOf = "gh/"
+[url "https://gitlab.com/1Kill2Steal/"]
+  insteadOf = "gl/1k2s/"
+[url "https://gitlab.com/"]
+  insteadOf = "gl/"
+[url "https://codeberg.org/1Kill2Steal/"]
+  insteadOf = "cb/1k2s/"
+[url "https://codeberg.org/"]
+  insteadOf = "cb/"
+[alias]
+  pushall = !git remote | xargs -L1 git push --all
+[credential "https://github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://git.hu-tao.dev"]
+	helper = manager
+	provider = generic
+[commit]
+	gpgSign = true
+[pull]
+	rebase = true
+[diff]
+	tool = nvimdiff
+[difftool "nvimdiff"]
+	path = nvim
+[difftool]
+	prompt = false

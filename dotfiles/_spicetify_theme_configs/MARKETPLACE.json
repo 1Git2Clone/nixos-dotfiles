@@ -1,0 +1,11 @@
+{
+  "marketplace:active-tab": "Installed",
+  "marketplace:installed-themes": "[\"marketplace:installed:Astromations/Hazy/https://astromations.github.io/Hazy/app.css\"]",
+  "marketplace:themeDevTools": "true",
+  "marketplace:theme-installed": "marketplace:installed:Astromations/Hazy/https://astromations.github.io/Hazy/app.css",
+  "marketplace:colorShift": "false",
+  "marketplace:hideInstalled": "true",
+  "marketplace:tabs": "[{\"name\":\"Extensions\",\"enabled\":true},{\"name\":\"Themes\",\"enabled\":true},{\"name\":\"Snippets\",\"enabled\":true},{\"name\":\"Apps\",\"enabled\":true},{\"name\":\"Installed\",\"enabled\":true}]",
+  "marketplace:local-theme": "marketplace",
+  "marketplace:installed:Astromations/Hazy/https://astromations.github.io/Hazy/app.css": "{\"manifest\":{\"name\":\"Hazy\",\"description\":\"A Hazy spicetify theme\",\"preview\":\"hazy_home.png\",\"readme\":\"README.md\",\"usercss\":\"https://astromations.github.io/Hazy/app.css\",\"schemes\":\"https://astromations.github.io/Hazy/color.ini\",\"include\":[\"https://astromations.github.io/Hazy/hazy.js\"],\"authors\":[{\"name\":\"Astromations\",\"url\":\"https://github.com/Astromations\"}],\"tags\":[\"dark\",\"transparent\",\"hazy\",\"external JS\"]},\"type\":\"theme\",\"title\":\"Hazy\",\"subtitle\":\"A Hazy spicetify theme\",\"authors\":[{\"name\":\"Astromations\",\"url\":\"https://github.com/Astromations\"}],\"user\":\"Astromations\",\"repo\":\"Hazy\",\"branch\":\"main\",\"imageURL\":\"https://raw.githubusercontent.com/Astromations/Hazy/main/hazy_home.png\",\"readmeURL\":\"https://raw.githubusercontent.com/Astromations/Hazy/main/README.md\",\"stars\":375,\"tags\":[\"dark\",\"transparent\",\"hazy\",\"external JS\"],\"cssURL\":\"https://astromations.github.io/Hazy/app.css\",\"schemesURL\":\"https://astromations.github.io/Hazy/color.ini\",\"include\":[\"https://astromations.github.io/Hazy/hazy.js\"],\"schemes\":{\"Base\":{\"main\":\"0A0A0A\",\"subtext\":\"F0F0F0\",\"shadow\":\"000000\",\"text\":\"FFFFFF\",\"button\":\"30bf63\",\"button-active\":\"30bf63\",\"accent\":\"30bf63\"}},\"activeScheme\":\"Base\",\"lastUpdated\":\"2025-10-26T20:40:07Z\",\"created\":\"2023-06-02T10:48:05Z\"}"
+}

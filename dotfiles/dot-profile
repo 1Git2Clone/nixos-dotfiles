@@ -1,0 +1,39 @@
+#!/bin/bash
+
+export XDG_DATA_DIRS="$HOME/.local/share/flatpak/exports/share:$XDG_DATA_DIRS"
+
+# export TMOUT=60
+
+# echo "
+# ⠀⠀⠀⠀⠀⢿⣿⣿⣿⡆⠀⠁⠀⠀⣾⣿⣿⣿⣿⣿⣿⣟⢝⢟⣿⣿⣿⣿⡇⠀
+# ⠀⠀⠀⠀⠀⢸⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣯⣾⣿⣿⣿⢿⣿⡉⠀
+# ⠀⠀⠀⢀⠔⣡⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣏⣶⣿⣷⣄
+# ⠀⠀⢰⣿⣿⡟⣿⣿⣿⡟⠋⠉⢩⠀⠀⠀⠉⠉⠙⢻⠿⣿⣿⣯⣿⣿⣯⣿⡝⣿
+# ⠀⠀⠀⠉⢻⢱⣿⡟⠀⡇⠐⡀⠘⣇⠀⠀⣀⣀⠀⠘⡆⠀⢹⣿⣟⣻⣿⣿⠿⠉
+# ⠀⠀⠀⠀⣈⢻⡇⡇⣼⠻⡒⢣⡀⠸⡙⢍⠈⢮⣍⣁⡇⠀⡎⣗⡿⠀⣿⣿⡀⠀
+# ⢄⣀⣀⣀⣿⡘⡿⣿⣇⣠⣽⣴⣟⠦⣱⣀⣿⣾⣶⣽⡇⢢⣿⡿⠇⠀⣿⣿⣿⣶
+# ⠀⠉⠛⠿⡿⢇⣷⣿⣟⢼⣏⡏⠛⠷⣂⠉⠘⠧⠝⢊⣇⣼⠟⠁⠀⢠⣿⣿⣿⡙
+# ⠀⠀⠀⠀⢘⣼⣼⡿⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠄⣚⣿⣿⣯⣭⣲⣼⣿⣿⣿⣷
+# ⠀⠀⠀⠴⠯⠟⣩⣷⣿⣷⣄⠀⠀⠠⠄⠂⠀⠐⡫⠋⣿⣿⣿⣿⣿⣿⣿⡿⣏⠙
+# ⠀⠀⠀⠀⣠⡞⢡⣿⣿⣿⡿⣿⣦⣄⣀⣠⣴⣵⣶⣾⡿⠻⠋⣿⣿⣿⣿⣧⠀⠈
+# ⠀⠀⢀⢞⡟⢰⣬⣼⣿⣿⣷⣿⣿⣿⣾⣿⣿⣿⠿⠋⠀⠀⡼⢿⣾⣿⣿⣿⡀⠀
+# ⠀⠀⠂⣾⠁⢨⣿⠟⢛⣿⣿⣿⣿⣿⣿⡿⠛⠁⠀⠀⢀⣾⣷⣎⠙⠻⣿⡟⢆⠀
+# ⠀⠀⠘⡀⠀⣼⣇⣠⠾⠿⠛⠋⠉⠀⠀⠀⠀⠀⠀⣠⣿⠿⠛⠉⣧⠀⠈⠃⠀⡆
+# ⠀⠀⠀⠊⠦⠿⠓⢦⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠞⠉⠀⠀⠀⠀⠈⠆⠀⠀⠀⠄
+#
+#     胡桃ちゃんは一番でーす！"
+
+fastfetch
+
+# NOTE: Try not to make circular dependencies in here. The execution order for
+# sources isn't guaranteed.
+export DOT_PROFILE_DIR="$HOME/dotfiles/dot-profile.d/"
+
+find "$DOT_PROFILE_DIR" -type f -name '*.sh' -print0 | while IFS= read -r -d '' file; do
+  # shellcheck source=/dev/null
+  source "$file"
+done
+
+[ -f "$HOME/.ghcup/env" ] && . "$HOME/.ghcup/env" # ghcup-env
+
+. "$HOME/.atuin/bin/env"

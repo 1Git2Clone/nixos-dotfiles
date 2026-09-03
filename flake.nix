@@ -44,12 +44,6 @@
       url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # The user layer. home/hutao.nix links it into $HOME instead of stowing it.
-    dotfiles = {
-      url = "git+https://git.hu-tao.dev/hutao/dotfiles";
-      flake = false;
-    };
   };
 
   outputs =

@@ -1,0 +1,66 @@
+#!/bin/zsh
+
+###############################################################################
+# The .profile config for both Bash and Zsh.
+###############################################################################
+
+# NOTE: Contains the $ZSH export
+source $HOME/.profile
+
+################################################################################
+# Zsh only functions
+################################################################################
+
+# $ needs an escape in Zsh while in Bash it straight up doesn't work and stops
+# the parsing.
+\$() { "$@"; }
+
+###############################################################################
+# The default ZSH variables.
+###############################################################################
+
+# Unneeded due to starship eval.
+# ZSH_THEME="robbyrussell"
+
+plugins=(git zsh-autosuggestions zsh-vi-mode copyfile zsh-syntax-highlighting
+  catimg colored-man-pages colorize vim-interaction)
+
+source $ZSH/oh-my-zsh.sh
+
+###############################################################################
+# Zsh keybinds
+###############################################################################
+# bindkey '^f' autosuggest-accept
+
+###############################################################################
+# Startup programs in the terminal using eval.
+###############################################################################
+
+# zoxide + fzf
+# https://github.com/ajeetdsouza/zoxide
+eval "$(zoxide init --cmd cd zsh)"
+
+# Starship
+# https://github.com/starship/starship
+eval "$(starship init zsh)"
+
+alias ls='lsd --color=auto'
+
+precmd() {
+  $PROFILE_PROMPT_COMMANDS
+}
+export PATH="$HOME/.npm-global/bin:$PATH"
+
+# opencode
+export PATH="$HOME/.opencode/bin:$PATH"
+
+# Added by codebase-memory-mcp install
+export PATH="$HOME/.local/bin:$PATH"
+
+. "$HOME/.atuin/bin/env"
+eval "$(atuin init zsh)"
+
+function zvm_after_init() {
+  bindkey -M viins '^R' atuin-search-viins
+  bindkey -M viins '^S' atuin-search-viins
+}

@@ -3,7 +3,6 @@
 #
 # hyprland.lua needs Hyprland 0.55+, which is why this tracks unstable.
 {
-  inputs,
   lib,
   pkgs,
   ...
@@ -26,7 +25,7 @@ in
 
     # Wallpaper only; base16Scheme above is explicit, so nothing derives
     # colours from this.
-    image = "${inputs.dotfiles}/dot-config/hypr/backgrounds/Hu_Tao_00056_1.png";
+    image = ../dotfiles/dot-config/hypr/backgrounds/Hu_Tao_00056_1.png;
 
     fonts = {
       monospace = {

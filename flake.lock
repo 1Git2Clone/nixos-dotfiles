@@ -157,22 +157,6 @@
         "type": "github"
       }
     },
-    "dotfiles": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1788440614,
-        "narHash": "sha256-1WmWwzKrHo00QsEMMed+lzHvtWHUuX//wx2GX2V6qAg=",
-        "ref": "refs/heads/main",
-        "rev": "65035b7c0ddd09393634ae590405c24cba5c2efc",
-        "revCount": 596,
-        "type": "git",
-        "url": "https://git.hu-tao.dev/hutao/dotfiles"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.hu-tao.dev/hutao/dotfiles"
-      }
-    },
     "firefox-gnome-theme": {
       "flake": false,
       "locked": {
@@ -540,7 +524,6 @@
         "caelestia-shell": "caelestia-shell",
         "deploy-rs": "deploy-rs",
         "disko": "disko",
-        "dotfiles": "dotfiles",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager_2",
         "nixos-hardware": "nixos-hardware",

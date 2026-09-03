@@ -26,6 +26,11 @@ repos:
       # different reason: lazy.nvim rewrites them, and it does not end them
       # with a newline. A fixer here means every `:Lazy sync` leaves a dirty
       # tree over a byte no one chose.
+      #
+      # dotfiles/ is NOT excluded here, unlike from the linters below. The
+      # ported tree took a one-time normalisation pass on import rather than
+      # carrying whitespace that `git diff --check` would flag on every later
+      # commit that touched those files.
       - id: trailing-whitespace
         exclude: ^(assets/sddm-hu-tao/(?!ORIGIN\.md)|nvim/(lazy-lock|lazyvim)\.json$)
       - id: end-of-file-fixer
@@ -41,9 +46,24 @@ repos:
         # 2218x1421 PNG that is deliberately tracked so the greeter background
         # can be swapped by replacing one file. Still far below a stray ISO or
         # qcow2, which is what this hook is actually guarding against.
+        #
+        # Three ported files clear 5M and are named rather than waived by
+        # raising the ceiling, so dotfiles/ keeps the same guard as the rest
+        # of the tree: two wallpapers (one of them the default the activation
+        # script seeds ~/Pictures/Wallpapers from) and a prebuilt launcher.
         args: [--maxkb=5120]
+        exclude: |
+          (?x)^dotfiles/(
+            dot-config/hypr/backgrounds/Hu_Tao_(00056_1|1)\.png
+            |dot-config/programs/bin/honkers-launcher
+          )$
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
+        # dot-profile and dot-profile.d/*.sh open with a shebang so editors
+        # pick the right syntax, but they are sourced by the shell and never
+        # executed -- chmod +x would be the wrong fix. index.ts is compiled by
+        # tsc, not run directly.
+        exclude: ^dotfiles/
 
   - repo: local
     hooks:
@@ -70,6 +90,7 @@ repos:
         files: \.nix$
 
       - id: shellcheck
+        exclude: ^dotfiles/
         name: shellcheck
         description: install.sh and the VM harness are the only way this repo
           touches a disk; they get linted like production code.
@@ -78,12 +99,14 @@ repos:
         files: \.sh$
 
       - id: shfmt
+        exclude: ^dotfiles/
         name: shfmt
         entry: nix develop .#ci -c shfmt --diff
         language: system
         files: \.sh$
 
       - id: markdownlint
+        exclude: ^dotfiles/
         name: markdownlint
         entry: nix develop .#ci -c markdownlint
         language: system
@@ -101,3 +124,24 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+# ==============================================================================
+# The ported user layer
+# ==============================================================================
+# dotfiles/ is excluded from markdownlint, shellcheck and shfmt above -- not
+# from the whitespace fixers, which it took a one-time pass from on import.
+# That is a deliberate state and not a permanent one: the tree's own linter
+# configs (.shellcheckrc, .shfmt.toml, .markdownlint*, .prettier*) were left
+# behind with the repo it came from, and those three linters have a lot to say
+# without them.
+#
+# Two ways out, whenever it is worth the churn:
+#
+#   1. Bring those configs back as a second pre-commit config scoped to
+#      dotfiles/, which is what the settings were written for -- shfmt there
+#      wanted different flags than this repo's.
+#   2. Fold the tree into this stack and take the one-time reformat. It is
+#      ~968 files, most of them vendored agent skill docs under
+#      dot-config/opencode/ that markdownlint has a lot to say about.
+#
+# Until then: a change under dotfiles/ is linted by nothing. Read it yourself.
