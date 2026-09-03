@@ -172,6 +172,11 @@ in
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
+
+    # Otherwise the module exports GTK_IM_MODULE/QT_IM_MODULE and fcitx5 warns
+    # that it found them alongside a working Wayland frontend. Uses the
+    # text-input protocol instead, which Hyprland speaks.
+    fcitx5.waylandFrontend = true;
     fcitx5.addons = with pkgs; [
       fcitx5-mozc
       fcitx5-gtk
