@@ -295,9 +295,15 @@ in
     mangohud
     gamemode
 
-    # dot-gitconfig's credential helpers. gnupg comes from programs.gnupg.agent.
+    # gh backs dot-gitconfig's github.com helper. gnupg comes from
+    # programs.gnupg.agent.
+    #
+    # git-credential-manager is deliberately NOT here. dot-gitconfig points
+    # git.hu-tao.dev at `helper = manager` with credentialStore = gpg. While GCM
+    # is absent that line fails harmlessly and git falls through to the generic
+    # `helper = cache`, which works. Install GCM and it runs for real, finds no
+    # pass store, and fails hard — no fetch at all.
     gh
-    git-credential-manager
 
     # The theme dot-config/hypr/hyprqt6engine.conf already names. qt6ct is what
     # reads it; stylix used to pull it in as a side effect of its qt target.
