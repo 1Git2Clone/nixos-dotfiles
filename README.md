@@ -133,7 +133,7 @@ Three things sit on top of the plain tree:
 
 One personal age key, at `~/.sops-nix/key.txt` on a workstation and
 `/var/lib/sops-nix/key.txt` on each host. Recipients live in `.sops.yaml` —
-public keys, committed on purpose. `docs/sops-example.yaml` shows the shape of
+public keys, committed on purpose. `secrets/secrets.example.yaml` shows the shape of
 the decrypted file; `modules/sops.nix` declares which keys exist.
 
 ```bash

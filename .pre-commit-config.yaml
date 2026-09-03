@@ -27,9 +27,10 @@ repos:
         exclude: ^assets/sddm-hu-tao/(?!ORIGIN\.md)
       - id: check-merge-conflict
       - id: check-yaml
-        # secrets/secrets.yaml is sops output: valid YAML, but the parser has
-        # no reason to walk it and nothing here would act on the result.
-        exclude: ^secrets/.*\.yaml$
+        # sops output is valid YAML, but the parser has no reason to walk it and
+        # nothing here would act on the result. The *.example.yaml files are
+        # plaintext by design, so they stay checked.
+        exclude: ^secrets/(?!.*\.example\.yaml$).*\.yaml$
       - id: check-added-large-files
         # 5M, sized for assets/sddm-hu-tao/Backgrounds/hu-tao.png (4.4M) — a
         # 2218x1421 PNG that is deliberately tracked so the greeter background

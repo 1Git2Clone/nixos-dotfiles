@@ -11,7 +11,8 @@
 #
 #   SOPS_AGE_KEY_FILE=~/.sops-nix/key.txt sops secrets/secrets.yaml
 #
-# See docs/sops-example.yaml for the shape. Bring your age key — see AGE_KEY.
+# See secrets/secrets.example.yaml for the shape. Bring your age key — see
+# AGE_KEY.
 set -euo pipefail
 
 HOST="${HOST:-hutao-laptop}"
@@ -91,7 +92,7 @@ info "UEFI ✓  tools ✓  age key ✓ ($AGE_PUB)"
 # end of nixos-install; discovering one is absent there gives a partitioned
 # disk holding a system nobody can log into.
 [[ -f $SECRETS_FILE ]] ||
-  die "No $SECRETS_FILE. Author it first: sops secrets/secrets.yaml (see docs/sops-example.yaml)."
+  die "No $SECRETS_FILE. Author it first: sops secrets/secrets.yaml (see secrets/secrets.example.yaml)."
 
 SOPS_AGE_KEY_FILE="$AGE_KEY" sops -d "$SECRETS_FILE" >/dev/null 2>&1 ||
   die "$SECRETS_FILE does not decrypt with $AGE_KEY."
