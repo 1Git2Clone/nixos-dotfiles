@@ -88,9 +88,30 @@ in
     # Must match the package directory name and its Theme-Id.
     theme = "sddm-hu-tao";
 
-    # stylix.cursor themes the session, not the greeter. Resolved via
-    # systemPackages — see hutao-cursor at the end of that list.
+    # Theme.CursorTheme only reaches the Qt greeter. On Wayland the compositor
+    # draws the pointer, and weston takes its theme from [shell] cursor-theme in
+    # weston.ini — it ignores XCURSOR_THEME. NixOS' generated ini has no [shell]
+    # section at all, so weston asks for a theme literally named "default",
+    # finds none, and draws no cursor.
     settings.Theme.CursorTheme = "Hutao-Cursor";
+
+    wayland.compositorCommand =
+      let
+        westonIni = pkgs.writeText "weston.ini" ''
+          [shell]
+          cursor-theme=Hutao-Cursor
+          cursor-size=24
+
+          [keyboard]
+          keymap_layout=us
+          keymap_model=pc104
+          keymap_options=terminate:ctrl_alt_bksp
+
+          [libinput]
+          enable-tap=true
+        '';
+      in
+      "${pkgs.weston}/bin/weston --shell=kiosk -c ${westonIni}";
 
     # Main.qml's Qt imports; systemPackages does not reach the greeter.
     extraPackages = with pkgs.kdePackages; [
@@ -270,6 +291,8 @@ in
 
     # caelestia's launcher favourites reference both.
     vesktop
+
+    ente-auth
 
     # misc from the Arch list
     ntfs3g
