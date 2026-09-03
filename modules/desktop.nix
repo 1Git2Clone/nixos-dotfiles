@@ -11,6 +11,8 @@
 let
   hutao-cursor = pkgs.callPackage ../pkgs/hutao-cursor.nix { };
 
+  app-icons = pkgs.callPackage ../pkgs/app-icons.nix { };
+
   sddm-hu-tao = pkgs.callPackage ../pkgs/sddm-hu-tao.nix { };
 in
 {
@@ -295,15 +297,11 @@ in
     mangohud
     gamemode
 
-    # gh backs dot-gitconfig's github.com helper. gnupg comes from
-    # programs.gnupg.agent.
-    #
-    # git-credential-manager is deliberately NOT here. dot-gitconfig points
-    # git.hu-tao.dev at `helper = manager` with credentialStore = gpg. While GCM
-    # is absent that line fails harmlessly and git falls through to the generic
-    # `helper = cache`, which works. Install GCM and it runs for real, finds no
-    # pass store, and fails hard — no fetch at all.
+    # dot-gitconfig's credential helpers. GCM is usable here only because `df`
+    # rewrites credentialStore to secretservice — gpg needs a ~/.password-store
+    # that does not exist, and GCM then fails hard instead of prompting.
     gh
+    git-credential-manager
 
     # The theme dot-config/hypr/hyprqt6engine.conf already names. qt6ct is what
     # reads it; stylix used to pull it in as a side effect of its qt target.
@@ -329,6 +327,9 @@ in
     # let-bound above; a `let` binding shadows `with pkgs`. Here so the SDDM
     # greeter resolves the cursor theme.
     hutao-cursor
+
+    # Icons for the hand-written ~/.local/share/applications entries.
+    app-icons
   ];
 
   # Not a systemPackages entry: steam needs the FHS wrapper and the udev rules

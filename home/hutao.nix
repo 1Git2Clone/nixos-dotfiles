@@ -44,8 +44,13 @@ let
         '${pkgs.geoclue2-with-demo-agent}/libexec/geoclue-2.0/demos/agent'
 
     # git reports a missing credential helper as an auth failure.
+    #
+    # credentialStore: gpg wants a ~/.password-store, which does not exist here,
+    # and GCM dies rather than prompting. secretservice is gnome-keyring, which
+    # is already running — and it is what brings back the GUI prompt.
     substituteInPlace $out/dot-gitconfig \
-      --replace-fail '/usr/bin/gh' '${pkgs.gh}/bin/gh'
+      --replace-fail '/usr/bin/gh' '${pkgs.gh}/bin/gh' \
+      --replace-fail 'credentialStore = gpg' 'credentialStore = secretservice'
 
     # shell_scripts/* are #!/bin/bash, which does not exist here. Hyprland
     # reports nothing for a failed exec bind, so Super+S just looks inert.
@@ -55,17 +60,6 @@ let
     cp ${../hosts + "/${hostName}/monitors.lua"} \
       $out/dot-config/hypr/modules/monitors.lua
   '';
-
-  # The hand-written entries in ~/.local/share/applications name icons that
-  # exist nowhere, so the launcher drew Papirus' magenta image-missing. Files
-  # under these exact names in hicolor make normal theme lookup find them; the
-  # .desktop files stay untouched. Swap a file to change the icon.
-  appIcons = lib.mapAttrs' (
-    name: _:
-    lib.nameValuePair ".local/share/icons/hicolor/scalable/apps/${name}" {
-      source = ../assets/app-icons + "/${name}";
-    }
-  ) (lib.filterAttrs (n: _: lib.hasSuffix ".svg" n) (builtins.readDir ../assets/app-icons));
 
   # Read rather than restated, so the two cannot drift.
   ignore =
@@ -193,19 +187,16 @@ in
   stylix.autoEnable = false;
   stylix.targets.gtk.enable = true;
 
-  home.file =
-    walk ""
-    // appIcons
-    // {
-      # dot-profile and several scripts hardcode $HOME/dotfiles paths.
-      "dotfiles".source = df;
+  home.file = walk "" // {
+    # dot-profile and several scripts hardcode $HOME/dotfiles paths.
+    "dotfiles".source = df;
 
-      ".oh-my-zsh".source = ohMyZsh;
+    ".oh-my-zsh".source = ohMyZsh;
 
-      # Sourced unguarded by .zshrc and dot-profile, so it only has to exist —
-      # atuin itself comes from the system closure.
-      ".atuin/bin/env".text = "";
-    };
+    # Sourced unguarded by .zshrc and dot-profile, so it only has to exist —
+    # atuin itself comes from the system closure.
+    ".atuin/bin/env".text = "";
+  };
 
   # Move the pin with `nix flake update nvim-config`.
   xdg.configFile =
