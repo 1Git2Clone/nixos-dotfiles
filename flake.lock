@@ -138,11 +138,11 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1788070400,
-        "narHash": "sha256-uuQzUBKnxVkZPxgDYCh+6FJosWgNoE2U3cxseieLOyU=",
+        "lastModified": 1788440614,
+        "narHash": "sha256-1WmWwzKrHo00QsEMMed+lzHvtWHUuX//wx2GX2V6qAg=",
         "ref": "refs/heads/main",
-        "rev": "3d65c31381d67afe829b790d472e1a2866e2b4c0",
-        "revCount": 595,
+        "rev": "65035b7c0ddd09393634ae590405c24cba5c2efc",
+        "revCount": 596,
         "type": "git",
         "url": "https://git.hu-tao.dev/hutao/dotfiles"
       },
