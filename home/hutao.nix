@@ -50,6 +50,12 @@ let
       --replace-fail '/usr/lib/geoclue-2.0/demos/agent' \
         '${pkgs.geoclue2-with-demo-agent}/libexec/geoclue-2.0/demos/agent'
 
+    # Every script in dot-config/programs/shell_scripts is #!/bin/bash, and
+    # NixOS has no /bin/bash. execve returns ENOENT, Hyprland's exec keybind
+    # reports nothing, and Super+S looks like it simply does nothing. Rewrites
+    # them to the store's bash; grim/slurp/tesseract were never the problem.
+    patchShebangs $out
+
     # Per-machine and gitignored upstream, but hyprland.lua requires it.
     cp ${../hosts + "/${hostName}/monitors.lua"} \
       $out/dot-config/hypr/modules/monitors.lua
