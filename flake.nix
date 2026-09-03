@@ -211,7 +211,9 @@
             qemu
             socat
 
-            deploy-rs # nixpkgs', not the flake's — see deployPkgs above
+            # Qualified: a bare `deploy-rs` resolves to the flake input, which
+            # shadows `with pkgs`.
+            pkgs.deploy-rs
 
             # `pre-commit install` once per clone; CI runs the same file.
             pre-commit
