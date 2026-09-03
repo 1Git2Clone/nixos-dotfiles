@@ -11,12 +11,12 @@ keys:
   # Your personal key: ~/.sops-nix/key.txt on a workstation,
   # /var/lib/sops-nix/key.txt on each installed host. The same key already
   # decrypts the vps repo, which is what lets one identity cover every machine.
-  - &primary age1hxd7xtvy5e52pe9d8x2p7g6yls0zmsp668p0rvu0qw02dd7dryuqrvuq7h
+  - &primary age1jp2ax426u8njvnrg29xgj3qlj4w0vjjslu3v5pqsppta99utpg7qutlsx8
 
   # Offline recovery key, carried over from the vps repo so a single lost
   # laptop is not a total loss. Drop this line if you would rather the two
   # repos not share a recovery identity.
-  - &backup age1twlfuf88nxhdevt070c3yrklljm0xc0jpyut0722av342ux4tqzqtl3mpz
+  - &backup age16ad0nfs0wxfllttnw5tdjl9vyjlyqe5dlcrzqdnr7c87wz8lyf8qp52wft
 
 creation_rules:
   - path_regex: secrets/[^/]+\.yaml$
