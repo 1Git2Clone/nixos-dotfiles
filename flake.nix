@@ -65,6 +65,24 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
 
+      # deploy-rs builds its own binary from source, and the crate fetches 403
+      # on the pinned revision — which would also break the activation script,
+      # since the lib embeds that binary in the system closure. Take the lib
+      # from the flake and the binary from nixpkgs; this split is the workaround
+      # deploy-rs documents.
+      deployPkgs = import nixpkgs {
+        inherit system;
+        overlays = [
+          deploy-rs.overlays.default
+          (_: super: {
+            deploy-rs = {
+              inherit (pkgs) deploy-rs;
+              inherit (super.deploy-rs) lib;
+            };
+          })
+        ];
+      };
+
       # Everything in here is exercised by `nix run .#vm`; nothing else is.
       desktopModules = [
         # Do NOT also import homeModules.stylix — it double-imports.
@@ -193,7 +211,7 @@
             qemu
             socat
 
-            deploy-rs.packages.${system}.default
+            deploy-rs # nixpkgs', not the flake's — see deployPkgs above
 
             # `pre-commit install` once per clone; CI runs the same file.
             pre-commit
@@ -235,11 +253,11 @@
         autoRollback = true;
         profiles.system = {
           user = "root";
-          path = deploy-rs.lib.${system}.activate.nixos self.nixosConfigurations.hutao-laptop;
+          path = deployPkgs.deploy-rs.lib.activate.nixos self.nixosConfigurations.hutao-laptop;
         };
       };
 
-      checks.${system} = deploy-rs.lib.${system}.deployChecks self.deploy;
+      checks.${system} = deployPkgs.deploy-rs.lib.deployChecks self.deploy;
 
       formatter.${system} = pkgs.nixfmt;
     };
