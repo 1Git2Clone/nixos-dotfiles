@@ -163,19 +163,22 @@ let
   ohMyZsh = pkgs.runCommandLocal "oh-my-zsh-hutao" { } ''
     cp -r ${pkgs.oh-my-zsh}/share/oh-my-zsh $out
     chmod -R u+w $out
-    ${lib.concatMapStringsSep "\n" ({ name, src }: ''
-      # The whole tree, not just the entry point: these plugins resolve their
-      # own siblings off ''${0:h}, so a lone symlink lands them in a directory
-      # where the rest of the plugin is not.
-      cp -rL ${src} "$out/custom/plugins/${name}"
-      chmod -R u+w "$out/custom/plugins/${name}"
+    ${lib.concatMapStringsSep "\n" (
+      { name, src }:
+      ''
+        # The whole tree, not just the entry point: these plugins resolve their
+        # own siblings off ''${0:h}, so a lone symlink lands them in a directory
+        # where the rest of the plugin is not.
+        cp -rL ${src} "$out/custom/plugins/${name}"
+        chmod -R u+w "$out/custom/plugins/${name}"
 
-      # oh-my-zsh sources <name>.plugin.zsh; nixpkgs ships some as <name>.zsh.
-      if [ ! -e "$out/custom/plugins/${name}/${name}.plugin.zsh" ]; then
-        echo 'source "''${0:A:h}/${name}.zsh"' \
-          > "$out/custom/plugins/${name}/${name}.plugin.zsh"
-      fi
-    '') zshPlugins}
+        # oh-my-zsh sources <name>.plugin.zsh; nixpkgs ships some as <name>.zsh.
+        if [ ! -e "$out/custom/plugins/${name}/${name}.plugin.zsh" ]; then
+          echo 'source "''${0:A:h}/${name}.zsh"' \
+            > "$out/custom/plugins/${name}/${name}.plugin.zsh"
+        fi
+      ''
+    ) zshPlugins}
   '';
 in
 {

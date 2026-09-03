@@ -135,7 +135,7 @@
       packages.${system} = {
         installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
 
-        vm = self.nixosConfigurations.hutao-vm.config.system.build.vm;
+        inherit (self.nixosConfigurations.hutao-vm.config.system.build) vm;
 
         hutao-cursor = pkgs.callPackage ./pkgs/hutao-cursor.nix { };
 
