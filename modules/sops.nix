@@ -32,6 +32,14 @@ _: {
       user_password = {
         neededForUsers = true;
       };
+
+      # === Bootstrap ===
+      tailscale_authkey = { };
+
+      # luks_passphrase is in secrets/secrets.yaml but deliberately NOT here.
+      # Only install.sh needs it, and only to run cryptsetup luksFormat once.
+      # Declaring it would decrypt the disk's own passphrase to /run/secrets on
+      # every boot of the machine it unlocks — strictly worse, for nothing.
     };
   };
 }

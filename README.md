@@ -33,8 +33,9 @@ firmware or a real install.
 ## VM
 
 `nix run .#vm` builds `hosts/hutao-vm` with the real `modules/desktop.nix`,
-`modules/neovim.nix` and `home/hutao.nix`. No install, no LUKS, no sops. It
-stops at the greeter; sshd is on 2223.
+`modules/neovim.nix` and `home/hutao.nix`. No install, no LUKS, no sops, no
+tailscale — it does not import `hosts/common`. It stops at the greeter; sshd is
+on 2223.
 
 Use it for anything in the desktop or user layer. `vm/install-test.sh` is only
 for the install path — `install.sh`, `modules/disk-layout.nix`,
@@ -42,7 +43,8 @@ for the install path — `install.sh`, `modules/disk-layout.nix`,
 
 ## Install
 
-Needs UEFI, and your age key on the machine — see [Secrets](#secrets).
+Needs UEFI, your age key on the machine, and `secrets/secrets.yaml` already
+populated — see [Secrets](#secrets).
 
 ```bash
 nix build .#installer-iso
@@ -65,8 +67,10 @@ git clone https://git.hu-tao.dev/hutao/nixos-dotfiles && cd nixos-dotfiles
 INSTALL_AGE_KEY=/tmp/age.key HOST=hutao-desktop ./install.sh
 ```
 
-It prompts for the LUKS passphrase and the `hutao` / `root` passwords, and
-refuses to continue until you confirm the disk by typing its size.
+Every credential comes out of `secrets/secrets.yaml` — the LUKS passphrase,
+both password hashes and the Tailscale auth key. `install.sh` prompts for none
+of them and refuses to start if any is missing or malformed. It still refuses
+to continue until you confirm the disk by typing its size.
 
 ### On new hardware
 
@@ -137,6 +141,24 @@ SOPS_AGE_KEY_FILE=~/.sops-nix/key.txt nix develop -c sops secrets/secrets.yaml
 sudo nixos-rebuild switch --flake .#hutao-desktop
 ```
 
+Four values, all required before an install:
+
+| key | what | made with |
+| --- | --- | --- |
+| `root_password` | crypt(3) hash | `mkpasswd -m yescrypt` |
+| `user_password` | crypt(3) hash | `mkpasswd -m yescrypt` |
+| `luks_passphrase` | the passphrase itself, in the clear | your head |
+| `tailscale_authkey` | reusable, pre-authorized, **not** ephemeral | [admin console](https://login.tailscale.com/admin/settings/keys) |
+
+`luks_passphrase` is the odd one out and worth being clear about. It is the
+only plaintext credential, because `cryptsetup` needs the passphrase and not a
+hash of it. `install.sh` decrypts it, runs `luksFormat`, and shreds its copy;
+`modules/sops.nix` does not declare it, so the installed system never renders
+it to `/run/secrets`. **You still type it at every boot.** This is not
+auto-unlock — the age key that decrypts it lives on your workstation and the
+installer, never on the unencrypted ESP, so nothing on the machine can open its
+own disk.
+
 Adding a recipient does not grant access retroactively — rerun
 `sops updatekeys secrets/secrets.yaml`. Lose every key in `.sops.yaml` and the
 values are gone.
@@ -166,5 +188,16 @@ host nobody can log into.
   nvim-config's `servers` table together, or it silently never attaches.
   `home/nvim-nixos.lua` silences the warning LazyVim's lang extras raise for
   every package mason has not installed.
+- **Tailscale joins on first boot** with `--ssh`, from
+  `sops.secrets.tailscale_authkey`. It lives in `hosts/common`, so real
+  machines get it and `hutao-vm` does not. `useRoutingFeatures = "both"`
+  replaces the `ip_forward` sysctls `modules/system.nix` used to set by hand.
+  A used-up or expired auth key fails `tailscaled-autoconnect` at boot without
+  blocking anything else — `systemctl status tailscaled-autoconnect` says so.
+- **One LUKS keyslot, no recovery key.** Lose `luks_passphrase` and the disk is
+  gone; there is no second slot and no escrow. LUKS2 has eight, so
+  `cryptsetup luksAddKey /dev/disk/by-partlabel/...` after first boot is cheap
+  insurance. Rotating is `cryptsetup luksChangeKey` — imperative either way,
+  which is why neither lives in a module.
 - **Suspend/resume** is the known hazard on the laptop (fixed by DMI quirks in
   Linux 6.6, so unstable is fine). Start there if it misbehaves.

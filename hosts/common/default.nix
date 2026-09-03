@@ -5,6 +5,7 @@
 {
   imports = [
     ../../modules/sops.nix
+    ../../modules/tailscale.nix
     ../../modules/users.nix
   ];
 

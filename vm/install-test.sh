@@ -12,10 +12,11 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK="${WORK:-$HOME/.cache/nixos-vm-test}"
 
-# Weak on purpose: typed one key at a time over the QEMU monitor (ASCII only).
-LUKS_PASS="${LUKS_PASS:-test1234}"
-USER_PASS="${USER_PASS:-test1234}"
-ROOT_PASS="${ROOT_PASS:-test1234}"
+# The rehearsal now uses the REAL secrets/secrets.yaml, because that is what
+# install.sh reads — a fake would stop testing the thing that matters. This is
+# only needed to type the passphrase at the boot prompt; it is resolved lazily
+# in cmd_unlock so the other subcommands do not need the age key.
+LUKS_PASS="${LUKS_PASS:-}"
 
 DISK_SIZE="${DISK_SIZE:-512G}"
 VM_RAM="${VM_RAM:-6144}"
@@ -228,13 +229,12 @@ cmd_install() {
   bold "── Running install.sh ──"
   warn "this builds the whole desktop closure in the guest — expect 20-45 min"
 
+  # No INSTALL_*_PASS: every credential comes out of secrets/secrets.yaml,
+  # which rsync just copied into the guest, decrypted with /tmp/age.key.
   ssh_g "cd /root/repo && \
     INSTALL_NONINTERACTIVE=1 \
     INSTALL_AGE_KEY=/tmp/age.key \
     INSTALL_DISK='$byid' \
-    INSTALL_LUKS_PASS='$LUKS_PASS' \
-    INSTALL_HUTAO_PASS='$USER_PASS' \
-    INSTALL_ROOT_PASS='$ROOT_PASS' \
     ./install.sh" 2>&1 | tee "$WORK/install.log"
 
   info "install log: $WORK/install.log"
@@ -245,6 +245,15 @@ cmd_install() {
 # only way to answer the LUKS prompt headless.
 cmd_unlock() {
   vm_running || die "No VM running."
+
+  if [[ -z $LUKS_PASS ]]; then
+    [[ -f $AGE_KEY ]] || die "No age key at $AGE_KEY. Set AGE_KEY=/path/to/key.txt"
+    LUKS_PASS=$(SOPS_AGE_KEY_FILE="$AGE_KEY" \
+      sops -d --extract '["luks_passphrase"]' "$REPO/secrets/secrets.yaml") ||
+      die "Could not read luks_passphrase from secrets/secrets.yaml"
+  fi
+  [[ -n $LUKS_PASS ]] || die "luks_passphrase is empty."
+
   info "typing the LUKS passphrase on the virtual keyboard"
   local c
   for ((i = 0; i < ${#LUKS_PASS}; i++)); do
@@ -255,7 +264,38 @@ cmd_unlock() {
       [0-9]) mon "sendkey $c" ;;
       -) mon "sendkey minus" ;;
       .) mon "sendkey dot" ;;
-      *) die "Passphrase character '$c' has no known QEMU keyname. Keep LUKS_PASS alphanumeric." ;;
+      ,) mon "sendkey comma" ;;
+      /) mon "sendkey slash" ;;
+      \\) mon "sendkey backslash" ;;
+      \;) mon "sendkey semicolon" ;;
+      \') mon "sendkey apostrophe" ;;
+      '[') mon "sendkey bracket_left" ;;
+      ']') mon "sendkey bracket_right" ;;
+      '=') mon "sendkey equal" ;;
+      '`') mon "sendkey grave_accent" ;;
+      ' ') mon "sendkey spc" ;;
+      '!') mon "sendkey shift-1" ;;
+      '@') mon "sendkey shift-2" ;;
+      '#') mon "sendkey shift-3" ;;
+      '$') mon "sendkey shift-4" ;;
+      '%') mon "sendkey shift-5" ;;
+      '^') mon "sendkey shift-6" ;;
+      '&') mon "sendkey shift-7" ;;
+      '*') mon "sendkey shift-8" ;;
+      '(') mon "sendkey shift-9" ;;
+      ')') mon "sendkey shift-0" ;;
+      _) mon "sendkey shift-minus" ;;
+      +) mon "sendkey shift-equal" ;;
+      :) mon "sendkey shift-semicolon" ;;
+      '"') mon "sendkey shift-apostrophe" ;;
+      '<') mon "sendkey shift-comma" ;;
+      '>') mon "sendkey shift-dot" ;;
+      '?') mon "sendkey shift-slash" ;;
+      '{') mon "sendkey shift-bracket_left" ;;
+      '}') mon "sendkey shift-bracket_right" ;;
+      '|') mon "sendkey shift-backslash" ;;
+      '~') mon "sendkey shift-grave_accent" ;;
+      *) die "Passphrase character '$c' has no known QEMU keyname. QEMU sendkey assumes a US layout." ;;
     esac
     sleep 0.05
   done

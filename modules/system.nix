@@ -78,13 +78,6 @@
 
     # Magic SysRq for emergency recovery (Alt+SysRq+R/E/I/S/U/B)
     "kernel.sysrq" = 1;
-
-    # Forwarding — carried over from your Tailscale exit-node setup.
-    # If you enable services.tailscale, prefer setting
-    #   services.tailscale.useRoutingFeatures = "both";
-    # which sets these for you, and drop them from here.
-    "net.ipv4.ip_forward" = 1;
-    "net.ipv6.conf.all.forwarding" = 1;
   };
 
   services.udev.extraRules = ''
