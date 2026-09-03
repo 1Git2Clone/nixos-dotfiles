@@ -2,7 +2,12 @@
 # itself is home/hutao.nix's job.
 #
 # hyprland.lua needs Hyprland 0.55+, which is why this tracks unstable.
-{ inputs, pkgs, ... }:
+{
+  inputs,
+  lib,
+  pkgs,
+  ...
+}:
 let
   hutao-cursor = pkgs.callPackage ../pkgs/hutao-cursor.nix { };
 
@@ -62,11 +67,16 @@ in
   # loads no platform theme, and QIcon::themeName() comes back empty — every
   # app icon in caelestia's launcher goes missing.
   #
-  # Set via sessionVariables because the NixOS qt module's platformTheme enum
-  # has no qt6ct value. This is the NixOS-level stylix target; home/hutao.nix
-  # turns off the home-manager autoEnable, which is a separate switch.
-  stylix.targets.qt.enable = false;
-  environment.sessionVariables.QT_QPA_PLATFORMTHEME = "qt6ct";
+  # stylix's qt target is what installs the qt6ct plugin and puts
+  # lib/qt-6/plugins on QT_PLUGIN_PATH. Disabling it removed the plugin while
+  # leaving the theme name set, so Qt had a name and nowhere to load it from —
+  # same broken end state, different cause. Keep the target and override only
+  # the name, since it sets qt5ct and a Qt6 app cannot load libqt5ct.so.
+  #
+  # mkForce because the target defines this too. The NixOS qt module's
+  # platformTheme enum has no qt6ct value, hence the raw variable.
+  stylix.targets.qt.enable = true;
+  environment.variables.QT_QPA_PLATFORMTHEME = lib.mkForce "qt6ct";
 
   # ── Hyprland ─────────────────────────────────────────────────────────────
   programs.hyprland = {
