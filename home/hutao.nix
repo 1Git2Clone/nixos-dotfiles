@@ -78,6 +78,7 @@ let
     "dot-config"
     "dot-config/caelestia"
     "dot-config/vesktop"
+    "dot-config/vesktop/themes"
     "dot-hermes"
     "dot-local"
     "dot-local/share"
