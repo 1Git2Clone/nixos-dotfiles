@@ -21,8 +21,7 @@
 
   hardware.graphics.enable = true;
 
-  # modules/users.nix is sops-driven and cannot evaluate without the encrypted
-  # file, so the VM declares its own throwaway accounts.
+  # modules/users.nix needs sops, so the VM declares throwaway accounts.
   users.mutableUsers = false;
   users.users.hutao = {
     isNormalUser = true;
@@ -42,13 +41,11 @@
 
   services.openssh.settings.PasswordAuthentication = lib.mkForce true;
 
-  # No autoLogin: the greeter is part of the desktop layer and is usually what
-  # you booted this to look at.
+  # No autoLogin: the greeter is usually what you booted this to look at.
   services.displayManager.defaultSession = "hyprland";
 
-  # caelestia's idle timeouts end in suspend-then-hibernate at 10 minutes.
-  # QEMU has no meaningful suspend — the guest pauses, and the Wayland session
-  # does not survive the wakeup — so an unattended VM eats itself.
+  # caelestia suspends at 10 minutes and the Wayland session does not survive
+  # a QEMU wakeup, so an unattended VM eats itself.
   systemd.targets = {
     sleep.enable = false;
     suspend.enable = false;
@@ -56,8 +53,7 @@
     hybrid-sleep.enable = false;
   };
 
-  # QEMU has no GPU. wlroots refuses llvmpipe unless told explicitly and
-  # Hyprland just exits. VM-only.
+  # wlroots refuses llvmpipe unless told to, and Hyprland just exits. VM-only.
   environment.sessionVariables = {
     WLR_RENDERER_ALLOW_SOFTWARE = "1";
     WLR_NO_HARDWARE_CURSORS = "1";
@@ -69,8 +65,7 @@
     cores = 4;
     diskSize = 32768;
     graphics = true;
-    # No -vga/-display here: qemu-vm.nix sets one and a second makes qemu
-    # refuse to start.
+    # qemu-vm.nix already sets -vga/-display; a second makes qemu refuse.
     forwardPorts = [
       {
         from = "host";

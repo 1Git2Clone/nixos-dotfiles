@@ -5,28 +5,22 @@
 #   ./install.sh                                  # this repo's ISO
 #   nix-shell -p sops age git --run ./install.sh  # stock ISO
 #
-# Reads every credential from secrets/secrets.yaml — the LUKS passphrase, the
-# root hash and the hutao hash. It prompts for nothing and writes nothing back
-# into the repo. Author them first:
+# Every credential comes from secrets/secrets.yaml; this prompts for nothing
+# and writes nothing back. Author them first, see secrets.example.yaml:
 #
 #   SOPS_AGE_KEY_FILE=~/.sops-nix/key.txt sops secrets/secrets.yaml
-#
-# See secrets/secrets.example.yaml for the shape. Bring your age key — see
-# AGE_KEY.
 set -euo pipefail
 
 HOST="${HOST:-hutao-laptop}"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# INSTALL_* overrides are honoured only with INSTALL_NONINTERACTIVE=1 set
-# explicitly, so a stray variable cannot skip the destructive confirmation.
+# Gated so a stray INSTALL_* cannot skip the destructive confirmation.
 NONINTERACTIVE="${INSTALL_NONINTERACTIVE:-0}"
 
 LUKS_KEY="/tmp/luks-passphrase" # must match modules/disk-layout.nix
 SECRETS_FILE="$REPO/secrets/secrets.yaml"
 
-# The identity .sops.yaml is encrypted to. Getting it here is the one manual
-# step — a machine cannot bootstrap a decryption key from nothing:
+# The one manual step: nothing bootstraps a decryption key from nothing.
 #
 #   scp ~/.sops-nix/key.txt nixos@<installer-ip>:/tmp/age.key
 #   INSTALL_AGE_KEY=/tmp/age.key ./install.sh
@@ -56,9 +50,8 @@ confirm() {
   [[ $reply == [yY] ]] || die "Aborted."
 }
 
-# Pull one value out of secrets/secrets.yaml. Command substitution strips the
-# trailing newline sops emits, which matters enormously for the passphrase: a
-# stray \n gets baked into the LUKS keyslot and can never be typed at boot.
+# Command substitution strips the newline sops emits — a stray \n in the
+# passphrase is baked into the keyslot and can never be typed at boot.
 sops_get() {
   SOPS_AGE_KEY_FILE="$AGE_KEY" sops -d --extract "[\"$1\"]" "$SECRETS_FILE" 2>/dev/null
 }
@@ -76,8 +69,7 @@ done
 [[ -f $AGE_KEY ]] ||
   die "No age key at $AGE_KEY. Copy it over first, or set INSTALL_AGE_KEY. See the header."
 
-# Fail now, not mid-install: a key that is not a recipient gives a machine
-# that installs cleanly then cannot decrypt its own passwords.
+# A non-recipient key installs cleanly, then cannot decrypt its own passwords.
 AGE_PUB=$(age-keygen -y "$AGE_KEY" 2>/dev/null) ||
   die "$AGE_KEY is not a valid age private key."
 grep -q "$AGE_PUB" "$REPO/.sops.yaml" ||
@@ -87,10 +79,9 @@ ping -c1 -W3 cache.nixos.org >/dev/null 2>&1 ||
   warn "cache.nixos.org unreachable — install will be very slow or fail."
 info "UEFI ✓  tools ✓  age key ✓ ($AGE_PUB)"
 
-# Every credential, resolved here — before the disk gate, so a missing or
-# unreadable value costs nothing. Activation renders the two hashes at the very
-# end of nixos-install; discovering one is absent there gives a partitioned
-# disk holding a system nobody can log into.
+# Before the disk gate: activation renders the hashes at the very end of
+# nixos-install, and finding one missing there leaves a wiped disk holding a
+# system nobody can log into.
 [[ -f $SECRETS_FILE ]] ||
   die "No $SECRETS_FILE. Author it first: sops secrets/secrets.yaml (see secrets/secrets.example.yaml)."
 
@@ -101,8 +92,7 @@ LUKS_PASS=$(sops_get luks_passphrase) ||
   die "secrets.yaml has no 'luks_passphrase'. Add it: sops secrets/secrets.yaml"
 [[ -n $LUKS_PASS ]] || die "'luks_passphrase' is empty — the disk would have no passphrase."
 
-# Not used here, only checked. sops-nix reads them from the same file during
-# activation; this is the cheap place to find out they are missing.
+# Checked, not used — sops-nix reads them at activation.
 for key in root_password user_password tailscale_authkey; do
   val=$(sops_get "$key") ||
     die "secrets.yaml has no '$key'. Add it: sops secrets/secrets.yaml"
@@ -110,8 +100,8 @@ for key in root_password user_password tailscale_authkey; do
 done
 unset val
 
-# hashedPasswordFile wants crypt(3) output, not a digest. A bare 128-hex
-# sha512sum is the classic mistake and it locks you out silently.
+# hashedPasswordFile wants crypt(3), not a digest. A sha512sum here locks you
+# out silently.
 for key in root_password user_password; do
   case "$(sops_get "$key")" in
     '$'*'$'*) ;;
@@ -171,18 +161,14 @@ if ((SIZE_G < 200)); then
 fi
 
 # ── 2. Pin the disk into the config ─────────────────────────────────────────
-# Rewrites the `device` line whatever it currently holds, rather than
-# substituting a REPLACE_ME placeholder. hosts/hutao-desktop/disk.nix is
-# hand-written and has no placeholder, and a second run on any host has already
-# consumed its own — in both cases a placeholder sed silently changes nothing
-# and the verification below then fails with no clue as to why.
+# Rewrites the `device` line whatever it holds. A REPLACE_ME substitution
+# silently no-ops on a hand-written disk.nix or on a second run.
 DISK_NIX="$REPO/hosts/$HOST/disk.nix"
 [[ -f $DISK_NIX ]] || die "No $DISK_NIX. See the README on adding a host."
 
-# awk via ENVIRON, not sed: a by-id path is data. sed's replacement reinterprets
-# & and the delimiter, awk's sub() reinterprets &, and even `awk -v` expands
-# backslash escapes in the value. ENVIRON is the only one of the four that
-# hands the string through untouched.
+# awk via ENVIRON: sed's replacement reinterprets & and the delimiter, awk's
+# sub() reinterprets &, and `awk -v` expands backslash escapes. Only ENVIRON
+# passes a by-id path through untouched.
 disk_nix_device() {
   awk -F'"' '/^[[:space:]]*device[[:space:]]*=/ { print $2; exit }' "$DISK_NIX"
 }
@@ -194,10 +180,8 @@ PINNED=$(disk_nix_device)
 if [[ $PINNED == "$DISK" ]]; then
   info "disk.nix already pins $DISK"
 else
-  # An unconsumed placeholder is the expected case and needs no ceremony.
-  # A real path that disagrees with the chosen disk does: it is either a
-  # hand-written host config or a previous run, and overwriting either without
-  # asking is how you wipe the disk you did not mean to.
+  # A real path that disagrees is a hand-written config or an earlier run.
+  # Repointing either silently is how the wrong disk gets wiped.
   if [[ $PINNED != */REPLACE_ME ]]; then
     echo
     warn "$DISK_NIX already names a different disk:"
@@ -221,11 +205,9 @@ else
 fi
 
 # ── 3. Hardware detection ───────────────────────────────────────────────────
-# MUST precede the evaluation below. The flake imports
-# hardware-configuration.nix, so generating it after disko means the pre-disko
-# eval can never succeed on a fresh clone.
-#
-# --no-filesystems: nothing here needs /mnt, and disko owns fileSystems.*.
+# Must precede the eval below: the flake imports hardware-configuration.nix,
+# so generating it later means the pre-disko eval can never pass on a fresh
+# clone. --no-filesystems because disko owns fileSystems.*.
 bold ""
 bold "── Hardware detection ──"
 nixos-generate-config --no-filesystems --dir /tmp/hwcfg
@@ -235,11 +217,11 @@ info "hardware-configuration.nix captured"
 # ── 4. Partition ────────────────────────────────────────────────────────────
 bold ""
 bold "── Partitioning ──"
-# printf %s, NOT echo: a trailing newline becomes part of the passphrase.
+# printf %s, not echo: a trailing newline becomes part of the passphrase.
 printf '%s' "$LUKS_PASS" >"$LUKS_KEY"
 chmod 600 "$LUKS_KEY"
 
-# Before touching the disk: an eval error here costs a minute, not the disk.
+# An eval error here costs a minute, not the disk.
 info "Dry-evaluating the flake (nothing destructive yet)..."
 cd "$REPO"
 git add -A >/dev/null 2>&1 || true
@@ -254,8 +236,8 @@ confirm "Last chance. Run disko and destroy $DISK?"
 
 git add -A >/dev/null 2>&1 || true # flakes ignore untracked files in a git repo
 
-# disko prompts on stdin, unanswerable over ssh. We have already asked twice
-# by here. Mode is one comma-separated argument, hence the quotes (SC2054).
+# disko prompts on stdin, unanswerable over ssh — and we have asked twice
+# already. Mode is one comma-separated argument, hence the quotes (SC2054).
 disko_args=(--mode "destroy,format,mount" --flake ".#$HOST")
 [[ $NONINTERACTIVE == 1 ]] && disko_args+=(--yes-wipe-all-disks)
 
@@ -267,8 +249,7 @@ findmnt -R /mnt
 
 # ── 5. Turn the target's swap on ────────────────────────────────────────────
 # disko formats the swap LV but never activates it, and the live / is tmpfs.
-# On 8GB that combination OOM-kills nixos-install (exit 137) deep into the
-# build. The 20G swap is already formatted; just switch it on.
+# On 8GB that OOM-kills nixos-install deep into the build.
 bold ""
 bold "── Swap ──"
 if swapon /dev/pool/swap 2>/dev/null; then
@@ -279,8 +260,8 @@ else
 fi
 
 # ── 6. Seed the age key BEFORE install ──────────────────────────────────────
-# nixos-install runs activation, which renders the password hashes. No key
-# here means an install that fails at its last step, with no way in.
+# Activation renders the password hashes; no key here means an install that
+# fails at its last step, with no way in.
 install -Dm600 "$AGE_KEY" /mnt/var/lib/sops-nix/key.txt
 info "age key seeded to /mnt/var/lib/sops-nix/key.txt ✓"
 

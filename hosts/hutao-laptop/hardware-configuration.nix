@@ -1,11 +1,8 @@
-# Generated on the machine with
-#   nixos-generate-config --no-filesystems --show-hardware-config
-# and committed, so the host evaluates from a fresh clone. disko owns
-# fileSystems.*; regenerate and replace this file if hardware changes.
+# nixos-generate-config --no-filesystems --show-hardware-config, committed so
+# the host evaluates from a fresh clone. disko owns fileSystems.*.
 #
-# The short module list is fine: boot.initrd.includeDefaultModules stays true,
-# which is what puts usbhid/hid_generic/atkbd/i8042 in the initrd — i.e. what
-# lets you type the LUKS passphrase.
+# No HID modules listed because includeDefaultModules already supplies them —
+# that is what makes the LUKS prompt typeable.
 {
   config,
   lib,

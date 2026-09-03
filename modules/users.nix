@@ -1,7 +1,5 @@
-# Immutable accounts; hashes come from modules/sops.nix.
-#
-# root gets one too — the emergency door if the display manager or the hutao
-# account breaks.
+# Immutable accounts; hashes from modules/sops.nix. root gets one as the
+# emergency door.
 { config, pkgs, ... }:
 {
   users.mutableUsers = false;

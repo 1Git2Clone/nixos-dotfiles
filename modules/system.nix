@@ -9,7 +9,7 @@
       "flakes"
     ];
     auto-optimise-store = true;
-    # 16GB. Bounded so a big rebuild does not starve the desktop.
+    # Bounded so a rebuild does not starve the desktop.
     max-jobs = 4;
   };
 
@@ -38,8 +38,7 @@
     };
   };
 
-  # Compressed RAM swap; near-mandatory at 8GB. Higher priority than the swap
-  # LV, which exists for hibernation.
+  # Higher priority than the swap LV, which exists only for hibernation.
   zramSwap = {
     enable = true;
     algorithm = "zstd";
@@ -49,47 +48,42 @@
 
   # From the dotfiles repo's sysctl.d/99-custom.conf.
   boot.kernel.sysctl = {
-    # Virtual memory
-    # Low swappiness: prefer keeping processes in RAM, let ZRAM handle overflow
     "vm.swappiness" = 15;
-    # ZRAM-friendly: no read-ahead for swap (already compressed)
+    # zram is already compressed, so swap read-ahead only wastes work.
     "vm.page-cluster" = 0;
-    # More aggressive page writeback for responsive desktop
     "vm.dirty_ratio" = 10;
     "vm.dirty_background_ratio" = 3;
     "vm.dirty_writeback_centisecs" = 500;
     "vm.dirty_expire_centisecs" = 3000;
 
-    # Kernel — higher fd limits for Electron apps, browsers, etc.
+    # Electron apps and browsers exhaust the defaults.
     "fs.file-max" = 2097152;
     "fs.inotify.max_user_watches" = 524288;
     "fs.inotify.max_user_instances" = 1024;
 
-    # Network — higher connection backlog
     "net.core.somaxconn" = 65535;
     "net.core.netdev_max_backlog" = 65536;
 
-    # TCP performance
     "net.ipv4.tcp_fastopen" = 3;
     "net.ipv4.tcp_window_scaling" = 1;
     "net.ipv4.tcp_timestamps" = 1;
     "net.ipv4.tcp_sack" = 1;
     "net.ipv4.tcp_no_metrics_save" = 1;
 
-    # Magic SysRq for emergency recovery (Alt+SysRq+R/E/I/S/U/B)
+    # Alt+SysRq+R/E/I/S/U/B.
     "kernel.sysrq" = 1;
   };
 
   services.udev.extraRules = ''
-    # NVMe and SSDs: none (lowest latency, hardware handles queuing)
+    # SSDs: none — the hardware already queues.
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="none"
     ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
 
-    # HDDs: bfq (fair queuing for spinning rust)
+    # HDDs: bfq.
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
   '';
 
-  # Replaces the hand-written scx-lavd.service. Needs kernel 6.12+.
+  # Replaces the hand-written scx-lavd.service.
   services.scx = {
     enable = true;
     scheduler = "scx_lavd";

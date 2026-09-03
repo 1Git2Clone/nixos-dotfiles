@@ -1,10 +1,7 @@
-# SDDM greeter theme. Vendored — see assets/sddm-hu-tao/ORIGIN.md.
+# Vendored greeter theme — see assets/sddm-hu-tao/ORIGIN.md.
 #
-# "sddm-hu-tao" must match in three places: this directory name,
-# metadata.desktop's Theme-Id, and services.displayManager.sddm.theme.
-#
-# The Qt modules Main.qml imports must reach the greeter, not this package —
-# they are sddm.extraPackages in modules/desktop.nix.
+# "sddm-hu-tao" must match the directory name, metadata.desktop's Theme-Id and
+# sddm.theme. Main.qml's Qt imports go in sddm.extraPackages, not here.
 {
   lib,
   runCommandLocal,
@@ -24,8 +21,8 @@ runCommandLocal "sddm-hu-tao"
     chmod -R u+w "$dir"
     rm -f "$dir/ORIGIN.md"
 
-    # SDDM falls back to its default silently when any of these is missing,
-    # which presents as "the theme did not apply".
+    # A missing file here presents as "the theme did not apply": SDDM falls
+    # back to its default silently.
     test -f "$dir/metadata.desktop"
     test -f "$dir/Main.qml"
     conf=$(sed -n 's/^ConfigFile=//p' "$dir/metadata.desktop")

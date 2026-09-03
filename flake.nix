@@ -59,8 +59,7 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
 
-      # Shared by the laptop and the VM. Anything in here is genuinely
-      # exercised by `nix run .#vm`; anything outside it is not.
+      # Everything in here is exercised by `nix run .#vm`; nothing else is.
       desktopModules = [
         # Do NOT also import homeModules.stylix — it double-imports.
         stylix.nixosModules.stylix
@@ -92,7 +91,6 @@
             disko.nixosModules.disko
             sops-nix.nixosModules.sops
 
-            # Generic; a model-specific ideapad profile may also exist.
             nixos-hardware.nixosModules.common-cpu-amd
             nixos-hardware.nixosModules.common-gpu-amd
             nixos-hardware.nixosModules.common-pc-laptop

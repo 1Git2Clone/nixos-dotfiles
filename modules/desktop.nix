@@ -1,8 +1,7 @@
 # Hyprland + SDDM + Stylix, and every binary the dotfiles call. ~/.config
 # itself is home/hutao.nix's job.
 #
-# That config is Lua (Hyprland 0.55+), so the package must be new enough to
-# read hyprland.lua. nixos-unstable is.
+# hyprland.lua needs Hyprland 0.55+, which is why this tracks unstable.
 { inputs, pkgs, ... }:
 let
   hutao-cursor = pkgs.callPackage ../pkgs/hutao-cursor.nix { };
@@ -18,8 +17,8 @@ in
     # Derived from caelestia/schemes/hu-tao/default/dark.txt.
     base16Scheme = ../hu-tao.yaml;
 
-    # The one hyprpaper.conf names. base16Scheme above is explicit, so this is
-    # only used as the wallpaper — nothing is derived from it.
+    # Wallpaper only; base16Scheme above is explicit, so nothing derives
+    # colours from this.
     image = "${inputs.dotfiles}/dot-config/hypr/backgrounds/Hu_Tao_00056_1.png";
 
     fonts = {
@@ -39,7 +38,7 @@ in
         package = pkgs.noto-fonts-color-emoji;
         name = "Noto Color Emoji";
       };
-      # Matches kitty.conf's font_size 9.0
+      # kitty.conf's font_size.
       sizes = {
         terminal = 9;
         applications = 10;
@@ -50,7 +49,7 @@ in
 
     opacity.terminal = 0.92;
 
-    # Same theme env.lua's XCURSOR_THEME names, so the greeter matches.
+    # The theme env.lua's XCURSOR_THEME names.
     cursor = {
       package = hutao-cursor;
       name = "Hutao-Cursor";
@@ -66,26 +65,23 @@ in
 
   programs.hyprlock.enable = true;
 
-  # No hypridle: caelestia's shell.json owns idle (general.idle.timeouts —
-  # lock at 3min, dpms at 5, suspend-then-hibernate at 10). Running both
+  # No hypridle: caelestia's general.idle.timeouts owns this, and running both
   # locks the session twice.
 
   # ── SDDM ─────────────────────────────────────────────────────────────────
-  # Stylix has no sddm target (only lightdm and regreet), so the greeter is
-  # themed by hand or it comes up stock blue.
+  # Stylix has no sddm target, so the greeter is themed by hand.
   services.displayManager.sddm = {
     enable = true;
     wayland.enable = true;
 
-    # Must match the package's directory name and its Theme-Id.
+    # Must match the package directory name and its Theme-Id.
     theme = "sddm-hu-tao";
 
-    # stylix.cursor themes the session, not the greeter — stylix has no sddm
-    # target. SDDM reads its own cursor from here, and finds the theme because
-    # hutao-cursor is in systemPackages (i.e. /run/current-system/sw/share/icons).
+    # stylix.cursor themes the session, not the greeter. Resolved via
+    # systemPackages — see hutao-cursor at the end of that list.
     settings.Theme.CursorTheme = "Hutao-Cursor";
 
-    # Main.qml's imports must reach the greeter; systemPackages is not enough.
+    # Main.qml's Qt imports; systemPackages does not reach the greeter.
     extraPackages = with pkgs.kdePackages; [
       qtsvg
       qtmultimedia
@@ -93,14 +89,14 @@ in
     ];
   };
 
-  # dot-gitconfig sets commit.gpgSign, so without this every commit fails.
+  # dot-gitconfig sets commit.gpgSign; without this every commit fails.
   programs.gnupg.agent = {
     enable = true;
     pinentryPackage = pkgs.pinentry-gnome3;
   };
 
   # ── Audio ────────────────────────────────────────────────────────────────
-  # wireplumber provides wpctl, which the XF86Audio* keybinds call.
+  # wireplumber ships wpctl, which the XF86Audio* keybinds call.
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -117,13 +113,13 @@ in
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
-  # autostart.lua execs these by absolute Arch path, which does not exist
-  # here. Declared as services instead, so those lines fail harmlessly.
+  # autostart.lua execs these by Arch path. Declared as services so those
+  # lines fail harmlessly.
   security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
   services.geoclue2.enable = true;
 
-  # polkit-gnome has no NixOS option; this is the documented user-service form.
+  # polkit-gnome has no NixOS option.
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     description = "polkit-gnome-authentication-agent-1";
     wantedBy = [ "graphical-session.target" ];
@@ -162,8 +158,8 @@ in
   ];
 
   # ── Packages ─────────────────────────────────────────────────────────────
-  # required_packages_archlinux.txt plus everything the stowed scripts and
-  # keybinds actually call; that list had drifted.
+  # required_packages_archlinux.txt, plus what the scripts and keybinds
+  # actually call — that list had drifted.
   environment.systemPackages = with pkgs; [
     # terminal / file manager  (neovim is in modules/neovim.nix)
     kitty
@@ -196,7 +192,7 @@ in
     # autoclicker.sh / sckey.sh
     ydotool
 
-    # notifications used by 12 call sites across the scripts
+    # notifications, 12 call sites across the scripts
     libnotify
 
     # media + brightness keys
@@ -259,19 +255,19 @@ in
     xauth
     xhost
 
-    # let-bound above, not a pkgs attr — a `let` binding shadows `with pkgs`.
-    # Here so SDDM finds the cursor under /run/current-system/sw/share/icons.
+    # let-bound above; a `let` binding shadows `with pkgs`. Here so the SDDM
+    # greeter resolves the cursor theme.
     hutao-cursor
   ];
 
   programs.gamemode.enable = true;
   services.power-profiles-daemon.enable = true; # powerprofilesctl, power-mode.sh
 
-  # ydotool needs its daemon for the autoclicker scripts to work.
+  # The autoclicker scripts need ydotool's daemon.
   programs.ydotool.enable = true;
 
-  # oh-my-zsh loads autosuggestions and syntax-highlighting as plugins (see
-  # home/hutao.nix), so the NixOS-level versions would be a second copy.
+  # oh-my-zsh already loads autosuggestions and syntax-highlighting as plugins
+  # (home/hutao.nix), so the NixOS-level options would be a second copy.
   #
   # ZSH_CACHE_DIR defaults to $ZSH/cache, and $ZSH is a store path here.
   environment.sessionVariables.ZSH_CACHE_DIR = "$HOME/.cache/oh-my-zsh";

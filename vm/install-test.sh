@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# Install rehearsal: install.sh end to end against a blank virtual disk.
-# Covers what hosts/hutao-vm cannot — disko, LUKS, LVM, the sops bootstrap, Limine,
-# first boot. Use `nix run .#vm` for anything else; it is far faster.
+# install.sh end to end against a blank virtual disk — disko, LUKS, LVM, the
+# sops bootstrap, Limine, first boot. Everything else belongs in `nix run .#vm`,
+# which is far faster.
 #
 #   all  build  up  install  boot  unlock  shot  ssh  down  clean
 #
@@ -12,10 +12,8 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK="${WORK:-$HOME/.cache/nixos-vm-test}"
 
-# The rehearsal now uses the REAL secrets/secrets.yaml, because that is what
-# install.sh reads — a fake would stop testing the thing that matters. This is
-# only needed to type the passphrase at the boot prompt; it is resolved lazily
-# in cmd_unlock so the other subcommands do not need the age key.
+# Read from the real secrets.yaml, since that is what install.sh reads.
+# Resolved lazily in cmd_unlock so other subcommands need no age key.
 LUKS_PASS="${LUKS_PASS:-}"
 
 DISK_SIZE="${DISK_SIZE:-512G}"
@@ -169,8 +167,7 @@ _wait_ssh() {
 
 # ── seed ────────────────────────────────────────────────────────────────────
 # `up` starts from a blank disk, so without this the guest re-downloads the
-# whole desktop closure every run. hosts/hutao-vm shares nearly all of it with the
-# laptop, so pushing that closure leaves only host-specific paths to fetch.
+# whole desktop closure every run. hutao-vm shares nearly all of it.
 _seed_store() {
   if [[ ${SEED:-1} != 1 ]]; then
     info "SEED=0 — guest will download its own closure"
@@ -229,8 +226,8 @@ cmd_install() {
   bold "── Running install.sh ──"
   warn "this builds the whole desktop closure in the guest — expect 20-45 min"
 
-  # No INSTALL_*_PASS: every credential comes out of secrets/secrets.yaml,
-  # which rsync just copied into the guest, decrypted with /tmp/age.key.
+  # No INSTALL_*_PASS: everything comes from the secrets.yaml rsync just
+  # copied in, decrypted with /tmp/age.key.
   ssh_g "cd /root/repo && \
     INSTALL_NONINTERACTIVE=1 \
     INSTALL_AGE_KEY=/tmp/age.key \
@@ -241,7 +238,7 @@ cmd_install() {
 }
 
 # ── unlock ──────────────────────────────────────────────────────────────────
-# The installed system has no serial console, so the emulated keyboard is the
+# No serial console on the installed system, so the emulated keyboard is the
 # only way to answer the LUKS prompt headless.
 cmd_unlock() {
   vm_running || die "No VM running."

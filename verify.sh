@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
 #
-# Evaluate the flake without a NixOS machine.
+# Evaluate the flake without a NixOS machine — the real evaluator in a
+# container, against stubbed hardware and secrets files.
 #
-# Runs the real Nix evaluator in a container against a stubbed
-# hardware-configuration.nix and a stubbed secrets file, so option-name
-# errors and module conflicts surface before install day.
+# Proves the config evaluates, not that it builds or boots. That is the class
+# of error that otherwise strands you on a live ISO.
 #
-# This does NOT build anything and does NOT prove the system boots. It proves
-# the configuration evaluates — which is the class of error that would
-# otherwise strand you on a live ISO.
-#
-#
-# Usage:  ./verify.sh          (needs docker; on NixOS just use nixos-rebuild)
+# Usage:  ./verify.sh          (needs docker; on NixOS use nixos-rebuild)
 #
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -21,20 +16,15 @@ command -v docker >/dev/null || {
   exit 1
 }
 
-# Named volume keeps /nix/store between runs — first run downloads
-# nixpkgs, later runs are fast.
+# Named volume keeps /nix/store between runs.
 docker volume create nixos-verify-store >/dev/null
 
-# Optional: unauthenticated GitHub allows 60 API req/h, and resolving flake
-# inputs burns them fast. Export a read-only token to raise it. Not required
-# once flake.lock is committed.
+# Optional, to raise GitHub's 60 req/h. Unnecessary once flake.lock exists.
 #   export GH_TOKEN="$(gh auth token)"   # read-only; never committed
 #
-# Passed as NIX_CONFIG, NOT appended to /etc/nix/nix.conf: that path is a
-# symlink into /nix/store, which is the persisted volume, so appending writes
-# the token into the volume permanently. An empty one lands as
-# "access-tokens = github.com=", which GitHub rejects as "Bad credentials" on
-# every later run until the store path is hand-edited.
+# NIX_CONFIG, not an append to /etc/nix/nix.conf: that path is a symlink into
+# the persisted /nix volume, so an append is permanent — and an empty token
+# lands as "access-tokens = github.com=", which GitHub rejects forever after.
 docker run --rm -e GH_TOKEN="${GH_TOKEN:-}" \
   -v "$PWD":/cfg:ro -v nixos-verify-store:/nix nixos/nix:latest sh -c '
   set -e
@@ -53,8 +43,7 @@ docker run --rm -e GH_TOKEN="${GH_TOKEN:-}" \
 }
 HW
 
-  # Only a placeholder for a fresh clone; the real file is committed. sops-nix
-  # does not decrypt at eval time, so the contents never matter here.
+  # Placeholder for a fresh clone; sops-nix does not decrypt at eval time.
   mkdir -p secrets
   [ -s secrets/secrets.yaml ] || printf "root_password: x\nuser_password: x\ntailscale_authkey: x\nluks_passphrase: x\n" > secrets/secrets.yaml
 

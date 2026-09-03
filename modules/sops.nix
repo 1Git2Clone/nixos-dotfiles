@@ -1,31 +1,17 @@
-# Every sops key, in one place. Named sops.nix because a local tooling hook
-# refuses to create paths matching the vps repo's filename.
-#
-# Flat snake_case attrs; nesting lives in `key = "section/name"`, e.g.
-# `backups_restic_password = { key = "backups/restic_password"; }`.
-#
-# One personal age key decrypts everything, on every machine:
-#   ~/.sops-nix/key.txt          workstation
-#   /var/lib/sops-nix/key.txt    installed host, put there by install.sh
-#
-# install.sh must stage it BEFORE nixos-install: activation renders these, and
-# with mutableUsers = false a missing key means a machine nobody can log into.
+# Every sops key, in one place. Nesting lives in `key = "section/name"`.
 _: {
   sops = {
     defaultSopsFile = ../secrets/secrets.yaml;
     defaultSopsFormat = "yaml";
     age.keyFile = "/var/lib/sops-nix/key.txt";
 
-    # Not redundant. sops-nix defaults this from services.openssh.hostKeys, so
-    # leaving it unset makes activation try a host key that does not exist yet
-    # and print "Cannot read ssh key ..." mid-install. It is not a recipient in
-    # .sops.yaml either, so it could never decrypt anything.
+    # sops-nix otherwise defaults this from services.openssh.hostKeys — a key
+    # that is not a recipient and does not exist yet at activation.
     age.sshKeyPaths = [ ];
 
-    # Missing entries fail activation. neededForUsers renders to
-    # /run/secrets-for-users, the only thing early enough for immutable users.
     secrets = {
-      # === Main ===
+      # neededForUsers renders to /run/secrets-for-users, the only stage early
+      # enough for mutableUsers = false.
       root_password = {
         neededForUsers = true;
       };
@@ -33,13 +19,11 @@ _: {
         neededForUsers = true;
       };
 
-      # === Bootstrap ===
       tailscale_authkey = { };
 
-      # luks_passphrase is in secrets/secrets.yaml but deliberately NOT here.
-      # Only install.sh needs it, and only to run cryptsetup luksFormat once.
-      # Declaring it would decrypt the disk's own passphrase to /run/secrets on
-      # every boot of the machine it unlocks — strictly worse, for nothing.
+      # luks_passphrase is in secrets.yaml but deliberately not declared:
+      # it would render the disk's own passphrase to /run/secrets on every
+      # boot of the machine it unlocks. Only install.sh needs it.
     };
   };
 }

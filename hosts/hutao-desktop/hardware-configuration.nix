@@ -1,7 +1,5 @@
-# Hand-written from the running machine rather than generated, because it was
-# still on Arch when this was added. Regenerate on the installed host with
-#   nixos-generate-config --no-filesystems --show-hardware-config
-# and replace this file if anything looks off. disko owns fileSystems.*.
+# Hand-written: this machine was still on Arch when it was added. Regenerate
+# with nixos-generate-config once installed. disko owns fileSystems.*.
 { lib, ... }:
 {
   boot.initrd.availableKernelModules = [

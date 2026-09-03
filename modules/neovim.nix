@@ -1,12 +1,9 @@
-# Neovim plus the toolchain mason cannot install.
+# The toolchain mason cannot install: its prebuilt binaries want
+# /lib64/ld-linux-x86-64.so.2, so they install then fail to exec.
 #
-# mason downloads pre-built dynamically-linked binaries. NixOS has no
-# /lib64/ld-linux-x86-64.so.2, so they install "successfully" then fail to
-# exec. nvim-config detects NixOS and skips mason; these fill the gap.
-#
-# This list mirrors nvim-config's lspconfig.lua `servers` and conform.lua
-# `formatters_by_ft`. Add a server there without adding it here and it silently
-# never attaches — lspconfig.lua only enables what is on PATH.
+# Mirrors nvim-config's lspconfig `servers` and conform `formatters_by_ft`.
+# lspconfig only enables what is on PATH, so a server missing here silently
+# never attaches.
 { pkgs, ... }:
 {
   environment.systemPackages = with pkgs; [
@@ -43,8 +40,7 @@
     nixfmt
     go # gofmt
 
-    # nvim-treesitter compiles parsers on demand; :TSUpdate needs the CLI.
-    # clang and nodejs come from modules/desktop.nix.
+    # :TSUpdate compiles parsers on demand. clang and nodejs are in desktop.nix.
     tree-sitter
   ];
 }
