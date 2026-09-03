@@ -193,16 +193,19 @@ in
   stylix.autoEnable = false;
   stylix.targets.gtk.enable = true;
 
-  home.file = walk "" // appIcons // {
-    # dot-profile and several scripts hardcode $HOME/dotfiles paths.
-    "dotfiles".source = df;
+  home.file =
+    walk ""
+    // appIcons
+    // {
+      # dot-profile and several scripts hardcode $HOME/dotfiles paths.
+      "dotfiles".source = df;
 
-    ".oh-my-zsh".source = ohMyZsh;
+      ".oh-my-zsh".source = ohMyZsh;
 
-    # Sourced unguarded by .zshrc and dot-profile, so it only has to exist —
-    # atuin itself comes from the system closure.
-    ".atuin/bin/env".text = "";
-  };
+      # Sourced unguarded by .zshrc and dot-profile, so it only has to exist —
+      # atuin itself comes from the system closure.
+      ".atuin/bin/env".text = "";
+    };
 
   # Move the pin with `nix flake update nvim-config`.
   xdg.configFile =
