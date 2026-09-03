@@ -1,4 +1,5 @@
-# Written by hand from the live machine; install.sh seds `device` if you let it.
+# Written by hand from the live machine. install.sh rewrites `device` to the disk
+# you select, but asks first when this file already names a different one.
 {
   # Stable path. NEVER use /dev/nvme0n1 here: kernel enumeration order can
   # change between boots and disko would happily wipe the wrong disk.

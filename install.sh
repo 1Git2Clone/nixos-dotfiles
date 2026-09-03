@@ -171,9 +171,54 @@ if ((SIZE_G < 200)); then
 fi
 
 # ── 2. Pin the disk into the config ─────────────────────────────────────────
-sed -i "s|/dev/disk/by-id/REPLACE_ME|$DISK|" "$REPO/hosts/$HOST/disk.nix"
-grep -q "$DISK" "$REPO/hosts/$HOST/disk.nix" || die "Failed to write disk path into disk.nix"
-info "disk.nix pinned to $DISK"
+# Rewrites the `device` line whatever it currently holds, rather than
+# substituting a REPLACE_ME placeholder. hosts/hutao-desktop/disk.nix is
+# hand-written and has no placeholder, and a second run on any host has already
+# consumed its own — in both cases a placeholder sed silently changes nothing
+# and the verification below then fails with no clue as to why.
+DISK_NIX="$REPO/hosts/$HOST/disk.nix"
+[[ -f $DISK_NIX ]] || die "No $DISK_NIX. See the README on adding a host."
+
+# awk via ENVIRON, not sed: a by-id path is data. sed's replacement reinterprets
+# & and the delimiter, awk's sub() reinterprets &, and even `awk -v` expands
+# backslash escapes in the value. ENVIRON is the only one of the four that
+# hands the string through untouched.
+disk_nix_device() {
+  awk -F'"' '/^[[:space:]]*device[[:space:]]*=/ { print $2; exit }' "$DISK_NIX"
+}
+
+PINNED=$(disk_nix_device)
+[[ -n $PINNED ]] ||
+  die "$DISK_NIX has no 'device = \"...\";' line to pin. Fix it by hand."
+
+if [[ $PINNED == "$DISK" ]]; then
+  info "disk.nix already pins $DISK"
+else
+  # An unconsumed placeholder is the expected case and needs no ceremony.
+  # A real path that disagrees with the chosen disk does: it is either a
+  # hand-written host config or a previous run, and overwriting either without
+  # asking is how you wipe the disk you did not mean to.
+  if [[ $PINNED != */REPLACE_ME ]]; then
+    echo
+    warn "$DISK_NIX already names a different disk:"
+    warn "   in the file:  $PINNED"
+    warn "   you selected: $DISK"
+    confirm "Rewrite disk.nix to point at the disk you selected?"
+  fi
+
+  d="$DISK" awk '
+    /^[[:space:]]*device[[:space:]]*=/ {
+      printf "  device = \"%s\";\n", ENVIRON["d"]
+      next
+    }
+    { print }
+  ' "$DISK_NIX" >"$DISK_NIX.tmp" && mv "$DISK_NIX.tmp" "$DISK_NIX"
+
+  WROTE=$(disk_nix_device)
+  [[ $WROTE == "$DISK" ]] ||
+    die "Could not pin $DISK into $DISK_NIX (it still reads '$WROTE'). Edit it by hand."
+  info "disk.nix pinned to $DISK"
+fi
 
 # ── 3. Hardware detection ───────────────────────────────────────────────────
 # MUST precede the evaluation below. The flake imports
