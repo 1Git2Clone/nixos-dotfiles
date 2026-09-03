@@ -251,6 +251,13 @@
       deploy.nodes.hutao-laptop = {
         hostname = "hutao-laptop"; # MagicDNS, so no address is pinned here
         sshUser = "root";
+        # Tailscale SSH authenticates the peer by node key over WireGuard and
+        # presents its own host key, which is not in known_hosts. accept-new
+        # rather than no, so a later change is still caught.
+        sshOpts = [
+          "-o"
+          "StrictHostKeyChecking=accept-new"
+        ];
         magicRollback = true;
         autoRollback = true;
         profiles.system = {
