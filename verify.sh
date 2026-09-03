@@ -29,10 +29,16 @@ docker volume create nixos-verify-store >/dev/null
 # inputs burns them fast. Export a read-only token to raise it. Not required
 # once flake.lock is committed.
 #   export GH_TOKEN="$(gh auth token)"   # read-only; never committed
+#
+# Passed as NIX_CONFIG, NOT appended to /etc/nix/nix.conf: that path is a
+# symlink into /nix/store, which is the persisted volume, so appending writes
+# the token into the volume permanently. An empty one lands as
+# "access-tokens = github.com=", which GitHub rejects as "Bad credentials" on
+# every later run until the store path is hand-edited.
 docker run --rm -e GH_TOKEN="${GH_TOKEN:-}" \
   -v "$PWD":/cfg:ro -v nixos-verify-store:/nix nixos/nix:latest sh -c '
   set -e
-  [ -n "$GH_TOKEN" ] && echo "access-tokens = github.com=$GH_TOKEN" >> /etc/nix/nix.conf
+  [ -n "$GH_TOKEN" ] && export NIX_CONFIG="access-tokens = github.com=$GH_TOKEN"
   mkdir -p /tmp/w && cp -r /cfg/. /tmp/w/ && cd /tmp/w && rm -rf .git
 
   # Generated at install time by nixos-generate-config.
@@ -47,9 +53,10 @@ docker run --rm -e GH_TOKEN="${GH_TOKEN:-}" \
 }
 HW
 
-  # Written by install.sh from your real passwords.
+  # Only a placeholder for a fresh clone; the real file is committed. sops-nix
+  # does not decrypt at eval time, so the contents never matter here.
   mkdir -p secrets
-  [ -s secrets/secrets.yaml ] || printf "hutao-password: x\nroot-password: x\n" > secrets/secrets.yaml
+  [ -s secrets/secrets.yaml ] || printf "root_password: x\nuser_password: x\ntailscale_authkey: x\nluks_passphrase: x\n" > secrets/secrets.yaml
 
   # Flakes only see git-tracked files.
   git init -q . && git add -A && git -c user.email=v@v -c user.name=v commit -qm verify
