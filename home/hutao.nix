@@ -126,7 +126,10 @@ let
   # Linked entry by entry, not as one directory, so ~/.config/nvim stays a real
   # directory lazy.nvim can write lazy-lock.json into. Link it whole and that
   # write fails, which aborts init.lua on every first boot.
-  nvimSrc = "${inputs.nvim-config}/nvim";
+  #
+  # In-tree since the nvim-config input was dropped, so a config change is one
+  # commit here rather than a push there plus `nix flake update nvim-config`.
+  nvimSrc = ../nvim;
 
   nvimConfig = pkgs.runCommandLocal "nvim-config-nixos" { } ''
     cp -r ${nvimSrc} $out
@@ -201,7 +204,7 @@ in
     ".atuin/bin/env".text = "";
   };
 
-  # Move the pin with `nix flake update nvim-config`.
+  # nvimState is dropped here and seeded by an activation script below.
   xdg.configFile =
     lib.mapAttrs' (name: _: lib.nameValuePair "nvim/${name}" { source = "${nvimConfig}/${name}"; }) (
       lib.removeAttrs (builtins.readDir nvimSrc) nvimState

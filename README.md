@@ -216,6 +216,9 @@ host nobody can log into.
   `$HOME/dotfiles/dot-profile.d`.
 - **`~/.claude` is linked file by file**, not whole, so Claude Code keeps a
   writable directory for its own state.
+- **`~/.config/nvim` is linked file by file too**, from the in-tree `nvim/`,
+  so lazy.nvim gets a real directory to write `lazy-lock.json` into. Link it
+  whole and that write fails, which aborts `init.lua` on every first boot.
 - **SDDM is themed by hand.** Stylix has no `sddm` target (only `lightdm` and
   `regreet`). The greeter is `assets/sddm-hu-tao/` — swap the background by
   replacing `Backgrounds/hu-tao.png`.
@@ -224,7 +227,8 @@ host nobody can log into.
   conflict.
 - **mason is disabled on NixOS.** Its prebuilt binaries cannot run here, so
   `modules/neovim.nix` provides the servers instead. Add one there and to
-  nvim-config's `servers` table together, or it silently never attaches.
+  `nvim/lua/plugins/lspconfig.lua`'s `servers` table together, or it
+  silently never attaches.
   `home/nvim-nixos.lua` silences the warning LazyVim's lang extras raise for
   every package mason has not installed.
 - **Tailscale joins on first boot** with `--ssh`, from

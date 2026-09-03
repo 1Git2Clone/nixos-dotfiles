@@ -1,7 +1,8 @@
 # The toolchain mason cannot install: its prebuilt binaries want
 # /lib64/ld-linux-x86-64.so.2, so they install then fail to exec.
 #
-# Mirrors nvim-config's lspconfig `servers` and conform `formatters_by_ft`.
+# Mirrors nvim/lua/plugins/lspconfig.lua's `servers` and conform's
+# `formatters_by_ft`.
 # lspconfig only enables what is on PATH, so a server missing here silently
 # never attaches.
 { pkgs, ... }:

@@ -21,10 +21,15 @@ repos:
       # byte-identical is the point: a linter silently adding a newline to
       # someone else's file makes the next diff against upstream noisy for no
       # benefit. ORIGIN.md is ours, so it stays linted.
+      #
+      # nvim/lazy-lock.json and nvim/lazyvim.json are the same bargain for a
+      # different reason: lazy.nvim rewrites them, and it does not end them
+      # with a newline. A fixer here means every `:Lazy sync` leaves a dirty
+      # tree over a byte no one chose.
       - id: trailing-whitespace
-        exclude: ^assets/sddm-hu-tao/(?!ORIGIN\.md)
+        exclude: ^(assets/sddm-hu-tao/(?!ORIGIN\.md)|nvim/(lazy-lock|lazyvim)\.json$)
       - id: end-of-file-fixer
-        exclude: ^assets/sddm-hu-tao/(?!ORIGIN\.md)
+        exclude: ^(assets/sddm-hu-tao/(?!ORIGIN\.md)|nvim/(lazy-lock|lazyvim)\.json$)
       - id: check-merge-conflict
       - id: check-yaml
         # sops output is valid YAML, but the parser has no reason to walk it and

@@ -464,22 +464,6 @@
         "type": "github"
       }
     },
-    "nvim-config": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1788013181,
-        "narHash": "sha256-lGHml5K7HQ2tJoiCfwWaYWYdEiW5zPrhCNRjGPNPSLo=",
-        "owner": "1Git2Clone",
-        "repo": "nvim-config",
-        "rev": "d8d78176579d1bb6ef5c7f88224b62bebd0cda2b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "1Git2Clone",
-        "repo": "nvim-config",
-        "type": "github"
-      }
-    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -561,7 +545,6 @@
         "home-manager": "home-manager_2",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
-        "nvim-config": "nvim-config",
         "sops-nix": "sops-nix",
         "stylix": "stylix"
       }
