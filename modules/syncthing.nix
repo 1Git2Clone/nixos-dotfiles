@@ -1,14 +1,32 @@
-# Peers and folders are added from the GUI, so overrideDevices and
-# overrideFolders have to stay false: their default is true, which deletes
-# everything not declared here on every activation.
+# overrideDevices and overrideFolders stay false. Their default is true, which
+# makes the lists below the whole truth and deletes anything added from the
+# GUI on every activation. With them off the updater POSTs rather than PUTs:
+# declarations are added and updated, GUI additions are left alone.
 #
 # Tailnet only: modules/tailscale.nix trusts tailscale0 and the input chain
 # has no rule for 8384 or 22000, so nothing else reaches either. Same
 # arrangement as the VPS's copy of this module.
-{ config, ... }:
+{ config, lib, ... }:
 let
   inherit (config.users.users.hutao) home;
+  inherit (config.networking) hostName;
   root = "${home}/syncthing";
+
+  # Public values: a device ID is the SHA-256 of that node's TLS certificate,
+  # which is the string you paste into a peer to pair. It could not be hidden
+  # anyway -- settings.devices.*.id is a plain str read at build time, and the
+  # module has no idFile.
+  #
+  # hutao-laptop is absent because an ID only exists once syncthing has run
+  # there. Add it here and both machines pick it up.
+  peers = {
+    hutao-desktop = "2UE2BQ2-AGJLUEY-IXUSURZ-INSQRGF-PMWKNZD-VSVZ4JJ-6XWGTWL-C6XQMQ5";
+    vps = "Z3BRNQT-T2HJQY2-XNDOXNO-FJLIJR5-S7U6UUA-Z4CYGYS-UVF5EYH-DZMFWQM";
+  };
+
+  # Pairing is mutual, so each machine importing this declares the others and
+  # no first connection has to be accepted by hand.
+  others = lib.filterAttrs (n: _: n != hostName) peers;
 in
 {
   services.syncthing = {
@@ -37,6 +55,25 @@ in
 
     # What "Add Folder" prefills in the GUI.
     settings.defaults.folder.path = root;
+
+    settings.devices = lib.mapAttrs (name: id: {
+      inherit id;
+      # MagicDNS first: 22000 is only open on tailscale0, so a globally
+      # discovered address reaches nothing. "dynamic" stays as the fallback
+      # for when MagicDNS is not answering.
+      addresses = [
+        "tcp://${name}:22000"
+        "dynamic"
+      ];
+    }) others;
+
+    # The id has to match the VPS's existing folder exactly, or this is a
+    # different folder that merely shares a path.
+    settings.folders.${root} = {
+      id = "hazch-yurju";
+      label = "Main (~/syncthing)";
+      devices = builtins.attrNames others;
+    };
   };
 
   # The module declares dataDir but never creates it.
