@@ -15,6 +15,26 @@ local function mac_bind(key, shift)
   )
 end
 
+local function firefox_emacs_bind(keys, mods, key)
+  hl.bind(keys, function()
+    local window = hl.get_active_window()
+
+    if window and (window.class == "firefox" or window.class == "floorp") then
+      hl.dispatch(hl.dsp.send_shortcut({
+        mods = mods,
+        key = key,
+        window = "class:^(firefox|floorp)$",
+      }))
+      return { ok = true }
+    end
+
+    return { ok = false }
+  end, {
+    auto_consuming = true,
+    repeating = true,
+  })
+end
+
 function M.setup(programs)
   local main_mod = "SUPER"
   local file_manager_from_clipboard = 'sh -c \'c=$(wl-paste); [ -d "$c" ] && '
@@ -96,6 +116,18 @@ function M.setup(programs)
     hl.bind("ALT + CTRL + Q", exec("caelestia shell lock lock"))
     hl.bind("ALT + LEFT", hl.dsp.focus({ workspace = "e-1" }))
     hl.bind("ALT + RIGHT", hl.dsp.focus({ workspace = "e+1" }))
+
+    -- Ctrl+J/K → Arrow Down/Up in Firefox
+    firefox_emacs_bind("CTRL + J", "", "DOWN")
+    firefox_emacs_bind("CTRL + K", "", "UP")
+
+    -- Ctrl+N/P → Arrow Down/Up in Firefox
+    firefox_emacs_bind("CTRL + N", "", "DOWN")
+    firefox_emacs_bind("CTRL + P", "", "UP")
+
+    -- Alt+N/P → original Ctrl+N/P in Firefox
+    firefox_emacs_bind("ALT + N", "CTRL", "N")
+    firefox_emacs_bind("ALT + P", "CTRL", "P")
 
     hl.bind(main_mod .. " + F", hl.dsp.window.fullscreen())
     hl.bind(main_mod .. " + S", exec("~/dotfiles/dot-config/programs/shell_scripts/screenshot-selection-copy.sh"))
