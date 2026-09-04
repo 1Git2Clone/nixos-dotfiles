@@ -3,85 +3,48 @@
 #   p1  ESP 2G  unencrypted -> /boot
 #   p2  LUKS2 "cryptroot" -> LVM PV -> vg "pool" -> swap / root / home
 #
-# The second disk is per-host: only a `disk.nix` that sets hddDevice gets one,
-# so hutao-laptop is unaffected.
+# Only the OS disk, on purpose. disko describes what to *create*, and the HDD
+# has to survive a reinstall rather than be recreated by one -- declaring it
+# here would mean install.sh needs both disks present and would wipe the data
+# one. hosts/hutao-desktop declares how to unlock and mount it instead.
 #
 # Runs only when disko is invoked; nixos-rebuild never repartitions.
-disk:
-{ lib, ... }:
-{
+disk: _: {
   disko.devices = {
-    disk = {
-      main = {
-        type = "disk";
-        inherit (disk) device;
-        content = {
-          type = "gpt";
-          partitions = {
-            ESP = {
-              priority = 1;
-              type = "EF00";
-              size = "2G";
-              content = {
-                type = "filesystem";
-                format = "vfat";
-                mountpoint = "/boot";
-                mountOptions = [ "umask=0077" ];
-              };
-            };
-
-            luks = {
-              priority = 2;
-              size = "100%";
-              content = {
-                type = "luks";
-                name = "cryptroot";
-                settings = {
-                  allowDiscards = true;
-                  crypttabExtraOpts = [ "x-initrd.attach" ];
-                };
-                # install.sh writes this without a trailing newline; a stray \n
-                # is baked into the keyslot and can never be typed at boot.
-                passwordFile = "/tmp/luks-passphrase";
-                content = {
-                  type = "lvm_pv";
-                  vg = "pool";
-                };
-              };
+    disk.main = {
+      type = "disk";
+      inherit (disk) device;
+      content = {
+        type = "gpt";
+        partitions = {
+          ESP = {
+            priority = 1;
+            type = "EF00";
+            size = "2G";
+            content = {
+              type = "filesystem";
+              format = "vfat";
+              mountpoint = "/boot";
+              mountOptions = [ "umask=0077" ];
             };
           };
-        };
-      };
-    }
-    // lib.optionalAttrs (disk ? hddDevice) {
-      # LUKS2 + ext4, no LVM: one filesystem, nothing to carve up.
-      hdd = {
-        type = "disk";
-        device = disk.hddDevice;
-        content = {
-          type = "gpt";
-          partitions.luks = {
+
+          luks = {
+            priority = 2;
             size = "100%";
             content = {
               type = "luks";
-              name = "crypthdd";
+              name = "cryptroot";
               settings = {
-                # No TRIM: spinning rust.
-                allowDiscards = false;
+                allowDiscards = true;
                 crypttabExtraOpts = [ "x-initrd.attach" ];
               };
-              # The same file cryptroot takes, so both keyslots hold the same
-              # passphrase. boot.initrd.systemd is on, and systemd-cryptsetup
-              # retries its cached password on the second device -- so one
-              # prompt opens both.
+              # install.sh writes this without a trailing newline; a stray \n
+              # is baked into the keyslot and can never be typed at boot.
               passwordFile = "/tmp/luks-passphrase";
               content = {
-                type = "filesystem";
-                format = "ext4";
-                mountpoint = disk.hddMount;
-                # A disk that is missing or will not open must not hold up
-                # boot, which x-initrd.attach would otherwise let it do.
-                mountOptions = [ "nofail" ];
+                type = "lvm_pv";
+                vg = "pool";
               };
             };
           };

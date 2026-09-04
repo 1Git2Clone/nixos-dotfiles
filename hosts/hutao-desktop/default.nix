@@ -15,9 +15,30 @@ in
 
   boot.initrd.kernelModules = [ "amdgpu" ];
 
-  # The HDD is LUKS + ext4 now and disko owns its fileSystems entry. This is
-  # only left for removable NTFS media.
+  # Left for removable NTFS media; the HDD itself is ext4 now.
   boot.supportedFilesystems.ntfs = true;
+
+  # Formatted by hand, once -- deliberately not in modules/disk-layout.nix, so
+  # a reinstall touches the NVMe alone and cannot wipe this. Only the unlock
+  # and the mount are declared.
+  #
+  # In the initrd rather than stage 2 because boot.initrd.systemd is on:
+  # systemd-cryptsetup retries the password it already cached for cryptroot,
+  # so one prompt opens both. The cost is that a missing disk waits out a
+  # 90s timeout before boot carries on.
+  boot.initrd.luks.devices.crypthdd = {
+    device = "${disk.hddDevice}-part1";
+    allowDiscards = false;
+    crypttabExtraOpts = [ "x-initrd.attach" ];
+  };
+
+  fileSystems.${disk.hddMount} = {
+    device = "/dev/mapper/crypthdd";
+    fsType = "ext4";
+    # nofail, so a disk that is missing or will not open costs a failed mount
+    # unit rather than a boot.
+    options = [ "nofail" ];
+  };
 
   environment.systemPackages = [ pkgs.teams-for-linux ];
 
