@@ -28,6 +28,13 @@ in
     # GUI is reachable from the other machines over the tailnet.
     guiAddress = "0.0.0.0:8384";
 
+    # The tailnet authenticates a peer, not a person: without this, any node
+    # on it has unauthenticated read/write over every synced file, and
+    # syncthing says so on startup. Plaintext file -- syncthing-init bcrypts
+    # it and PATCHes /rest/config/gui.
+    settings.gui.user = "hutao";
+    guiPasswordFile = config.sops.secrets.syncthing_gui_password.path;
+
     # What "Add Folder" prefills in the GUI.
     settings.defaults.folder.path = root;
   };

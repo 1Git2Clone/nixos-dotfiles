@@ -27,6 +27,12 @@ _: {
         owner = "hutao";
       };
 
+      # Plaintext, not a hash: syncthing-init bcrypts it at activation. owner
+      # because that unit runs as hutao.
+      syncthing_gui_password = {
+        owner = "hutao";
+      };
+
       # luks_passphrase is in secrets.yaml but deliberately not declared:
       # it would render the disk's own passphrase to /run/secrets on every
       # boot of the machine it unlocks. Only install.sh needs it.
