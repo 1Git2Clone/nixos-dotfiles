@@ -1,4 +1,5 @@
-# Host-agnostic tuning. Replaces the dotfiles repo's system/install.sh.
+# Host-agnostic tuning. Replaces the imperative system/ tree the dotfiles
+# repo used to carry.
 { pkgs, ... }:
 {
   nixpkgs.config.allowUnfree = true;
@@ -46,7 +47,7 @@
     priority = 100;
   };
 
-  # From the dotfiles repo's sysctl.d/99-custom.conf.
+  # Rationale per value is in dotfiles/docs/performance.md.
   boot.kernel.sysctl = {
     "vm.swappiness" = 15;
     # zram is already compressed, so swap read-ahead only wastes work.

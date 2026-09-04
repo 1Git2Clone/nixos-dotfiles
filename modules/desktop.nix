@@ -198,7 +198,7 @@ in
   ];
 
   # ── Packages ─────────────────────────────────────────────────────────────
-  # required_packages_archlinux.txt, plus what the scripts actually call.
+  # What the scripts and keybinds actually call.
   environment.systemPackages = with pkgs; [
     # terminal / file manager  (neovim is in modules/neovim.nix)
     kitty
