@@ -97,8 +97,7 @@
                 "id": "power"
             }
         ],
-        "excludedScreens": [
-        ],
+        "excludedScreens": [],
         "persistent": true,
         "popouts": {
             "activeWindow": true,
@@ -111,40 +110,57 @@
             "workspaces": true
         },
         "showOnHover": true,
-        "status": {
-            "showAudio": true,
-            "showBattery": true,
-            "showBluetooth": false,
-            "showKbLayout": false,
-            "showLockStatus": true,
-            "showMicrophone": true,
-            "showNetwork": true,
-            "showWifi": false
-        },
+        "statusIcons": [
+            {
+                "enabled": true,
+                "id": "audio"
+            },
+            {
+                "enabled": true,
+                "id": "battery"
+            },
+            {
+                "enabled": false,
+                "id": "bluetooth"
+            },
+            {
+                "enabled": false,
+                "id": "kbLayout"
+            },
+            {
+                "enabled": true,
+                "id": "lockStatus"
+            },
+            {
+                "enabled": true,
+                "id": "microphone"
+            },
+            {
+                "enabled": true,
+                "id": "network"
+            }
+        ],
         "tray": {
             "background": false,
             "compact": true,
-            "hiddenIcons": [
-            ],
-            "iconSubs": [
-            ],
+            "hiddenIcons": [],
+            "iconSubs": [],
             "recolour": false
         },
         "workspaces": {
             "activeIndicator": true,
-            "activeLabel": "󰮯",
+            "activeLabel": "\udb82\udfaf",
             "activeTrail": false,
             "capitalisation": "preserve",
-            "label": "  ",
+            "label": "\uf444  ",
             "maxWindowIcons": 0,
             "occupiedBg": false,
-            "occupiedLabel": "󰮯",
+            "occupiedLabel": "\udb82\udfaf",
             "perMonitorWorkspaces": true,
             "showWindows": true,
             "showWindowsOnSpecialWorkspaces": true,
             "shown": 5,
-            "specialWorkspaceIcons": [
-            ],
+            "specialWorkspaceIcons": [],
             "windowIcons": [
                 {
                     "icon": "sports_esports",
@@ -403,8 +419,7 @@
             "org.vinegarhq.Sober",
             "steam"
         ],
-        "hiddenApps": [
-        ],
+        "hiddenApps": [],
         "maxShown": 5,
         "maxWallpapers": 1000,
         "showOnHover": true,
@@ -452,7 +467,7 @@
         "audioIncrement": 0.1,
         "brightnessIncrement": 0.1,
         "defaultPlayer": "Spotify",
-        "gpuType": "",
+        "gpuType": "Auto",
         "lyricsBackend": "Auto",
         "maxVolume": 1,
         "playerAliases": [
