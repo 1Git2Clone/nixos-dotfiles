@@ -156,6 +156,12 @@
 
         inherit (self.nixosConfigurations.hutao-vm.config.system.build) vm;
 
+        # The CLI that formats the disk, pinned to the same input as the
+        # module that describes the layout. install.sh runs this rather than
+        # `github:nix-community/disko/latest`, which is a moving ref and can
+        # partition with a different version than the config was written for.
+        inherit (disko.packages.${system}) disko;
+
         hutao-cursor = pkgs.callPackage ./pkgs/hutao-cursor.nix { };
 
         sddm-hu-tao = pkgs.callPackage ./pkgs/sddm-hu-tao.nix { };

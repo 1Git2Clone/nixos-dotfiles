@@ -68,10 +68,61 @@ git clone https://git.hu-tao.dev/hutao/nixos-dotfiles && cd nixos-dotfiles
 INSTALL_AGE_KEY=/tmp/age.key HOST=hutao-desktop ./install.sh
 ```
 
-Every credential comes out of `secrets/secrets.yaml` — the LUKS passphrase,
-both password hashes and the Tailscale auth key. `install.sh` prompts for none
-of them and refuses to start if any is missing or malformed. It still refuses
-to continue until you confirm the disk by typing its size.
+`install.sh` is ~90 lines of shell and does seven things in this order. The
+order is the whole design: everything that can refuse happens before anything
+is destroyed.
+
+1. **Preflight** — root, UEFI, the tools, and that the age key is both a real
+   age key and a recipient in `.sops.yaml`. A non-recipient key installs
+   cleanly and then cannot decrypt its own passwords.
+2. **Secrets** — all four values present, non-empty, and the two password
+   hashes crypt(3) rather than digests. Checked *before* the disk gate,
+   because activation renders those hashes at the very last step of
+   `nixos-install`: discovering one is missing there leaves a wiped disk
+   holding a system nobody can log into.
+3. **Disk** — lists `/dev/disk/by-id/` paths and makes you type the disk's
+   size back before it will continue. Never `/dev/nvme0n1`: enumeration order
+   is not stable, and disko wipes whatever the name resolves to.
+4. **Pin** — writes that choice into `hosts/<host>/disk.nix`, asking first if
+   the file already names a different disk. disko reads the device out of the
+   flake, so the choice has to land in the config before it runs.
+5. **Hardware** — `nixos-generate-config --no-filesystems`, since disko owns
+   `fileSystems.*`. Before the eval, because the flake imports the result.
+6. **Dry eval** — an eval error here costs a minute. The same error after
+   disko costs the disk.
+7. **disko, then `nixos-install`** — with the age key seeded to
+   `/var/lib/sops-nix/key.txt` first, for the reason in step 2.
+
+Everything it needs comes out of `secrets/secrets.yaml`; it prompts for no
+credential and writes none back.
+
+| variable | |
+| --- | --- |
+| `HOST` | which `nixosConfigurations` entry to install (default `hutao-laptop`) |
+| `INSTALL_AGE_KEY` | path to the age private key, copied in above |
+| `INSTALL_DISK` | target disk, required when non-interactive |
+| `INSTALL_NONINTERACTIVE` | skip both confirmations — what `vm/install-test.sh` sets |
+
+The disko CLI comes from `nix run .#disko`, which is this repo's pinned input,
+so the tool that partitions the disk is the same version as the module that
+describes the layout. It used to be `github:nix-community/disko/latest`, where
+those two can drift apart.
+
+### Why not disko-install or nixos-anywhere
+
+Both would be less code, and neither fits.
+
+`disko-install` collapses steps 4 and 7 and the key seeding into one command —
+it takes `--disk main <device>`, so `disk.nix` would not need rewriting, and
+`--extra-files` for the key. But it runs disko with `DISKO_SKIP_SWAP=1`, and
+the default host here is the 8GB laptop, where `nixos-install` needs the 20G
+swap LV that plain disko activates on mount (`lib/types/swap.nix`). Without it
+the build OOMs deep into the install.
+
+nixos-anywhere would replace the script outright, but it installs *to* a
+target over SSH from a second machine. This one runs on the machine being
+installed, from its own ISO, which is what the recovery story assumes — the
+laptop is the machine you reach for when something else is broken.
 
 ### On new hardware
 
@@ -131,6 +182,34 @@ Three things sit on top of the plain tree:
   caelestia's active scheme, and `~/Pictures/Wallpapers`. Each is seeded once
   from the tracked copy and then left alone, so `:Lazy update` and
   `caelestia scheme set` still work.
+
+## Colours
+
+One file: `dotfiles/caelestia/schemes/hu-tao/default/dark.txt` — caelestia's
+own format, 110 semantic keys, canonical so `caelestia scheme set hu-tao`
+still round-trips it. `palette.nix` parses it, and everything else is
+generated from it at build time:
+
+| | |
+| --- | --- |
+| gtk, qt, **the tty**, gnome, grub, plymouth | `stylix.base16Scheme = palette.base16` — the 16 slots read out by semantic name |
+| caelestia | the file itself; the seeded `scheme.json` is generated from it |
+| tmux | live, off `scheme.json`, via `dot-profile.d/colors.sh` |
+| kitty | `mocha/mocha.conf`, generated whole, `color0..15` from the scheme's `term0..15` |
+| neovim | substituted; the nine-step ramp interpolated between its scheme anchors |
+| vesktop, waybar, wofi, wlogout, swaylock, mako, hypr, lazygit, MangoHud, starship | substituted in the dotfiles derivation |
+| SDDM | substituted in `pkgs/sddm-hu-tao.nix` |
+
+Everything outside stylix is a `--replace-fail` against the literal that is
+still in the dotfile. The literal is deliberately left there: the configs stay
+valid when `~/.config` is pointed at the raw tree, and a value that moves
+upstream fails the build instead of quietly ceasing to follow the scheme.
+
+Two consequences worth knowing. The scheme sets `term2`, `term4`, `term6`,
+`term10`, `term12` and `term14` to the same `ff9b8a`, so ANSI green, blue,
+cyan and magenta are one salmon in the terminal — retune those keys if you
+want them apart. And `palette.nix` holds no hex of its own: a colour that is
+missing is a key to add to the scheme, not a constant to inline.
 
 ## Deploys
 
@@ -221,12 +300,23 @@ host nobody can log into.
 - **`~/.config/nvim` is linked file by file too**, from the in-tree `nvim/`,
   so lazy.nvim gets a real directory to write `lazy-lock.json` into. Link it
   whole and that write fails, which aborts `init.lua` on every first boot.
-- **SDDM is themed by hand.** Stylix has no `sddm` target (only `lightdm` and
-  `regreet`). The greeter is `assets/sddm-hu-tao/` — swap the background by
-  replacing `Backgrounds/hu-tao.png`.
-- **Stylix's per-app targets are off** (`stylix.autoEnable = false`). The
-  dotfiles already theme those apps, and two writers for one file is a
-  conflict.
+- **SDDM has no stylix target** (only `lightdm` and `regreet`), so the greeter
+  is vendored at `assets/sddm-hu-tao/` and `pkgs/sddm-hu-tao.nix` substitutes
+  its eight colours out of the scheme. Swap the background by replacing
+  `Backgrounds/hu-tao.png`.
+- **Stylix's per-app targets are off** (`stylix.autoEnable = false`), because
+  the dotfiles theme those apps themselves and two writers for one file is a
+  conflict. They are not on a second palette, though — see
+  [Colours](#colours).
+- **Folder icons are `Hutao-Folders`**, built by `pkgs/hutao-folder-icons.nix`
+  from a Windows `.ico` pack in `assets/Hutao-Folders/`. It inherits
+  Papirus-Dark and is set for GTK and qt6ct both; nautilus' sidebar keeps
+  Papirus' symbolic icons, which are SVGs and cannot come from raster art.
+- **A rebuild reloads Hyprland.** `home.activation.hyprlandReload` runs
+  `hyprctl reload` after linkGeneration, because Hyprland's own watcher never
+  fires here: a rebuild repoints `~/.config/hypr` at a new store path rather
+  than modifying the immutable file the watcher holds. Without it an edit sits
+  in the store doing nothing until the next login.
 - **`dotfiles/` is exempt from markdownlint, shellcheck and shfmt**, because
   that tree's own linter configs stayed behind in the repo it came from. It is
   *not* exempt from the whitespace fixers or from gitleaks, both of which still
