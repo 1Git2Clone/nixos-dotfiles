@@ -2,9 +2,9 @@
 # overrideFolders have to stay false: their default is true, which deletes
 # everything not declared here on every activation.
 #
-# No firewall rules — modules/tailscale.nix already trusts tailscale0, which
-# is how the two machines reach each other. openDefaultPorts = true adds LAN
-# sync (22000, and 21027 for local discovery).
+# Tailnet only: modules/tailscale.nix trusts tailscale0 and the input chain
+# has no rule for 8384 or 22000, so nothing else reaches either. Same
+# arrangement as the VPS's copy of this module.
 { config, ... }:
 let
   inherit (config.users.users.hutao) home;
@@ -24,8 +24,11 @@ in
     overrideDevices = false;
     overrideFolders = false;
 
-    # What "Add Folder" prefills in the GUI, reachable at
-    # http://127.0.0.1:8384 on each machine.
+    # 0.0.0.0, restricted by the firewall and not by the bind address, so the
+    # GUI is reachable from the other machines over the tailnet.
+    guiAddress = "0.0.0.0:8384";
+
+    # What "Add Folder" prefills in the GUI.
     settings.defaults.folder.path = root;
   };
 
