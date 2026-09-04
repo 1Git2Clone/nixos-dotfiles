@@ -471,6 +471,21 @@ in
     name = "Hutao-Folders";
   };
 
+  # libadwaita decides light or dark from this key and nothing else. stylix's
+  # gtk.css repaints every named colour dark, but a GTK4 app still comes up on
+  # libadwaita's light palette until the key says otherwise -- which is why
+  # nautilus was white with hu-tao accents. The only stylix target that sets
+  # it is `gnome`, gated on GDM or the GNOME desktop being enabled, so on
+  # Hyprland it never runs. Read off polarity rather than hardcoded, so
+  # flipping stylix flips this too.
+  dconf.settings."org/gnome/desktop/interface".color-scheme =
+    if osConfig.stylix.polarity == "light" then "prefer-light" else "prefer-dark";
+
+  # The GTK3 half of the same switch, for apps that read the setting rather
+  # than the theme's colours (Firefox picks its own light/dark off it).
+  gtk.gtk3.extraConfig.gtk-application-prefer-dark-theme = osConfig.stylix.polarity != "light";
+  gtk.gtk4.extraConfig.gtk-application-prefer-dark-theme = osConfig.stylix.polarity != "light";
+
   home.file = walk "" // {
     # dot-profile and several scripts hardcode $HOME/dotfiles paths.
     "dotfiles".source = df;
