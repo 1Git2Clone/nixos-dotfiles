@@ -22,5 +22,16 @@
     # Left false: it would remove anything installed by hand, and a Flatpak
     # installed to try something out should not vanish on the next rebuild.
     uninstallUnmanaged = false;
+
+    # What Sober prints on first run as a `flatpak override --user` to paste.
+    # Declared instead, so it survives a reinstall: Discord's rich presence
+    # needs the IPC socket, which the sandbox does not hand over by default.
+    # Written to /var/lib/flatpak/overrides, so it applies to every user
+    # rather than only the one who ran the command. List entries merge with
+    # anything applied externally.
+    overrides."org.vinegarhq.Sober".Context.filesystems = [
+      "xdg-run/app/com.discordapp.Discord:create"
+      "xdg-run/discord-ipc-0"
+    ];
   };
 }
