@@ -164,6 +164,11 @@ dot-config/opencode/.oh-my-opencode-slim
 /dot-claude/*
 !/dot-claude/.mcp.json
 !/dot-claude/CLAUDE.md
+# The directory as well as its contents: `/dot-claude/*` above ignores the
+# `hooks` dir itself, and un-ignoring only `hooks/*` leaves `git add` on the
+# directory refusing with "paths are ignored by one of your .gitignore files"
+# -- which is the path lazygit sends when you stage the folder row.
+!/dot-claude/hooks/
 !/dot-claude/hooks/*
 !/dot-claude/settings.json
 !/dot-claude/statusline-command.sh
