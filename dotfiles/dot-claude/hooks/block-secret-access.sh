@@ -70,7 +70,8 @@ patterns=(
   '(^|/)\.docker/config\.json'
   '(^|/)\.kube/config'
   '(^|[^a-z0-9_.-])credentials($|[^a-z0-9])'
-  '(^|[^a-z0-9_.-])secrets?($|[^a-z0-9])' # secret / secrets (file or dir)
+  # False positive: sops ciphertext
+  # '(^|[^a-z0-9_.-])secrets?($|[^a-z0-9])' # secret / secrets (file or dir)
   'private[._-]?key'
   '\.dev\.vars($|[^a-z0-9])' # Cloudflare Workers secrets
   'serviceaccount.*\.json'   # GCP service-account keys
