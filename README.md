@@ -250,3 +250,6 @@ host nobody can log into.
   which is why neither lives in a module.
 - **Suspend/resume** is the known hazard on the laptop (fixed by DMI quirks in
   Linux 6.6, so unstable is fine). Start there if it misbehaves.
+- **`assets/Hutao-Cursor/` cannot be published.**
+  [EbiEbiBeam's](https://ko-fi.com/s/52f093af4c) artwork, free but not
+  redistributable. The wallpapers are unattributed fan art, same question.

@@ -9,10 +9,11 @@
 }:
 runCommandLocal "hutao-cursor"
   {
-    # No license attr: fan art with no stated terms. Marking it unfree would
-    # only break `nix build` outside an allowUnfree config.
+    # EbiEbiBeam's artwork, free on Ko-fi but not to be redistributed: these
+    # files cannot be published. No license attr, so allowUnfree is not needed.
     meta = {
-      description = "Genshin Impact Hu Tao X11 cursor theme";
+      description = "Genshin Impact Hu Tao X11 cursor theme by EbiEbiBeam";
+      homepage = "https://ko-fi.com/s/52f093af4c";
       platforms = lib.platforms.linux;
     };
   }
