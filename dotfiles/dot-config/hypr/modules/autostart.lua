@@ -2,6 +2,16 @@ local M = {}
 
 function M.setup(programs)
   hl.on("hyprland.start", function()
+    -- xdg-desktop-portal has Requisite=graphical-session.target, which refuses
+    -- to start rather than pulling the target in. NixOS skips starting it for
+    -- us because XDG_CURRENT_DESKTOP names Hyprland, whose sessions normally
+    -- do it themselves under uwsm. Without this there is no ScreenCast portal
+    -- and screen sharing silently does nothing.
+    hl.exec_cmd(
+      "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE"
+        .. " && systemctl --user start nixos-fake-graphical-session.target"
+    )
+
     hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
     hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
 
