@@ -25,6 +25,7 @@
     pyright
     python3Packages.jedi-language-server
     nixd
+    marksman # markdown; the lang.markdown extra configures it and nothing provided it
 
     # Formatters
     stylua
@@ -39,6 +40,17 @@
     php84Packages.php-cs-fixer
     nixfmt
     go # gofmt
+
+    # Linters, all of them run by nvim-lint on save. LazyVim's lang extras
+    # name these in linters_by_ft and mason would fetch them; mason is off
+    # here, so a missing one is an "Error running <tool>: ENOENT" on every
+    # save of that filetype rather than anything quieter.
+    markdownlint-cli2
+    statix # also this repo's own pre-commit linter
+    hadolint
+    hlint
+    golangci-lint
+    php84Packages.php-codesniffer # phpcs
 
     # :TSUpdate compiles parsers on demand. clang and nodejs are in desktop.nix.
     tree-sitter
