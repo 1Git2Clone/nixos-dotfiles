@@ -13,6 +13,8 @@ let
   # A plain path, so the readDir walk needs no import-from-derivation.
   src = ../dotfiles;
 
+  folderIcons = pkgs.callPackage ../pkgs/hutao-folder-icons.nix { };
+
   palette = import ../palette.nix { inherit lib; };
   inherit (palette)
     hex
@@ -458,6 +460,17 @@ in
   stylix.autoEnable = false;
   stylix.targets.gtk.enable = true;
 
+  # Nothing set an icon theme before this, which left every GTK app on
+  # Adwaita's default while qt6ct was pointed at Papirus-Dark. Hutao-Folders
+  # inherits Papirus-Dark, so this is also what settles that split -- the
+  # folders come from the pack, everything else from the set Qt was already
+  # using. home-manager writes it to both gtk-3.0 and gtk-4.0 settings.ini and
+  # mirrors it into dconf, which is the one nautilus reads.
+  gtk.iconTheme = {
+    package = folderIcons;
+    name = "Hutao-Folders";
+  };
+
   home.file = walk "" // {
     # dot-profile and several scripts hardcode $HOME/dotfiles paths.
     "dotfiles".source = df;
@@ -484,10 +497,11 @@ in
       "ccstatusline/settings.json".source = ./ccstatusline.json;
 
       # What qt6ct reads for the icon theme; hyprqt6engine.conf is the Arch
-      # half of the same setting.
+      # half of the same setting. Hutao-Folders inherits Papirus-Dark, so a Qt
+      # app sees what it saw before plus the folders.
       "qt6ct/qt6ct.conf".text = ''
         [Appearance]
-        icon_theme=Papirus-Dark
+        icon_theme=Hutao-Folders
       '';
 
       # Outside the dot-* trees, so the walk never reaches it.
