@@ -36,10 +36,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Imported by home/hutao.nix, not here: hermes keeps one person's
-    # credentials, sessions and memory, so the state belongs in $HOME rather
-    # than in a system service's /var/lib. Upstream's module header says the
-    # same. The NixOS module would also export HERMES_HOME system-wide.
+    # Imported by home/hutao.nix: the NixOS module would put per-user state in
+    # /var/lib and export HERMES_HOME system-wide.
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -62,11 +60,9 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
 
-      # deploy-rs builds its own binary from source, and the crate fetches 403
-      # on the pinned revision — which would also break the activation script,
-      # since the lib embeds that binary in the system closure. Take the lib
-      # from the flake and the binary from nixpkgs; this split is the workaround
-      # deploy-rs documents.
+      # The crate's source fetch 403s on the pinned revision, and the lib
+      # embeds that binary in the closure. Upstream's documented workaround:
+      # lib from the flake, binary from nixpkgs.
       deployPkgs = import nixpkgs {
         inherit system;
         overlays = [

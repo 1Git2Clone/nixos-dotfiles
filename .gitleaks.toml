@@ -1,36 +1,5 @@
-# gitleaks configuration.
-#
-# The two things in this tree that pattern-match as sensitive and are not:
-#
-#   .sops.yaml          age PUBLIC keys. Publishing them is the entire point —
-#                       they identify who a value is encrypted TO.
-#   vm/authorized_keys  the public half of a throwaway VM-test ssh identity.
-#
-# The ported dotfiles tree adds two more, carried over from the allowlist that
-# repo kept for exactly the same eight findings:
-#
-#   dotfiles/dot-config/opencode/skills/
-#                       vendored agent skill documentation. It ships literal
-#                       example strings — `email@company.com:API_TOKEN`,
-#                       `sk-1234567890abcdef`, base64 of `myuser:mypassword`,
-#                       the Sec-WebSocket-Key from RFC 6455, and a PEM header
-#                       whose body is elided to `MIIEvQIBADANBgkqhkiG9w0B...`.
-#                       None of it is key material; all of it is prose about
-#                       key material.
-#   dotfiles/dot-gitconfig
-#                       a 40-hex GPG signing-key fingerprint. It identifies a
-#                       PUBLIC key and is meant to be published; it trips
-#                       generic-api-key purely on entropy shape. Scoped to
-#                       that one regex, so a real token landing in the same
-#                       file is still caught.
-#
-# The rest of the ported tree is deliberately still scanned — dot-gitconfig,
-# dot-claude/.mcp.json and dot-hermes are precisely where a live token would
-# end up, so this is the one linter the port does not switch off there.
-#
-# The encrypted sops file is deliberately NOT allowlisted. It should always be
-# ciphertext, and if a plaintext hash ever lands in it, gitleaks failing is
-# exactly the outcome we want.
+# The rest of the tree stays scanned, the encrypted sops file included: if a
+# plaintext value ever lands in it, gitleaks failing is the point.
 [extend]
 useDefault = true
 
@@ -46,6 +15,7 @@ paths = ['''^vm/authorized_keys$''']
 description = "vendored agent skill docs: example tokens in prose, not config"
 paths = ['''^dotfiles/dot-config/opencode/skills/.*''']
 
+# Scoped to the fingerprint's own shape, so a real token here still fails.
 [[allowlists]]
 description = "GPG signing-key fingerprint identifies a public key"
 paths = ['''^dotfiles/dot-gitconfig$''']

@@ -1,13 +1,8 @@
-# Icons placed into hicolor so they resolve without an icon theme.
+# Into hicolor, because QIcon falls back to it alone when no Qt platform
+# theme is loaded — anything relying on the icon theme renders as Papirus'
+# magenta image-missing. This is the set that actually breaks.
 #
-# Nothing loads a Qt platform theme in this session, so QIcon falls back to
-# hicolor alone. Apps that ship their own hicolor icon are fine; those that
-# rely on the theme render as Papirus' magenta image-missing. These are the
-# ones that actually break, found by diffing every Icon= against hicolor.
-#
-# assets/app-icons/ holds the hand-written launcher icons — drop a file there
-# to add or replace one. `fromPapirus` pulls the rest out of papirus-icon-theme
-# rather than vendoring copies.
+# Drop a file in assets/app-icons/ to add or replace one.
 {
   lib,
   runCommandLocal,

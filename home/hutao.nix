@@ -1,8 +1,5 @@
-# `stow --dotfiles` as a derivation: same tree, same dot-foo -> .foo renaming,
-# same ignore file, but every path lands in the store.
-#
-# So ~/.config is read-only, and a dotfiles change is a commit to ../dotfiles
-# in this repo plus a rebuild. To iterate without rebuilding, swap `src` for
+# `stow --dotfiles` as a derivation, so ~/.config is read-only. To iterate
+# without rebuilding, swap `src` for
 #   config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles"
 {
   inputs,
@@ -13,14 +10,12 @@
   ...
 }:
 let
-  # Walked with readDir — a plain path, so no import-from-derivation. `df` is
-  # what actually gets linked.
+  # A plain path, so the readDir walk needs no import-from-derivation.
   src = ../dotfiles;
 
   inherit (osConfig.networking) hostName;
 
-  # --replace-fail on purpose: when a patch lands upstream the build breaks
-  # instead of silently doing nothing.
+  # --replace-fail: break the build when a patch lands upstream.
   df = pkgs.runCommandLocal "hutao-dotfiles-${hostName}" { } ''
     cp -r ${src} $out
     chmod -R u+w $out
@@ -29,31 +24,26 @@ let
     substituteInPlace $out/dot-profile.d/utils.sh \
       --replace-fail '/usr/bin/nvim' 'command nvim'
 
-    # Every launcher indexes applications from this. /usr/share is empty here,
-    # so hardcoding it leaves them all blank.
+    # /usr/share is empty here, so every launcher's app list comes out blank.
     substituteInPlace $out/dot-config/hypr/modules/programs.lua \
       --replace-fail '/usr/local/share:/usr/share"' \
         '" .. (os.getenv("XDG_DATA_DIRS") or "/usr/local/share:/usr/share")'
 
-    # SDDM starts Hyprland without uwsm, so graphical-session.target is never
-    # reached and the user units for these never fire.
+    # SDDM starts Hyprland without uwsm, so graphical-session.target never
+    # fires and the user units for these never start.
     substituteInPlace $out/dot-config/hypr/modules/autostart.lua \
       --replace-fail '/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1' \
         '${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1' \
       --replace-fail '/usr/lib/geoclue-2.0/demos/agent' \
         '${pkgs.geoclue2-with-demo-agent}/libexec/geoclue-2.0/demos/agent'
 
-    # git reports a missing credential helper as an auth failure.
-    #
-    # credentialStore: gpg wants a ~/.password-store, which does not exist here,
-    # and GCM dies rather than prompting. secretservice is gnome-keyring, which
-    # is already running — and it is what brings back the GUI prompt.
+    # gpg wants a ~/.password-store that does not exist here, and GCM then
+    # dies instead of prompting. secretservice is the running gnome-keyring.
     substituteInPlace $out/dot-gitconfig \
       --replace-fail '/usr/bin/gh' '${pkgs.gh}/bin/gh' \
       --replace-fail 'credentialStore = gpg' 'credentialStore = secretservice'
 
-    # shell_scripts/* are #!/bin/bash, which does not exist here. Hyprland
-    # reports nothing for a failed exec bind, so Super+S just looks inert.
+    # #!/bin/bash does not exist here, and a failed exec bind is silent.
     patchShebangs $out
 
     # Per-machine and gitignored upstream, but hyprland.lua requires it.
@@ -75,8 +65,7 @@ let
       ".stow-local-ignore"
     ];
 
-  # Descended into rather than linked whole: something else owns a path inside
-  # them, or the directory has to stay writable.
+  # Something else owns a path inside, or it has to stay writable.
   expand = [
     "dot-claude"
     "dot-claude/hooks"
@@ -123,12 +112,8 @@ let
         }
     ) (builtins.readDir "${src}/${prefix}");
 
-  # Linked entry by entry, not as one directory, so ~/.config/nvim stays a real
-  # directory lazy.nvim can write lazy-lock.json into. Link it whole and that
-  # write fails, which aborts init.lua on every first boot.
-  #
-  # In-tree since the nvim-config input was dropped, so a config change is one
-  # commit here rather than a push there plus `nix flake update nvim-config`.
+  # Linked entry by entry so ~/.config/nvim stays a real directory lazy.nvim
+  # can write lazy-lock.json into; linked whole, that write aborts init.lua.
   nvimSrc = ../nvim;
 
   nvimConfig = pkgs.runCommandLocal "nvim-config-nixos" { } ''
@@ -166,8 +151,7 @@ let
     ${lib.concatMapStringsSep "\n" (
       { name, src }:
       ''
-        # Whole tree: these resolve siblings off ''${0:h}, so a lone symlink
-        # lands them where the rest of the plugin is not.
+        # Whole tree: these resolve siblings off ''${0:h}.
         cp -rL ${src} "$out/custom/plugins/${name}"
         chmod -R u+w "$out/custom/plugins/${name}"
 
@@ -188,8 +172,7 @@ in
 
   home.stateVersion = "26.05";
 
-  # We own ~/.config wholesale, so stylix's per-app targets would be a second
-  # writer for the same files.
+  # We own ~/.config wholesale; stylix's targets would be a second writer.
   stylix.autoEnable = false;
   stylix.targets.gtk.enable = true;
 
@@ -199,8 +182,7 @@ in
 
     ".oh-my-zsh".source = ohMyZsh;
 
-    # Sourced unguarded by .zshrc and dot-profile, so it only has to exist —
-    # atuin itself comes from the system closure.
+    # Sourced unguarded by .zshrc, so it only has to exist.
     ".atuin/bin/env".text = "";
   };
 
@@ -213,18 +195,10 @@ in
       # Patched and given its monitors.lua by `df`.
       "hypr".source = "${df}/dot-config/hypr";
 
-      # A store symlink, so ccstatusline's own TUI cannot save over it — this
-      # file is the source of truth and `nixos-rebuild` restores it. Edit
-      # home/ccstatusline.json and rebuild instead of using the picker.
-      #
-      # ~/.claude/settings.json runs it as `npx -y ccstatusline@latest`; there
-      # is no nixpkgs derivation to pin, so the schema is whatever npm serves.
-      # `version` has to equal that release's CURRENT_VERSION. On a lower one
-      # loadSettings migrates and writes the result back beside the file —
-      # which is /nix/store here, so the write is EROFS and the line renders
-      # as "invalid config" off the defaults. When a release bumps the schema,
-      # migrate this file and rebuild; pointing HOME at a scratch copy makes
-      # the tool do the migration for you.
+      # Immutable on purpose, so the picker cannot save over it. `version`
+      # must match the CURRENT_VERSION of whatever npm serves: on a lower one
+      # the tool migrates, writes the result back into /nix/store, hits EROFS
+      # and renders "invalid config" off its defaults.
       "ccstatusline/settings.json".source = ./ccstatusline.json;
 
       # What qt6ct reads for the icon theme; hyprqt6engine.conf is the Arch
@@ -234,15 +208,11 @@ in
         icon_theme=Papirus-Dark
       '';
 
-      # Sits outside the dot-* trees, so .stow-local-ignore skips it and the
-      # walk never reaches it — caelestia/install.sh is what places it on Arch.
-      # Taken straight from the dotfiles copy now that both live in one repo;
-      # schemes/hu-tao-dark.txt was a byte-identical second copy.
+      # Outside the dot-* trees, so the walk never reaches it.
       "caelestia/schemes/hu-tao/default/dark.txt".source =
         ../dotfiles/caelestia/schemes/hu-tao/default/dark.txt;
 
-      # Sourced by caelestia's hyprland integration, which creates them itself
-      # — but not before Hyprland reads its config.
+      # caelestia creates these itself, but after Hyprland reads its config.
       "caelestia/hypr-user.conf".text = "";
       "caelestia/hypr-vars.conf".text = "";
     };
@@ -256,39 +226,27 @@ in
     extraConfig = builtins.readFile ./caelestia-shell.json;
   };
 
-  # home-manager splits an installation from a daemon, so hermes takes two
-  # option trees: `programs.` puts the CLI on PATH and exports HERMES_HOME,
-  # `services.` owns ~/.hermes. gateway.enable is left at its default false —
-  # nothing runs in the background, this is a command, not a service.
+  # `programs.` is the CLI, `services.` owns ~/.hermes. gateway.enable stays
+  # at its default false: this is a command, not a daemon.
   programs.hermes-agent.enable = true;
 
   services.hermes-agent = {
-    # Renders ~/.hermes/config.yaml, which until now was a by-hand file that
-    # dotfiles gitignored — so this is the first time it is reproducible.
     enable = true;
 
-    # openrouter, because OPENROUTER_API_KEY is what the key below holds — one
-    # key, so one provider. The model is dot-hermes/config.example.yaml's own
-    # default routed free through it, and the only free model there that both
-    # calls tools and has the context an agent needs. A paid id, when one is
-    # wanted, goes here in the same `vendor/model` shape.
+    # The only free openrouter model that calls tools and has the context an
+    # agent needs.
     settings.model = {
       default = "minimax/minimax-m3:free";
       provider = "openrouter";
     };
 
-    # A runtime path and a `str`, never a Nix path literal: a path literal
-    # would copy the plaintext key into /nix/store, which every user can
-    # read. modules/sops.nix gives this secret owner = "hutao", because the
-    # activation that reads it is home-manager's and runs unprivileged.
-    #
-    # Guarded, not unconditional: hutao-vm imports no sops module, and
-    # hutao-vm is exactly what CI evaluates.
+    # A `str`, never a path literal: a literal would copy the plaintext into
+    # /nix/store. Guarded because hutao-vm has no sops module, and hutao-vm is
+    # what CI evaluates.
     environmentFiles = lib.optional (osConfig ? sops) osConfig.sops.secrets."hermes/env".path;
   };
 
-  # caelestia reads ~/.face in dashboard/dash/User.qml and lock/ProfilePic.qml,
-  # and its face picker copies into it — so seeded, not linked.
+  # caelestia's face picker writes to ~/.face, so seed it.
   home.activation.face = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if [ ! -e "${config.home.homeDirectory}/.face" ]; then
       run cp -L ${df}/dot-config/fastfetch/icons/HuTaoSmall.png \
@@ -297,8 +255,7 @@ in
     fi
   '';
 
-  # lazy.nvim rewrites these, so they cannot be store symlinks. Seeded from the
-  # pinned copies, then never touched.
+  # lazy.nvim rewrites these, so they cannot be store symlinks.
   home.activation.nvimState = lib.hm.dag.entryAfter [ "writeBoundary" ] (
     lib.concatMapStringsSep "\n" (f: ''
       if [ ! -e "${config.xdg.configHome}/nvim/${f}" ]; then
@@ -308,13 +265,12 @@ in
     '') nvimState
   );
 
-  # wallpaperDir is personal data outside the dotfiles repo, so a fresh machine
-  # has nothing to show. Seeded from the tracked backgrounds, never overwritten.
+  # Personal data that is not in the repo, so a fresh machine starts empty.
   home.activation.wallpapers =
     let
       dir = "${config.home.homeDirectory}/Pictures/Wallpapers";
       state = "${config.xdg.stateHome}/caelestia/wallpaper";
-      # `caelestia wallpaper` rewrites both, so they are seeded, not linked.
+      # `caelestia wallpaper` rewrites both.
       current = "${dir}/Hu_Tao_00056_1.png";
     in
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -331,8 +287,7 @@ in
       fi
     '';
 
-  # The active scheme is state, rewritten by `caelestia scheme set` — seeded,
-  # not linked, so switching still works.
+  # Rewritten by `caelestia scheme set`, so seeding keeps switching working.
   home.activation.caelestiaScheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     state="${config.xdg.stateHome}/caelestia"
     if [ ! -e "$state/scheme.json" ]; then

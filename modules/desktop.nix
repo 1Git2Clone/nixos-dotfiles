@@ -63,19 +63,12 @@ in
     };
   };
 
-  # Quickshell is Qt6. stylix's qt target installs qt6ct but sets
-  # platformTheme = "qt5ct", so Qt hunts for libqt5ct.so among the Qt6 plugins,
-  # loads no platform theme, and QIcon::themeName() comes back empty — every
-  # app icon in caelestia's launcher goes missing.
-  #
-  # stylix's qt target is what installs the qt6ct plugin and puts
-  # lib/qt-6/plugins on QT_PLUGIN_PATH. Disabling it removed the plugin while
-  # leaving the theme name set, so Qt had a name and nowhere to load it from —
-  # same broken end state, different cause. Keep the target and override only
-  # the name, since it sets qt5ct and a Qt6 app cannot load libqt5ct.so.
-  #
-  # mkForce because the target defines this too. The NixOS qt module's
-  # platformTheme enum has no qt6ct value, hence the raw variable.
+  # stylix's qt target sets platformTheme = "qt5ct", which a Qt6 app cannot
+  # load — QIcon::themeName() comes back empty and caelestia's launcher icons
+  # all vanish. Keep the target, which is what installs the plugin and puts
+  # lib/qt-6/plugins on QT_PLUGIN_PATH, and override only the name. Raw
+  # variable and mkForce: the NixOS enum has no qt6ct value, and the target
+  # defines this too.
   stylix.targets.qt.enable = true;
   environment.variables.QT_QPA_PLATFORMTHEME = lib.mkForce "qt6ct";
 
@@ -99,11 +92,9 @@ in
     # Must match the package directory name and its Theme-Id.
     theme = "sddm-hu-tao";
 
-    # Theme.CursorTheme only reaches the Qt greeter. On Wayland the compositor
-    # draws the pointer, and weston takes its theme from [shell] cursor-theme in
-    # weston.ini — it ignores XCURSOR_THEME. NixOS' generated ini has no [shell]
-    # section at all, so weston asks for a theme literally named "default",
-    # finds none, and draws no cursor.
+    # Theme.CursorTheme only reaches the Qt greeter. On Wayland weston draws
+    # the pointer and reads [shell] cursor-theme, ignoring XCURSOR_THEME — and
+    # the generated ini has no [shell] section, so it draws no cursor at all.
     settings.Theme.CursorTheme = "Hutao-Cursor";
 
     wayland.compositorCommand =
@@ -184,9 +175,8 @@ in
     enable = true;
     type = "fcitx5";
 
-    # Otherwise the module exports GTK_IM_MODULE/QT_IM_MODULE and fcitx5 warns
-    # that it found them alongside a working Wayland frontend. Uses the
-    # text-input protocol instead, which Hyprland speaks.
+    # Otherwise the module exports GTK_IM_MODULE/QT_IM_MODULE and fcitx5
+    # warns; the text-input protocol Hyprland speaks is enough.
     fcitx5.waylandFrontend = true;
     fcitx5.addons = with pkgs; [
       fcitx5-mozc
@@ -196,8 +186,7 @@ in
   };
 
   fonts.packages = with pkgs; [
-    # caelestia names its icons "calculate", "palette", "power_settings_new" —
-    # Material Symbols glyphs. Without the font they render as nothing.
+    # caelestia's icon names are Material Symbols glyphs.
     material-symbols
     nerd-fonts.jetbrains-mono
     noto-fonts
@@ -209,8 +198,7 @@ in
   ];
 
   # ── Packages ─────────────────────────────────────────────────────────────
-  # required_packages_archlinux.txt, plus what the scripts and keybinds
-  # actually call — that list had drifted.
+  # required_packages_archlinux.txt, plus what the scripts actually call.
   environment.systemPackages = with pkgs; [
     # terminal / file manager  (neovim is in modules/neovim.nix)
     kitty
@@ -300,20 +288,16 @@ in
     mangohud
     gamemode
 
-    # dot-gitconfig's credential helpers. GCM is usable here only because `df`
-    # rewrites credentialStore to secretservice — gpg needs a ~/.password-store
-    # that does not exist, and GCM then fails hard instead of prompting.
+    # GCM works here only because `df` rewrites credentialStore to
+    # secretservice; gpg wants a ~/.password-store that does not exist.
     gh
     git-credential-manager
 
-    # The theme dot-config/hypr/hyprqt6engine.conf already names. qt6ct is what
-    # reads it; stylix used to pull it in as a side effect of its qt target.
+    # hyprqt6engine.conf names the theme; qt6ct is what reads it.
     papirus-icon-theme
     qt6Packages.qt6ct
 
-    # Hutao-Cursor's index.theme says Inherits=Adwaita, and Adwaita was not
-    # installed — so any shape it lacks resolved to nothing. This is the
-    # guaranteed floor: it ships cursors/default and cursors/left_ptr.
+    # Hutao-Cursor inherits from Adwaita, so any shape it lacks needs this.
     adwaita-icon-theme
 
     # caelestia's launcher favourites reference both.
@@ -335,8 +319,7 @@ in
     app-icons
   ];
 
-  # Not a systemPackages entry: steam needs the FHS wrapper and the udev rules
-  # this option installs.
+  # The option, not the package: steam needs the FHS wrapper and udev rules.
   programs.steam.enable = true;
 
   programs.gamemode.enable = true;
@@ -345,9 +328,7 @@ in
   # The autoclicker scripts need ydotool's daemon.
   programs.ydotool.enable = true;
 
-  # oh-my-zsh already loads autosuggestions and syntax-highlighting as plugins
-  # (home/hutao.nix), so the NixOS-level options would be a second copy.
-  #
-  # ZSH_CACHE_DIR defaults to $ZSH/cache, and $ZSH is a store path here.
+  # oh-my-zsh already loads these as plugins (home/hutao.nix), and
+  # ZSH_CACHE_DIR defaults to $ZSH/cache, which is a store path here.
   environment.sessionVariables.ZSH_CACHE_DIR = "$HOME/.cache/oh-my-zsh";
 }

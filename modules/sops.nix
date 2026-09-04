@@ -21,11 +21,8 @@ _: {
 
       tailscale_authkey = { };
 
-      # An .env-shaped blob (KEY=value per line), not a single value: hermes
-      # reads it with load_hermes_dotenv() and the provider keys travel
-      # together. owner, because home-manager's activation runs as hutao and
-      # the default 0400 root:root is unreadable to it — the sops-nix default
-      # suits a systemd unit's LoadCredential, not a user-level module.
+      # An .env-shaped blob, read by home-manager's activation as hutao — the
+      # default 0400 root:root is unreadable to it.
       "hermes/env" = {
         owner = "hutao";
       };

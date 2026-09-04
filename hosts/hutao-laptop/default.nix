@@ -8,11 +8,9 @@ _: {
 
   networking.hostName = "hutao-laptop";
 
-  # nixpkgs' amdgpu module puts amdgpu in the initrd because videoDrivers names
-  # it. Early KMS then finishes its mode set a few seconds into the passphrase
-  # prompt and resets the console underneath it: the prompt text is never
-  # redrawn and the new console starts below the leftover "Starting
-  # Cryptography Setup" lines. Stage 2 loads it after the unlock instead.
+  # videoDrivers otherwise puts amdgpu in the initrd, and early KMS resets the
+  # console mid-passphrase-prompt without redrawing it. Stage 2 loads it after
+  # the unlock instead.
   hardware.amdgpu.initrd.enable = false;
   boot.kernelModules = [ "amdgpu" ];
 
