@@ -4,6 +4,7 @@
 {
   imports = [
     ../../modules/firewall.nix
+    ../../modules/flatpak.nix
     ../../modules/sops.nix
     ../../modules/syncthing.nix
     ../../modules/tailscale.nix

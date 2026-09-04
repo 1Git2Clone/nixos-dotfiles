@@ -42,6 +42,10 @@
       url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Sober is Flatpak-only by upstream's choice, and this keeps that
+    # declarative rather than a `flatpak install` nobody records.
+    nix-flatpak.url = "github:gmodena/nix-flatpak";
   };
 
   outputs =

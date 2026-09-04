@@ -276,9 +276,16 @@ in
     stow
     jq
     wget
+    zip
     unzip
+    p7zip # 7z, 7za, 7zr
     git
     git-lfs
+
+    # sgdisk and parted. disko's own scripts carry both on their PATH, which
+    # is why the script partitions fine and a shell cannot.
+    gptfdisk
+    parted
 
     # dev
     clang
@@ -302,6 +309,11 @@ in
 
     # caelestia's launcher favourites reference both.
     vesktop
+
+    # The background service only: `stremio` itself was removed from nixpkgs
+    # for depending on the outdated qt5 webengine, and the web app is what
+    # this is for.
+    stremio-service
 
     ente-auth
 
