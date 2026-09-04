@@ -39,7 +39,8 @@ nine `Themes/*.conf`, `setup.sh` and upstream's `README.md`.
 
 ## What was changed
 
-`Themes/hu-tao.conf` is `pixel_sakura.conf` with exactly two lines different:
+`Themes/hu-tao.conf` is `pixel_sakura.conf` with the font, the background and
+the `Colors` block different:
 
 ```diff
 -Font="arcadeclassic"
@@ -48,19 +49,23 @@ nine `Themes/*.conf`, `setup.sh` and upstream's `README.md`.
 +Background="Backgrounds/hu-tao.png"
 ```
 
-Everything else — the blue-grey `#3d495b` palette, `FormPosition="center"`,
-`CropBackground="true"`, the hidden system buttons — is upstream's
-`pixel_sakura` untouched.
+The colours went from upstream's blue-grey `#3d495b` scheme to hu-tao's in
+47c7f5e, and are no longer written here at all: `pkgs/sddm-hu-tao.nix`
+substitutes all eight of them out of the caelestia scheme at build time, so
+the greeter follows a retune (see `palette.nix`). The vendored values are the
+placeholders it matches on, which is why they stay in the file.
+
+Everything else — `FormPosition="center"`, `CropBackground="true"`, the
+hidden system buttons — is upstream's `pixel_sakura` untouched.
 
 Two things worth knowing:
 
 - **`CropBackground="true"` is the "cover" behaviour.** Upstream has no key
   called `Layout`; this is the one that crops to fill instead of letterboxing,
   i.e. CSS `background-size: cover`. It was already true in `pixel_sakura`.
-- **The palette is sakura's, not hu-tao's.** `#3d495b` is a muted blue-grey,
-  chosen against pink petals. Over a red-and-dark Hu Tao image it may read as
-  a clash. Changing it is a matter of editing the `Colors` block; it was left
-  alone because "pixel sakura with this picture" is what was asked for.
+- **The palette is no longer sakura's.** `#3d495b`, a muted blue-grey chosen
+  against pink petals, read as a clash over a red-and-dark Hu Tao image. The
+  `Colors` block is the scheme's now, and is generated rather than edited.
 
 `metadata.desktop` drops upstream's `Screenshot=` and `TranslationsDirectory=`
 lines: the first pointed into `Previews/`, which is not vendored, and the

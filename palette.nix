@@ -35,9 +35,45 @@ let
     );
 
   colours = parse scheme;
+
+  channels =
+    c:
+    map (i: lib.fromHexString (builtins.substring i 2 c)) [
+      0
+      2
+      4
+    ];
+
+  render =
+    rgb:
+    lib.concatMapStrings (
+      v:
+      let
+        byte = lib.toLower (lib.toHexString (lib.min 255 (lib.max 0 (builtins.floor (v + 0.5)))));
+      in
+      if builtins.stringLength byte == 1 then "0${byte}" else byte
+    ) rgb;
 in
 rec {
   inherit colours;
+
+  # Straight sRGB interpolation between two keys of the scheme. Here so the
+  # ramps below stay a function of the palette: a config that needs nine
+  # evenly spaced pinks gets them from its two endpoints rather than from
+  # nine literals nobody will remember to retune.
+  mix =
+    a: b: t:
+    render (lib.zipListsWith (x: y: x + (y - x) * t) (channels colours.${a}) (channels colours.${b}));
+
+  # n colours from a to b inclusive. `1.0 *` because nix divides integers.
+  # The asserts are the check on the arithmetic above: a ramp's ends are its
+  # anchors by definition, and a float or fencepost slip there would
+  # otherwise only show up as a slightly wrong pink in the middle.
+  ramp =
+    a: b: n:
+    assert mix a b 0.0 == lib.toLower colours.${a};
+    assert mix a b 1.0 == lib.toLower colours.${b};
+    map (i: mix a b (1.0 * i / (n - 1))) (lib.range 0 (n - 1));
 
   # Bare `rrggbb`, `#rrggbb` and `0xrrggbb` of the same key, because the
   # consumers disagree about the prefix and nothing should be re-typing one.

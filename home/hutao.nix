@@ -14,6 +14,250 @@ let
   src = ../dotfiles;
 
   palette = import ../palette.nix { inherit lib; };
+  inherit (palette)
+    hex
+    argb
+    rgba
+    ramp
+    ;
+
+  # kitty's palette, generated whole rather than patched: the file is nothing
+  # but colours, so substituting all 26 would be a worse way to say the same
+  # thing. The name stays -- kitty.conf includes it by path, and colors.sh
+  # reads `background` back out of it for the tmux status bar.
+  kittyColours = pkgs.writeText "mocha.conf" ''
+    # vim:ft=kitty
+    #
+    # Generated from the caelestia scheme; see palette.nix. Was a hand-edited
+    # Catppuccin Mocha, which is where the filename comes from.
+
+    # The basic colors
+    foreground              ${hex.text}
+    background              ${hex.base}
+    selection_foreground    ${hex.base}
+    selection_background    ${hex.rosewater}
+
+    # Cursor colors
+    cursor                  ${hex.rosewater}
+    cursor_text_color       ${hex.base}
+
+    # URL underline color when hovering with mouse
+    url_color               ${hex.klink}
+
+    # Kitty window border colors
+    active_border_color     ${hex.primary}
+    inactive_border_color   ${hex.outline}
+    bell_border_color       ${hex.tertiary}
+
+    # OS Window titlebar colors
+    wayland_titlebar_color system
+    macos_titlebar_color system
+
+    # Tab bar colors
+    active_tab_foreground   ${hex.onPrimary}
+    active_tab_background   ${hex.red}
+    inactive_tab_foreground ${hex.peach}
+    inactive_tab_background ${hex.onSecondary}
+    tab_bar_background      ${hex.onPrimary}
+
+    # Colors for marks (marked text in the terminal)
+    mark1_foreground ${hex.surfaceContainerHigh}
+    mark1_background ${hex.primaryFixed}
+    mark2_foreground ${hex.surfaceContainerHigh}
+    mark2_background ${hex.flamingo}
+    mark3_foreground ${hex.surfaceContainerHigh}
+    mark3_background ${hex.primary}
+
+    # The 16 terminal colors, straight off the scheme's own term0..term15.
+    ${lib.concatStringsSep "\n" (
+      map (i: "color${toString i} ${hex."term${toString i}"}") (lib.range 0 15)
+    )}
+  '';
+
+  # The nine-step pink the nvim colourscheme overrides Catppuccin with. Its
+  # own 1st, 5th and 9th steps were already scheme colours; the six between
+  # them were literals, so the whole ladder is interpolated off those anchors
+  # instead (palette.nix's `ramp`) and follows a retune.
+  nvimRamp = ramp "flamingo" "mauve" 5 ++ lib.tail (ramp "mauve" "onSecondaryFixedVariant" 5);
+
+  # Colours still written as literals in the dotfiles, by the scheme key each
+  # one means. The in-tree literal doubles as the placeholder: every config
+  # stays valid when ~/.config is pointed at the raw tree (see the header),
+  # and --replace-fail turns an upstream edit into a failed build rather than
+  # a colour that quietly stopped following the scheme.
+  #
+  # Lists, not attrsets, because order matters where one token is a prefix of
+  # another (swaylock's rrggbbaa).
+  recolour = {
+    "dot-config/kitty/kitty.conf" = [
+      # Set after the mocha.conf include, so this is the one that wins.
+      { "#0087bd" = hex.klink; }
+    ];
+
+    "dot-config/waybar/style.css" = [
+      { "#ff3333" = hex.primary; }
+      { "#ff6666" = hex.primaryFixed; }
+      { "#ff1a1a" = hex.red; }
+      { "rgba(0, 0, 0, 0.9)" = rgba "scrim" "0.9"; }
+    ];
+
+    "dot-config/waybar/config.jsonc" = [
+      { "#bf616a" = hex.red; }
+      { "#ffead3" = hex.yellow; }
+      { "#ecc6d9" = hex.term7; }
+      { "#99ffdd" = hex.teal; }
+      { "#ffcc66" = hex.peach; }
+      { "#ff6699" = hex.primary; }
+      { "#f53c3c" = hex.red; }
+    ];
+
+    "dot-config/wofi/style.css" = [
+      { "rgba(24, 12, 12, 0.8)" = rgba "base" "0.8"; }
+      { "rgba(24, 12, 12, 0.1)" = rgba "base" "0.1"; }
+      { "rgba(255, 128, 128, 0.5)" = rgba "red" "0.5"; }
+      { "rgba(255, 128, 128, 0.1)" = rgba "red" "0.1"; }
+      { "#a55" = hex.mauve; }
+      { "#eee" = hex.text; }
+    ];
+
+    "dot-config/wlogout/style.css" = [
+      { "#ff4b4b" = hex.red; }
+      { "rgba(0, 0, 0, 0.85)" = rgba "scrim" "0.85"; }
+      { "rgba(255, 0, 0, 0.5)" = rgba "red" "0.5"; }
+      { "rgba(255, 0, 0, 0.2)" = rgba "red" "0.2"; }
+    ];
+
+    # Rose Pine, every value of it, until now. Bare hex like the file's own,
+    # and the rrggbbaa tokens ahead of the rrggbb they start with.
+    "dot-config/swaylock/config" = [
+      { "1f1d2e80" = argb "surface0" "80"; }
+      { "00000000" = argb "scrim" "00"; }
+      { "1f1d2e" = palette.colours.surface0; }
+      { "191724" = palette.colours.base; }
+      { "eb6f92" = palette.colours.primary; }
+      { "e0def4" = palette.colours.text; }
+      { "31748f" = palette.colours.red; }
+      { "9ccfd8" = palette.colours.green; }
+    ];
+
+    "dot-config/mako/config" = [
+      { "#330101" = hex.surfaceVariant; }
+      { "#551111" = hex.overlay0; }
+      { "#d08770" = hex.maroon; }
+      { "#bf616a" = hex.red; }
+    ];
+
+    "dot-config/hypr/modules/look_and_feel.lua" = [
+      { "rgba(ff3333ee)" = "rgba(${argb "primary" "ee"})"; }
+      { "rgba(ff0099ee)" = "rgba(${argb "term5" "ee"})"; }
+      { "rgba(595959aa)" = "rgba(${argb "outline" "aa"})"; }
+      { "rgba(1a1a1aee)" = "rgba(${argb "crust" "ee"})"; }
+    ];
+
+    "dot-config/lazygit/config.yml" = [
+      { "#ff5077" = hex.primary; }
+      { "#da5876" = hex.term5; }
+      { "#ffaa88" = hex.onSecondaryContainer; }
+      { "#541f27" = hex.onSecondaryFixedVariant; }
+      { "#ffb3c3" = hex.primaryFixedDim; }
+    ];
+
+    # Bare hex, no leading '#'.
+    "dot-config/MangoHud/MangoHud.conf" = [
+      { "c8c5d1" = palette.colours.subtext1; }
+      { "190707" = palette.colours.base; }
+      { "d94f6e" = palette.colours.term5; }
+      { "eb6c6c" = palette.colours.primary; }
+      { "ab6670" = palette.colours.mauve; }
+      { "d3a891" = palette.colours.flamingo; }
+    ];
+
+    "dot-config/starship.toml" = [
+      { "#d29db0" = hex.primaryFixedDim; }
+      { "#090c0b" = hex.crust; }
+      { "#f07185" = hex.primary; }
+      { "#e4e3e5" = hex.text; }
+      { "#603745" = hex.secondaryContainer; }
+      { "#362124" = hex.surfaceContainerHighest; }
+      { "#301e1d" = hex.surfaceContainerHigh; }
+      { "#caa0a8" = hex.kpositive; }
+    ];
+
+    "dot-config/vesktop/themes/BasicBackground.theme.css" = [
+      { "rgba(0, 0, 0, 0.85)" = rgba "scrim" "0.85"; }
+      { "rgba(0, 0, 0, 0)" = rgba "scrim" "0"; }
+    ];
+
+    # The five base hues were already scheme colours. Their -2..-5 steps were
+    # baked rgb() percentages -- caelestia's generator darkening each hue by
+    # 5% of its HSL lightness per step -- so they become that same step
+    # expressed against the hue above them, and follow it.
+    "dot-config/vesktop/themes/caelestia.theme.css" = [
+      { "#130a0c" = hex.base; }
+      { "#3a0000" = hex.onPrimary; }
+      { "#8a5560" = hex.outline; }
+      { "#362328" = hex.surface2; }
+      { "#2a191e" = hex.surfaceContainerHigh; }
+      { "#201317" = hex.surfaceContainer; }
+      { "#ff6b69" = hex.red; }
+      { "#ff9b8a" = hex.green; }
+      { "#EB6C6C" = hex.primary; }
+      { "#ffe9c7" = hex.yellow; }
+      { "#ab6670" = hex.mauve; }
+      { "#e5e1e7" = hex.text; }
+      { "rgb(90.8235294118%, 89.4117647059%, 91.5294117647%)" = "var(--text-3)"; }
+      { "rgb(90.3137254902%, 88.8235294118%, 91.0588235294%)" = "var(--text-3)"; }
+      { "rgba(229, 225, 231, 0.08)" = rgba "text" "0.08"; }
+      { "rgba(229, 225, 231, 0.1)" = rgba "text" "0.1"; }
+      { "rgba(229, 225, 231, 0.2)" = rgba "text" "0.2"; }
+      { "rgba(138, 85, 96, 0.2)" = rgba "outline" "0.2"; }
+      { "rgba(138, 85, 96, 0)" = rgba "outline" "0"; }
+      { "rgb(100%, 34.9960784314%, 34.1176470588%)" = darker "--red-1" 1; }
+      { "rgb(100%, 28.031372549%, 27.0588235294%)" = darker "--red-1" 2; }
+      { "rgb(100%, 21.0666666667%, 20%)" = darker "--red-1" 3; }
+      { "rgb(100%, 14.1019607843%, 12.9411764706%)" = darker "--red-1" 4; }
+      { "rgb(100%, 54.1980894922%, 46.4117647059%)" = darker "--green-1" 1; }
+      { "rgb(100%, 47.6118652589%, 38.7058823529%)" = darker "--green-1" 2; }
+      { "rgb(100%, 41.0256410256%, 31%)" = darker "--green-1" 3; }
+      { "rgb(100%, 34.4394167924%, 23.2941176471%)" = darker "--green-1" 4; }
+      { "rgb(91.3514148174%, 36.4328989081%, 36.4328989081%)" = darker "--blue-1" 1; }
+      { "rgb(90.5459668897%, 30.5128566397%, 30.5128566397%)" = darker "--blue-1" 2; }
+      { "rgb(89.7405189621%, 24.5928143713%, 24.5928143713%)" = darker "--blue-1" 3; }
+      { "rgb(88.9350710344%, 18.6727721029%, 18.6727721029%)" = darker "--blue-1" 4; }
+      { "rgb(100%, 87.8753501401%, 69.137254902%)" = darker "--yellow-1" 1; }
+      { "rgb(100%, 84.3781512605%, 60.2352941176%)" = darker "--yellow-1" 2; }
+      { "rgb(100%, 80.880952381%, 51.3333333333%)" = darker "--yellow-1" 3; }
+      { "rgb(100%, 77.3837535014%, 42.431372549%)" = darker "--yellow-1" 4; }
+      { "rgb(65.1615785555%, 36.5443037975%, 40.6917349218%)" = darker "--purple-1" 1; }
+      { "rgb(62.2025316456%, 34.1504095309%, 38.2159344751%)" = darker "--purple-1" 2; }
+      { "rgb(58.746835443%, 32.253164557%, 36.0928270042%)" = darker "--purple-1" 3; }
+      { "rgb(55.2911392405%, 30.355919583%, 33.9697195334%)" = darker "--purple-1" 4; }
+    ];
+  };
+
+  # 5% of the HSL lightness per step, off the hue's own var, so the ladder is
+  # the browser's arithmetic on one palette colour instead of twenty baked
+  # percentages. Relative colour syntax; Vesktop's Electron is well past it.
+  darker =
+    var: n:
+    let
+      factor = lib.foldl' (acc: _: acc * 0.95) 1.0 (lib.range 1 n);
+    in
+    "hsl(from var(${var}) h s calc(l * ${toString factor}))";
+
+  # One substituteInPlace per file, --replace-fail per pair.
+  recolourPhase = lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (path: pairs: ''
+      substituteInPlace $out/${path} \
+        ${lib.concatMapStringsSep " \\\n        " (
+          pair:
+          let
+            from = lib.head (lib.attrNames pair);
+          in
+          "--replace-fail '${from}' '${pair.${from}}'"
+        ) pairs}
+    '') recolour
+  );
 
   # What `caelestia scheme set` would write, built from the scheme file it
   # would have read, so the seed below is never a second copy of the colours.
@@ -55,6 +299,11 @@ let
     # Per-machine and gitignored upstream, but hyprland.lua requires it.
     cp ${../hosts + "/${hostName}/monitors.lua"} \
       $out/dot-config/hypr/modules/monitors.lua
+
+    # ── Colours ──────────────────────────────────────────────────────────
+    cp ${kittyColours} $out/dot-config/mocha/mocha.conf
+
+    ${recolourPhase}
   '';
 
   # Read rather than restated, so the two cannot drift.
@@ -126,6 +375,33 @@ let
     cp -r ${nvimSrc} $out
     chmod -R u+w $out
     cp ${./nvim-nixos.lua} $out/lua/plugins/nixos.lua
+
+    # Two files hold every colour the config picks: utils/colors.lua for the
+    # highlights it sets itself, catppuccin.lua for the ramp it overrides the
+    # colourscheme's own greys with.
+    substituteInPlace $out/lua/utils/colors.lua \
+      --replace-fail '#110000' '${hex.base}' \
+      --replace-fail '#ff5077' '${hex.primary}' \
+      --replace-fail '#ff9999' '${hex.secondary}' \
+      --replace-fail '#ffaa88' '${hex.onSecondaryContainer}' \
+      --replace-fail '#ff003e' '${hex.red}' \
+      --replace-fail '#da5876' '${hex.term5}' \
+      --replace-fail '#ffb3c3' '${hex.primaryFixedDim}'
+
+    substituteInPlace $out/lua/plugins/catppuccin.lua \
+      ${lib.concatStringsSep " \\\n      " (
+        lib.zipListsWith (from: to: "--replace-fail '${from}' '#${to}'") [
+          "#f7c0c8"
+          "#e6aab3"
+          "#d4939d"
+          "#c17c87"
+          "#ab6670"
+          "#965159"
+          "#7f3e44"
+          "#6a2f36"
+          "#541f27"
+        ] nvimRamp
+      )}
   '';
 
   # Written by lazy.nvim; seeded once, then left alone.

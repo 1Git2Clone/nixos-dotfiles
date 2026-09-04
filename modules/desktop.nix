@@ -12,9 +12,9 @@ let
 
   app-icons = pkgs.callPackage ../pkgs/app-icons.nix { };
 
-  sddm-hu-tao = pkgs.callPackage ../pkgs/sddm-hu-tao.nix { };
-
   palette = import ../palette.nix { inherit lib; };
+
+  sddm-hu-tao = pkgs.callPackage ../pkgs/sddm-hu-tao.nix { inherit palette; };
 in
 {
   # ── Stylix ───────────────────────────────────────────────────────────────
