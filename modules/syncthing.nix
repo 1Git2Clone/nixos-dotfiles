@@ -22,6 +22,10 @@ let
   peers = {
     hutao-desktop = "2UE2BQ2-AGJLUEY-IXUSURZ-INSQRGF-PMWKNZD-VSVZ4JJ-6XWGTWL-C6XQMQ5";
     vps = "Z3BRNQT-T2HJQY2-XNDOXNO-FJLIJR5-S7U6UUA-Z4CYGYS-UVF5EYH-DZMFWQM";
+
+    # A phone, so it never imports this module and never appears as hostName.
+    # The key is its MagicDNS name, which is what the address below resolves.
+    xiaomi-12 = "VIQT7TM-224ZM45-JJIT5T6-I7DKFSZ-EY3BG5Y-RNKYJAH-UBW5DJ2-WZE7RQK";
   };
 
   # Pairing is mutual, so each machine importing this declares the others and
