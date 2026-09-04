@@ -4,6 +4,7 @@
 {
   imports = [
     ../../modules/sops.nix
+    ../../modules/syncthing.nix
     ../../modules/tailscale.nix
     ../../modules/users.nix
   ];
