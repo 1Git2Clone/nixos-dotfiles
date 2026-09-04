@@ -13,6 +13,8 @@ let
   app-icons = pkgs.callPackage ../pkgs/app-icons.nix { };
 
   sddm-hu-tao = pkgs.callPackage ../pkgs/sddm-hu-tao.nix { };
+
+  palette = import ../palette.nix { inherit lib; };
 in
 {
   # ── Stylix ───────────────────────────────────────────────────────────────
@@ -20,8 +22,9 @@ in
     enable = true;
     polarity = "dark";
 
-    # Derived from caelestia/schemes/hu-tao/default/dark.txt.
-    base16Scheme = ../hu-tao.yaml;
+    # The 16 slots read straight out of the caelestia scheme by their
+    # semantic names, so this and the shell cannot drift. See palette.nix.
+    base16Scheme = palette.base16;
 
     # Wallpaper only; base16Scheme above is explicit, so nothing derives
     # colours from this.

@@ -13,6 +13,12 @@ let
   # A plain path, so the readDir walk needs no import-from-derivation.
   src = ../dotfiles;
 
+  palette = import ../palette.nix { inherit lib; };
+
+  # What `caelestia scheme set` would write, built from the scheme file it
+  # would have read, so the seed below is never a second copy of the colours.
+  caelestiaScheme = (pkgs.formats.json { }).generate "caelestia-scheme.json" palette.schemeJson;
+
   inherit (osConfig.networking) hostName;
 
   # --replace-fail: break the build when a patch lands upstream.
@@ -292,7 +298,7 @@ in
     state="${config.xdg.stateHome}/caelestia"
     if [ ! -e "$state/scheme.json" ]; then
       run mkdir -p "$state"
-      run install -m600 ${./caelestia-scheme.json} "$state/scheme.json"
+      run install -m600 ${caelestiaScheme} "$state/scheme.json"
     fi
   '';
 }
