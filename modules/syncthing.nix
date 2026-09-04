@@ -77,6 +77,11 @@ in
       id = "hazch-yurju";
       label = "Main (~/syncthing)";
       devices = builtins.attrNames others;
+
+      versioning = {
+        type = "simple";
+        params.keep = "10";
+      };
     };
   };
 
