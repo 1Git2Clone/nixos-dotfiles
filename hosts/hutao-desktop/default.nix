@@ -15,19 +15,9 @@ in
 
   boot.initrd.kernelModules = [ "amdgpu" ];
 
-  # In-kernel ntfs3 driver, not the FUSE one. `force` mounts a volume Windows
-  # left dirty (fast startup / hibernation) instead of refusing.
+  # The HDD is LUKS + ext4 now and disko owns its fileSystems entry. This is
+  # only left for removable NTFS media.
   boot.supportedFilesystems.ntfs = true;
-  fileSystems.${disk.hddMount} = {
-    device = "/dev/disk/by-uuid/${disk.hddUuid}";
-    fsType = "ntfs3";
-    options = [
-      "uid=1000"
-      "gid=1000"
-      "nofail"
-      "force"
-    ];
-  };
 
   environment.systemPackages = [ pkgs.teams-for-linux ];
 

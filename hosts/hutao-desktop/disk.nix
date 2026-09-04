@@ -9,7 +9,7 @@
   swapSize = "20G";
   rootSize = "120G";
 
-  # Mounted, never partitioned: it holds Windows-side data.
-  hddUuid = "E464BEF164BEC618";
+  # by-id here too: disko wipes whatever this names.
+  hddDevice = "/dev/disk/by-id/ata-ST2000DM008-2FR102_WFL43NWP";
   hddMount = "/mnt/hdd";
 }
