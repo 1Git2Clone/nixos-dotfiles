@@ -219,6 +219,12 @@ in
       #
       # ~/.claude/settings.json runs it as `npx -y ccstatusline@latest`; there
       # is no nixpkgs derivation to pin, so the schema is whatever npm serves.
+      # `version` has to equal that release's CURRENT_VERSION. On a lower one
+      # loadSettings migrates and writes the result back beside the file —
+      # which is /nix/store here, so the write is EROFS and the line renders
+      # as "invalid config" off the defaults. When a release bumps the schema,
+      # migrate this file and rebuild; pointing HOME at a scratch copy makes
+      # the tool do the migration for you.
       "ccstatusline/settings.json".source = ./ccstatusline.json;
 
       # What qt6ct reads for the icon theme; hyprqt6engine.conf is the Arch
@@ -261,11 +267,13 @@ in
     # dotfiles gitignored — so this is the first time it is reproducible.
     enable = true;
 
-    # openrouter, because OPENROUTER_API_KEY is what the secret below holds —
-    # one key, so one provider. The model id is the one
-    # dot-hermes/config.example.yaml already routes through openrouter.
+    # openrouter, because OPENROUTER_API_KEY is what the key below holds — one
+    # key, so one provider. The model is dot-hermes/config.example.yaml's own
+    # default routed free through it, and the only free model there that both
+    # calls tools and has the context an agent needs. A paid id, when one is
+    # wanted, goes here in the same `vendor/model` shape.
     settings.model = {
-      default = "anthropic/claude-opus-4.8";
+      default = "minimax/minimax-m3:free";
       provider = "openrouter";
     };
 
