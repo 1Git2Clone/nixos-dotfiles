@@ -92,6 +92,12 @@ hl.window_rule({
 })
 
 hl.window_rule({
+  name = "evolution",
+  match = { class = [[org\.gnome\.Evolution]] },
+  opacity = "0.85",
+})
+
+hl.window_rule({
   name = "fullscreen",
   match = { fullscreen = true },
   opacity = "1",
