@@ -13,44 +13,44 @@ disk:
   disko.devices = {
     disk = {
       main = {
-      type = "disk";
-      inherit (disk) device;
-      content = {
-        type = "gpt";
-        partitions = {
-          ESP = {
-            priority = 1;
-            type = "EF00";
-            size = "2G";
-            content = {
-              type = "filesystem";
-              format = "vfat";
-              mountpoint = "/boot";
-              mountOptions = [ "umask=0077" ];
-            };
-          };
-
-          luks = {
-            priority = 2;
-            size = "100%";
-            content = {
-              type = "luks";
-              name = "cryptroot";
-              settings = {
-                allowDiscards = true;
-                crypttabExtraOpts = [ "x-initrd.attach" ];
-              };
-              # install.sh writes this without a trailing newline; a stray \n
-              # is baked into the keyslot and can never be typed at boot.
-              passwordFile = "/tmp/luks-passphrase";
+        type = "disk";
+        inherit (disk) device;
+        content = {
+          type = "gpt";
+          partitions = {
+            ESP = {
+              priority = 1;
+              type = "EF00";
+              size = "2G";
               content = {
-                type = "lvm_pv";
-                vg = "pool";
+                type = "filesystem";
+                format = "vfat";
+                mountpoint = "/boot";
+                mountOptions = [ "umask=0077" ];
+              };
+            };
+
+            luks = {
+              priority = 2;
+              size = "100%";
+              content = {
+                type = "luks";
+                name = "cryptroot";
+                settings = {
+                  allowDiscards = true;
+                  crypttabExtraOpts = [ "x-initrd.attach" ];
+                };
+                # install.sh writes this without a trailing newline; a stray \n
+                # is baked into the keyslot and can never be typed at boot.
+                passwordFile = "/tmp/luks-passphrase";
+                content = {
+                  type = "lvm_pv";
+                  vg = "pool";
+                };
               };
             };
           };
         };
-      };
       };
     }
     // lib.optionalAttrs (disk ? hddDevice) {
