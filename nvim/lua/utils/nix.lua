@@ -33,7 +33,12 @@ local function get_nixos_config()
       "--apply",
       "builtins.attrNames",
     }, { text = true })
-    :wait()
+    -- Bounded because this runs on the UI thread from lspconfig's config(),
+    -- which LazyVim loads on the first file opened -- so an eval that hangs
+    -- freezes nvim at exactly that moment. A warm eval is ~60ms; a cold one
+    -- that outruns this loses nixd's NixOS option completions until restart,
+    -- which is the cheaper failure.
+    :wait(3000)
 
   if result.code ~= 0 then
     return nil
