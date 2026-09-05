@@ -13,7 +13,13 @@ return {
           style = "terminal",
         },
       },
-      bigfile = { enabled = true },
+      -- line_length is bytes-per-line averaged over the file, so any single
+      -- line over 1KB trips it -- a minified JSON export included. A bigfile
+      -- buffer is given the filetype "bigfile", which conform matches no
+      -- formatter against, so the file that most needs formatting is the one
+      -- that cannot be. `size` still catches genuinely large files, and this
+      -- keeps the minified-file guard for ones big enough to actually hurt.
+      bigfile = { enabled = true, line_length = 100000 },
       quickfile = { enabled = true },
       notifier = {
         enabled = true,
