@@ -295,6 +295,13 @@ let
       --replace-fail '/usr/bin/gh' '${pkgs.gh}/bin/gh' \
       --replace-fail 'credentialStore = gpg' 'credentialStore = secretservice'
 
+    # TPM would clone these into ~/.tmux at runtime; nixpkgs already ships them.
+    substituteInPlace $out/dot-tmux.conf \
+      --replace-fail '/usr/share/tmux-plugins/resurrect' \
+        '${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect' \
+      --replace-fail '/usr/share/tmux-plugins/continuum' \
+        '${pkgs.tmuxPlugins.continuum}/share/tmux-plugins/continuum'
+
     # #!/bin/bash does not exist here, and a failed exec bind is silent.
     patchShebangs $out
 
