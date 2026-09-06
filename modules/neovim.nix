@@ -41,6 +41,38 @@
     nixfmt
     go # gofmt
 
+    # VimTeX compiles with latexmk, and nothing here shipped a TeX engine.
+    # Curated instead of texliveMedium: 530M against 2.7G.  A document that
+    # wants another package adds it to this list (the error names the .sty),
+    # or swap the whole thing for texliveMedium.
+    (texlive.withPackages (
+      ps: with ps; [
+        scheme-basic
+        xetex # the Cyrillic documents need it; fontspec cannot run under pdftex
+        latexmk
+        fontspec
+        polyglossia
+        hyphen-bulgarian
+        geometry
+        amsmath
+        booktabs
+        tools # array
+        enumitem
+        fancyvrb
+        listings
+        xcolor
+        hyperref
+        titlesec
+        tcolorbox
+        tikzfill # tcolorbox [most]
+        pgf
+        pdfcol
+        environ
+        trimspaces
+        etoolbox
+      ]
+    ))
+
     # Linters, all of them run by nvim-lint on save. LazyVim's lang extras
     # name these in linters_by_ft and mason would fetch them; mason is off
     # here, so a missing one is an "Error running <tool>: ENOENT" on every

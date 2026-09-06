@@ -57,7 +57,13 @@ return {
     -- In the rewrite, Tree-sitter does NOT start automatically.
     -- You have to tell Neovim to start it for every file.
     vim.api.nvim_create_autocmd("FileType", {
-      callback = function()
+      callback = function(args)
+        -- Not tex: vimtex wants its own syntax script there, both for the
+        -- highlighting and for its math text objects, and complains on every
+        -- buffer when treesitter takes over. See :help vimtex-faq-treesitter.
+        if args.match == "tex" then
+          return
+        end
         -- This is the new way to turn on the colors
         pcall(vim.treesitter.start)
       end,
