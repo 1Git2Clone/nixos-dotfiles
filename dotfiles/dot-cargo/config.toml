@@ -18,7 +18,7 @@ incremental = true
 opt-level = 2
 
 [target.'cfg(all())']
-rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+rustflags = ["-C", "link-arg=-fuse-ld=mold"]
 
 [build]
 jobs = 10                          # Defaults to your CPU cores

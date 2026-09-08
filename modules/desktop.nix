@@ -309,6 +309,11 @@ in
     # dev
     clang
     nodejs
+    # Rust's default linker driver is `cc`, which is clang-wrapper here, and it
+    # ships only ld.bfd/ld.gold -- `-fuse-ld=lld` fails with "invalid linker
+    # name". mold is the fastest of the three and is what dot-cargo/config.toml
+    # asks for via link-arg. Verified: clang -fuse-ld=mold links, lld does not.
+    mold
 
     # gaming
     mangohud
