@@ -27,7 +27,14 @@ return {
           },
         },
         ts_ls = {},
-        rust_analyzer = {},
+        -- DELIBERATELY ABSENT. `lazyvim.plugins.extras.lang.rust` (enabled in
+        -- lazyvim.json) installs rustaceanvim, which starts and owns the
+        -- rust-analyzer client itself. LazyVim's extra sets
+        -- `rust_analyzer = { enabled = false }` here for exactly that reason;
+        -- listing it again overrides that back on, so TWO servers index the
+        -- same crate graph. Symptom: paired `rust-analyzer:` / `rust_analyzer:`
+        -- messages and `-32603 request handler panicked: failed to unify type
+        -- owners`. Configure rust via rustaceanvim, not here.
         phpactor = {},
         gopls = {},
         bashls = {},
