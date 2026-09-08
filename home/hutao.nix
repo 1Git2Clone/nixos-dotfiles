@@ -331,6 +331,12 @@ let
 
   # Something else owns a path inside, or it has to stay writable.
   expand = [
+    # cargo writes registry/, git/ and .package-cache INSIDE ~/.cargo. Linked
+    # whole, the directory is a store symlink and every one of those writes
+    # fails read-only — no cargo build can run, and lspconfig's rust_analyzer
+    # reads ~/.cargo/registry/src on every buffer. dot-cargo holds only
+    # config.toml, so entry-by-entry costs one link and keeps the dir real.
+    "dot-cargo"
     "dot-claude"
     "dot-claude/hooks"
     "dot-config"
