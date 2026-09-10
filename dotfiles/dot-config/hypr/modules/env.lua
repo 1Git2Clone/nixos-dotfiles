@@ -1,9 +1,12 @@
 local M = {}
 
 function M.setup(programs)
-  hl.env("XCURSOR_THEME", "Hutao-Cursor")
-  hl.env("XCURSOR_SIZE", "24")
-  hl.env("HYPRCURSOR_SIZE", "24")
+  -- programs.lua owns these; autostart.lua's setcursor reads the same two, so
+  -- a theme swap is one edit there rather than five literals across two files.
+  hl.env("XCURSOR_THEME", programs.cursor_theme)
+  hl.env("XCURSOR_SIZE", tostring(programs.cursor_size))
+  hl.env("HYPRCURSOR_THEME", programs.cursor_theme)
+  hl.env("HYPRCURSOR_SIZE", tostring(programs.cursor_size))
 
   hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
   hl.env("QT_QPA_PLATFORM", "wayland")
