@@ -1,5 +1,5 @@
-# A package, not a stowed directory, so SDDM and Stylix see it before
-# ~/dotfiles exists.
+# A package, not a stowed directory, so SDDM and Stylix see it without a
+# user profile in play -- the greeter runs as `sddm` and never reads ~.
 #
 # cp -r, not symlinks: the 77 hex-named entries in cursors/ are name-hash
 # aliases X11 resolves, and GTK breaks without them.

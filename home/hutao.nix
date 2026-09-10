@@ -250,19 +250,64 @@ let
     in
     "hsl(from var(${var}) h s calc(l * ${toString factor}))";
 
+  # stow put the tree at ~/dotfiles and these paths followed it there. It is a
+  # derivation now, linked into the same ~/.config, ~/.local and ~/.profile.d
+  # the walk builds, so they point at that instead: one home.file link fewer
+  # to keep alive, and a half-finished activation can no longer take every
+  # keybind, the wallpaper and the shell env out together. The prefix form is
+  # left as it was -- whatever expanded `~` or `$HOME` before still does.
+  repath = {
+    "dot-bashrc" = [ { "$HOME/dotfiles/dot-profile.d/" = "$HOME/.profile.d/"; } ];
+    "dot-profile" = [ { "$HOME/dotfiles/dot-profile.d/" = "$HOME/.profile.d/"; } ];
+
+    "dot-config/fastfetch/config.jsonc" = [
+      { "~/dotfiles/dot-config/fastfetch/" = "~/.config/fastfetch/"; }
+    ];
+
+    "dot-config/hypr/hyprlock.conf" = [
+      { "$HOME/dotfiles/dot-config/hypr/" = "$HOME/.config/hypr/"; }
+    ];
+
+    "dot-config/hypr/hyprpaper.conf" = [
+      { "~/dotfiles/dot-config/hypr/" = "~/.config/hypr/"; }
+    ];
+
+    # One prefix, seven binds -- substituteInPlace replaces every occurrence.
+    "dot-config/hypr/modules/keybindings.lua" = [
+      { "~/dotfiles/dot-config/programs/" = "~/.config/programs/"; }
+    ];
+
+    "dot-config/hypr/modules/autostart.lua" = [
+      { "~/dotfiles/dot-config/programs/" = "~/.config/programs/"; }
+    ];
+
+    "dot-config/opencode/opencode.json" = [
+      { "~/dotfiles/dot-opencode/" = "~/.opencode/"; }
+    ];
+
+    # It writes into ICON_DIR, which was a store path via ~/dotfiles and is a
+    # store path via ~/.local -- read-only either way, so this changes the
+    # route and not the outcome.
+    "dot-config/programs/shell_scripts/add-icon.sh" = [
+      { "$HOME/dotfiles/dot-local/" = "$HOME/.local/"; }
+    ];
+  };
+
   # One substituteInPlace per file, --replace-fail per pair.
-  recolourPhase = lib.concatStringsSep "\n" (
-    lib.mapAttrsToList (path: pairs: ''
-      substituteInPlace $out/${path} \
-        ${lib.concatMapStringsSep " \\\n        " (
-          pair:
-          let
-            from = lib.head (lib.attrNames pair);
-          in
-          "--replace-fail '${from}' '${pair.${from}}'"
-        ) pairs}
-    '') recolour
-  );
+  substPhase =
+    files:
+    lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (path: pairs: ''
+        substituteInPlace $out/${path} \
+          ${lib.concatMapStringsSep " \\\n          " (
+            pair:
+            let
+              from = lib.head (lib.attrNames pair);
+            in
+            "--replace-fail '${from}' '${pair.${from}}'"
+          ) pairs}
+      '') files
+    );
 
   # What `caelestia scheme set` would write, built from the scheme file it
   # would have read, so the seed below is never a second copy of the colours.
@@ -312,10 +357,13 @@ let
     cp ${../hosts + "/${hostName}/monitors.lua"} \
       $out/dot-config/hypr/modules/monitors.lua
 
+    # ── Paths ────────────────────────────────────────────────────────────
+    ${substPhase repath}
+
     # ── Colours ──────────────────────────────────────────────────────────
     cp ${kittyColours} $out/dot-config/mocha/mocha.conf
 
-    ${recolourPhase}
+    ${substPhase recolour}
   '';
 
   # Read rather than restated, so the two cannot drift.
@@ -641,9 +689,6 @@ in
   gtk.gtk4.extraConfig.gtk-application-prefer-dark-theme = osConfig.stylix.polarity != "light";
 
   home.file = walk "" // {
-    # dot-profile and several scripts hardcode $HOME/dotfiles paths.
-    "dotfiles".source = df;
-
     ".oh-my-zsh".source = ohMyZsh;
 
     # Sourced unguarded by .zshrc, so it only has to exist.

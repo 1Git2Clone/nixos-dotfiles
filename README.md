@@ -293,8 +293,10 @@ host nobody can log into.
 - **`~/.config` is read-only.** It is symlinked into the store, so apps that
   persist settings there (fcitx5) cannot. To hack on the dotfiles in place,
   point `src` in `home/hutao.nix` at `mkOutOfStoreSymlink`.
-- **`~/dotfiles` is a store symlink too**, because `dot-profile` hardcodes
-  `$HOME/dotfiles/dot-profile.d`.
+- **There is no `~/dotfiles`.** The configs that hardcoded `$HOME/dotfiles/...`
+  under stow are rewritten by `repath` in `home/hutao.nix` to the `~/.config`,
+  `~/.local` and `~/.profile.d` the walk already links, so nothing depends on a
+  second copy of the tree in `$HOME`.
 - **`~/.claude` is linked file by file**, not whole, so Claude Code keeps a
   writable directory for its own state.
 - **`~/.config/nvim` is linked file by file too**, from the in-tree `nvim/`,
