@@ -404,7 +404,7 @@ let
   elsewhere = [
     "dot-config/hypr"
     "dot-config/systemd"
-    "dot-local/share/icons/Hutao-Cursor"
+    "dot-local/share/icons/${osConfig.stylix.cursor.name}"
   ];
 
   # Per segment, so a "dot-" inside a filename is left alone.
@@ -670,7 +670,7 @@ in
   # mirrors it into dconf, which is the one nautilus reads.
   gtk.iconTheme = {
     package = folderIcons;
-    name = "Hutao-Folders";
+    name = folderIcons.themeName;
   };
 
   # libadwaita decides light or dark from this key and nothing else. stylix's
@@ -715,7 +715,7 @@ in
       # app sees what it saw before plus the folders.
       "qt6ct/qt6ct.conf".text = ''
         [Appearance]
-        icon_theme=Hutao-Folders
+        icon_theme=${folderIcons.themeName}
       '';
 
       # Outside the dot-* trees, so the walk never reaches it.

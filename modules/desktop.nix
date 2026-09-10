@@ -11,6 +11,9 @@
 let
   hutao-cursor = pkgs.callPackage ../pkgs/hutao-cursor.nix { };
 
+  # Named once here; stylix, the greeter and weston all read it back below.
+  cursorSize = 24;
+
   palette = import ../palette.nix { inherit lib; };
 
   sddm-hu-tao = pkgs.callPackage ../pkgs/sddm-hu-tao.nix { inherit palette; };
@@ -60,8 +63,8 @@ in
     # The theme env.lua's XCURSOR_THEME names.
     cursor = {
       package = hutao-cursor;
-      name = "Hutao-Cursor";
-      size = 24;
+      name = hutao-cursor.themeName;
+      size = cursorSize;
     };
   };
 
@@ -92,19 +95,19 @@ in
     wayland.enable = true;
 
     # Must match the package directory name and its Theme-Id.
-    theme = "sddm-hu-tao";
+    theme = sddm-hu-tao.themeName;
 
     # Theme.CursorTheme only reaches the Qt greeter. On Wayland weston draws
     # the pointer and reads [shell] cursor-theme, ignoring XCURSOR_THEME — and
     # the generated ini has no [shell] section, so it draws no cursor at all.
-    settings.Theme.CursorTheme = "Hutao-Cursor";
+    settings.Theme.CursorTheme = hutao-cursor.themeName;
 
     wayland.compositorCommand =
       let
         westonIni = pkgs.writeText "weston.ini" ''
           [shell]
-          cursor-theme=Hutao-Cursor
-          cursor-size=24
+          cursor-theme=${hutao-cursor.themeName}
+          cursor-size=${toString cursorSize}
 
           [keyboard]
           keymap_layout=us
