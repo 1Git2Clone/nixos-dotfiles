@@ -825,6 +825,32 @@ in
   # Unconditional, rather than diffing generations first: reloading a config
   # that did not change costs nothing, and the dotfiles are one derivation, so
   # a diff could not tell a hypr edit from a waybar one anyway.
+  # The shell is a Qt process that caches every icon lookup it makes, and it
+  # resolves them out of whichever profile held app-icons when it started.
+  # Moving that package between environment.systemPackages and home.packages
+  # therefore breaks the launcher's icons in a live session and nothing short
+  # of a restart fixes it -- the files are correct, the process is not. There
+  # is no reload in the shell's IPC (`caelestia shell -s`), so it has to be
+  # killed and started again.
+  #
+  # The switch itself runs with no session attached, so `-d` on its own would
+  # find no Wayland display: the env comes off the process being replaced, and
+  # the kill only happens once that has been read. Best-effort throughout,
+  # like the hyprland reload below -- no shell running, nothing to do, and a
+  # failure here must not fail the switch.
+  home.activation.caelestiaReload = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    pid=$(${pkgs.procps}/bin/pgrep -u "$UID" -x quickshell 2>/dev/null | head -1 || true)
+    if [ -n "$pid" ] && [ -r "/proc/$pid/environ" ]; then
+      wl=$(tr '\0' '\n' < "/proc/$pid/environ" | grep -m1 '^WAYLAND_DISPLAY=' || true)
+      sig=$(tr '\0' '\n' < "/proc/$pid/environ" | grep -m1 '^HYPRLAND_INSTANCE_SIGNATURE=' || true)
+      if [ -n "$wl" ]; then
+        run ${config.programs.caelestia.package}/bin/caelestia shell -k || true
+        run env "$wl" "$sig" \
+          ${config.programs.caelestia.package}/bin/caelestia shell -d || true
+      fi
+    fi
+  '';
+
   home.activation.hyprlandReload = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     for sock in "''${XDG_RUNTIME_DIR:-/run/user/$UID}"/hypr/*/.socket.sock; do
       # No instance running (a first login, or a rebuild over ssh).
