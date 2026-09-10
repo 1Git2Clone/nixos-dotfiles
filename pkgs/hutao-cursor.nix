@@ -16,8 +16,16 @@
   hyprcursor,
   xcur2png,
 }:
+let
+  theme = "Hutao-Cursor";
+  src = ../assets/Hutao-Cursor;
+in
 runCommandLocal "hutao-cursor"
   {
+    # So stylix.cursor.name, the SDDM greeter and weston can read this off the
+    # package instead of each spelling it out.
+    passthru.themeName = theme;
+
     # hyprcursor-util shells out to xcur2png for --extract.
     nativeBuildInputs = [
       hyprcursor
@@ -36,8 +44,8 @@ runCommandLocal "hutao-cursor"
     # The theme name has to match index.theme's Name=, XCURSOR_THEME, and the
     # directory hyprcursor-util derives extracted_/theme_ from -- so it is a
     # variable, not nine literals.
-    name=Hutao-Cursor
-    src=${../assets/Hutao-Cursor}
+    name=${theme}
+    src=${src}
     theme="$out/share/icons/$name"
 
     mkdir -p "$out/share/icons"

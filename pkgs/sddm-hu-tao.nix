@@ -1,14 +1,24 @@
 # Vendored greeter theme — see assets/sddm-hu-tao/ORIGIN.md.
 #
-# "sddm-hu-tao" must match the directory name, metadata.desktop's Theme-Id and
-# sddm.theme. Main.qml's Qt imports go in sddm.extraPackages, not here.
+# The name must match the directory, metadata.desktop's Theme-Id and
+# sddm.theme, so it is bound once and read back off passthru rather than
+# repeated at each of those. Main.qml's Qt imports go in sddm.extraPackages,
+# not here.
 {
   lib,
   runCommandLocal,
   palette,
 }:
-runCommandLocal "sddm-hu-tao"
+let
+  name = "sddm-hu-tao";
+  src = ../assets/sddm-hu-tao;
+in
+runCommandLocal name
   {
+    # So services.displayManager.sddm.theme can name this without repeating
+    # the string.
+    passthru.themeName = name;
+
     meta = {
       description = "SDDM greeter: sddm-astronaut's pixel_sakura, re-backgrounded";
       license = lib.licenses.gpl3Plus;
@@ -16,9 +26,9 @@ runCommandLocal "sddm-hu-tao"
     };
   }
   ''
-    dir="$out/share/sddm/themes/sddm-hu-tao"
+    dir="$out/share/sddm/themes/${name}"
     mkdir -p "$dir"
-    cp -r ${../assets/sddm-hu-tao}/. "$dir"/
+    cp -r ${src}/. "$dir"/
     chmod -R u+w "$dir"
     rm -f "$dir/ORIGIN.md"
 

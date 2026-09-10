@@ -17,6 +17,7 @@
 }:
 let
   theme = "Hutao-Folders";
+  src = ../assets/Hutao-Folders;
 
   # Sizes to lift out, all present in every file as 32-bit entries.
   sizes = [
@@ -171,6 +172,9 @@ runCommandLocal "hutao-folder-icons"
   {
     nativeBuildInputs = [ icoutils ];
 
+    # So gtk.iconTheme.name can read this off the package.
+    passthru.themeName = theme;
+
     # Artwork of unknown authorship, kept for one desktop rather than
     # redistributed. No license attr, so allowUnfree is not needed -- same
     # footing as hutao-cursor.
@@ -185,7 +189,7 @@ runCommandLocal "hutao-folder-icons"
     ${lib.concatMapStringsSep "\n" (size: ''mkdir -p "$theme/${dir size}"'') sizes}
 
     ${lib.concatStringsSep "\n" (
-      lib.mapAttrsToList (src: iconNames: ''
+      lib.mapAttrsToList (ico: iconNames: ''
         # Everything, rather than the six sizes wanted: asked for one entry by
         # --width/--height, icotool validates them all first and every file
         # here carries a legacy 4-bit entry that declares the wrong bitmap
@@ -193,7 +197,7 @@ runCommandLocal "hutao-folder-icons"
         # frames come back named <base>_<index>_<w>x<h>x<depth>.png, which is
         # what the globs below pick 32-bit entries out of.
         rm -rf frames && mkdir frames
-        icotool -x -o frames "${../assets/Hutao-Folders}/${src}.ico"
+        icotool -x -o frames "${src}/${ico}.ico"
         ${lib.concatMapStringsSep "\n" (
           size:
           lib.concatMapStringsSep "\n" (
