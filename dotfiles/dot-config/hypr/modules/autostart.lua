@@ -20,9 +20,12 @@ function M.setup(programs)
 
     hl.exec_cmd("trash-empty 30")
 
+    -- The two gsettings calls that sat here died with "No schemas installed"
+    -- on every login: nothing in either profile ships
+    -- org.gnome.desktop.interface's schema. Nothing needs them now either --
+    -- Hyprland draws the pointer from the hyprcursor theme, and GTK reads
+    -- gtk-cursor-theme-name out of the settings.ini stylix writes.
     hl.exec_cmd("hyprctl setcursor " .. programs.cursor_theme .. " " .. programs.cursor_size)
-    hl.exec_cmd("gsettings set org.gnome.desktop.interface cursor-theme '" .. programs.cursor_theme .. "'")
-    hl.exec_cmd("gsettings set org.gnome.desktop.interface cursor-size " .. programs.cursor_size)
 
     hl.exec_cmd("/usr/lib/geoclue-2.0/demos/agent")
     hl.exec_cmd("sleep 1 && gammastep")
