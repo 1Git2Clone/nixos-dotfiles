@@ -766,6 +766,19 @@ in
   '';
 
   # lazy.nvim rewrites these, so they cannot be store symlinks.
+  # vim.loader keys its bytecode cache on path + mtime + size, and catppuccin
+  # compiles the whole theme into one .luac of its own. Every lua file here is
+  # a store symlink with mtime pinned to 1970 and the recolour swaps hex for
+  # hex of the same byte length, so all three parts of that key hold still
+  # across a palette retune: nvim keeps serving bytecode compiled before the
+  # scheme changed, which is why the greys stayed catppuccin's own. Dropped
+  # wholesale rather than diffed -- it is derived data, nvim rebuilds it on
+  # the next start, and the alternative is teaching two caches about the Nix
+  # store.
+  home.activation.nvimCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run rm -rf ${config.xdg.cacheHome}/nvim/luac ${config.xdg.cacheHome}/nvim/catppuccin
+  '';
+
   home.activation.nvimState = lib.hm.dag.entryAfter [ "writeBoundary" ] (
     lib.concatMapStringsSep "\n" (f: ''
       if [ ! -e "${config.xdg.configHome}/nvim/${f}" ]; then
