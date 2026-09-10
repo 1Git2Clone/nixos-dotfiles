@@ -89,7 +89,6 @@
 
         ./modules/system.nix
         ./modules/desktop.nix
-        ./modules/neovim.nix
 
         {
           home-manager = {
@@ -97,6 +96,8 @@
             useUserPackages = true;
             backupFileExtension = "hm-bak";
             extraSpecialArgs = { inherit inputs; };
+            # Which also imports modules/neovim.nix -- the editor toolchain
+            # is a user profile, not a system one.
             users.hutao = import ./home/hutao.nix;
           };
         }

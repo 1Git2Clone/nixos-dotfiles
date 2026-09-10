@@ -40,7 +40,10 @@ in
     options = [ "nofail" ];
   };
 
-  environment.systemPackages = with pkgs; [
+  # Userspace, so home-manager rather than environment.systemPackages -- and
+  # here rather than home/hutao.nix, which every host shares. simple-scan is
+  # for the printer below.
+  home-manager.users.hutao.home.packages = with pkgs; [
     teams-for-linux
     simple-scan
   ];

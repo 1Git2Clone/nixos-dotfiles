@@ -1,12 +1,16 @@
 # The toolchain mason cannot install: its prebuilt binaries want
 # /lib64/ld-linux-x86-64.so.2, so they install then fail to exec.
 #
+# A home-manager module, imported by home/hutao.nix: this is one user's
+# editor toolchain, so it belongs in that user's profile and not in
+# /run/current-system/sw. Kept in its own file only because it is long.
+#
 # Mirrors lspconfig.lua's `servers` and conform's `formatters_by_ft`.
 # lspconfig only enables what is on PATH, so a server missing here silently
 # never attaches.
 { pkgs, ... }:
 {
-  environment.systemPackages = with pkgs; [
+  home.packages = with pkgs; [
     neovim
     neovide
 
@@ -84,7 +88,7 @@
     golangci-lint
     php84Packages.php-codesniffer # phpcs
 
-    # :TSUpdate compiles parsers on demand. clang and nodejs are in desktop.nix.
+    # :TSUpdate compiles parsers on demand. clang and nodejs are in hutao.nix.
     tree-sitter
   ];
 }

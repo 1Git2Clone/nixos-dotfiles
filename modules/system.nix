@@ -90,14 +90,15 @@
     scheduler = "scx_lavd";
   };
 
+  # Root's floor, and nothing more: enough to edit and fetch a file on a
+  # machine whose user profile is not in play. The interactive set lives in
+  # home/hutao.nix's home.packages.
   environment.systemPackages = with pkgs; [
-    git
     vim
     curl
-    btop
-    ripgrep
-    fzf
-    lsd
+
+    # For editing the sops files in place on the machine. sops-nix's own
+    # activation does not use these -- it carries its own binary.
     sops
     age
     ssh-to-age

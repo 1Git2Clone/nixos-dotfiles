@@ -1,5 +1,6 @@
-# Hyprland + SDDM + Stylix, and every binary the dotfiles call. ~/.config
-# itself is home/hutao.nix's job.
+# Hyprland + SDDM + Stylix, and the system side of what the dotfiles need.
+# The binaries themselves are home/hutao.nix's home.packages, and so is
+# ~/.config.
 #
 # hyprland.lua needs Hyprland 0.55+, which is why this tracks unstable.
 {
@@ -9,8 +10,6 @@
 }:
 let
   hutao-cursor = pkgs.callPackage ../pkgs/hutao-cursor.nix { };
-
-  app-icons = pkgs.callPackage ../pkgs/app-icons.nix { };
 
   palette = import ../palette.nix { inherit lib; };
 
@@ -217,144 +216,27 @@ in
   ];
 
   # ── Packages ─────────────────────────────────────────────────────────────
-  # What the scripts and keybinds actually call.
+  # Only what a user profile cannot reach. Everything the keybinds, scripts
+  # and dotfiles call is home/hutao.nix's home.packages instead -- with
+  # useUserPackages that lands in /etc/profiles/per-user/hutao, and
+  # environment.profiles already puts that on PATH, XDG_DATA_DIRS,
+  # XCURSOR_PATH and QT_PLUGIN_PATH, so a user-profile package is found
+  # exactly like a system one.
   environment.systemPackages = with pkgs; [
-    # terminal / file manager  (neovim is in modules/neovim.nix)
-    kitty
-    nautilus
-    floorp-bin
-
-    # Installed so SDDM finds it under /run/current-system/sw.
+    # The greeter runs as `sddm`, so none of the per-user profile paths are
+    # set for it -- the theme and the cursor it names have to be here.
+    # Let-bound above; a `let` binding shadows `with pkgs`.
     sddm-hu-tao
-
-    # launcher + session  (keybindings.lua: SUPER+Space, SUPER+M)
-    wofi
-    wlogout
-    app2unit # how caelestia launches everything it launches
-
-    # hypr tooling
-    hyprpaper
-    hyprshot
-    hyprpicker
-
-    # vibe coding
-    claude-code
-    opencode
-
-    # clipboard  (SUPER+CTRL+V, autostart cliphist watchers)
-    wl-clipboard
-    cliphist
-
-    # screenshots + OCR  (screenshot-*.sh, tesseract-screenshot.sh)
-    grim
-    slurp
-    swappy
-    tesseract
-
-    # autoclicker.sh / sckey.sh
-    ydotool
-
-    # notifications, 12 call sites across the scripts
-    libnotify
-
-    # media + brightness keys
-    playerctl
-    brightnessctl
-    pavucontrol
-
-    # autostart.lua
-    gnome-keyring
-    polkit_gnome
-    gammastep
-    espanso-wayland # the plain espanso build cannot see a Wayland session
-    trash-cli # trash-empty
-    glib # gsettings
-
-    # what .zshrc and dot-profile.d/*.sh call
-    atuin
-    libsecret # secret-tool, in environment.sh
-    python3 # urlencode/urldecode in aliases.sh, and programs/py_scripts
-    mpv # caelestia general.apps.playback
-    libqalculate # qalc, the launcher's calculator action
-    xdg-utils # xdg-open, in the shell_scripts
-    xcursorgen # add-icon.sh
-    ffmpeg # compress_video.py
-    bluez # mpris-proxy, in autostart.lua
-    nano
-
-    # shell / cli  (from the Arch list)
-    btop
-    fzf
-    ripgrep
-    lsd
-    zoxide
-    starship
-    lazygit
-    fastfetch
-    tmux
-    stow
-    jq
-    wget
-    zip
-    unzip
-    p7zip # 7z, 7za, 7zr
-    git
-    git-lfs
-
-    # sgdisk and parted. disko's own scripts carry both on their PATH, which
-    # is why the script partitions fine and a shell cannot.
-    gptfdisk
-    parted
-
-    # dev
-    clang
-    nodejs
-    # Rust's default linker driver is `cc`, which is clang-wrapper here, and it
-    # ships only ld.bfd/ld.gold -- `-fuse-ld=lld` fails with "invalid linker
-    # name". mold is the fastest of the three and is what dot-cargo/config.toml
-    # asks for via link-arg. Verified: clang -fuse-ld=mold links, lld does not.
-    mold
-
-    # gaming
-    mangohud
-    gamemode
-
-    # GCM works here only because `df` rewrites credentialStore to
-    # secretservice; gpg wants a ~/.password-store that does not exist.
-    gh
-    git-credential-manager
-
-    # hyprqt6engine.conf names the theme; qt6ct is what reads it.
-    papirus-icon-theme
-    qt6Packages.qt6ct
-
-    # Hutao-Cursor inherits from Adwaita, so any shape it lacks needs this.
-    adwaita-icon-theme
-
-    # caelestia's launcher favourites reference both.
-    vesktop
-
-    viber
-
-    # The background service only: `stremio` itself was removed from nixpkgs
-    # for depending on the outdated qt5 webengine, and the web app is what
-    # this is for.
-    stremio-service
-
-    ente-auth
-
-    # misc from the Arch list
-    ntfs3g
-    pinentry-gnome3
-    xauth
-    xhost
-
-    # let-bound above; a `let` binding shadows `with pkgs`. Here so the SDDM
-    # greeter resolves the cursor theme.
     hutao-cursor
 
-    # Icons for the hand-written ~/.local/share/applications entries.
-    app-icons
+    # mount resolves its mount.ntfs helper off root's PATH.
+    ntfs3g
+
+    # sgdisk and parted. disko's own scripts carry both on their PATH, which
+    # is why the script partitions fine and a shell cannot. Run under sudo,
+    # so a user profile is the wrong place for them.
+    gptfdisk
+    parted
   ];
 
   # The option, not the package: steam needs the FHS wrapper and udev rules.
