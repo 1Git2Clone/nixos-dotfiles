@@ -38,6 +38,9 @@ let
   '';
 in
 {
+  # oh-my-zsh's ZSH_CACHE_DIR defaults to $ZSH/cache, which is a store path.
+  home.sessionVariables.ZSH_CACHE_DIR = "$HOME/.cache/oh-my-zsh";
+
   home.file = {
     ".oh-my-zsh".source = ohMyZsh;
 
