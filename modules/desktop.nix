@@ -158,6 +158,11 @@ in
   services.gnome.gnome-keyring.enable = true;
   services.geoclue2.enable = true;
 
+  # Nautilus lists removable drives through the gvfs udisks2 volume monitor;
+  # without both, a plugged-in stick never reaches the sidebar.
+  services.udisks2.enable = true;
+  services.gvfs.enable = true;
+
   # polkit-gnome has no NixOS option.
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     description = "polkit-gnome-authentication-agent-1";
