@@ -6,7 +6,7 @@
 # folder in and changing this string.
 { pkgs, ... }:
 let
-  name = "KAngel-Cursor";
+  name = "Hutao-Cursor";
 
   package = (pkgs.callPackage ../../pkgs/cursors.nix { }).${name};
 in
