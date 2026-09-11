@@ -23,13 +23,12 @@ repos:
         exclude: ^secrets/(?!.*\.example\.yaml$).*\.yaml$
       - id: check-added-large-files
         # 5M fits the tracked greeter background (4.4M) and still catches a
-        # stray ISO. The three ported files over it are named rather than
+        # stray ISO. The two ported files over it are named rather than
         # waived by raising the ceiling.
         args: [--maxkb=5120]
         exclude: |
           (?x)^dotfiles/(
             dot-config/hypr/backgrounds/Hu_Tao_(00056_1|1)\.png
-            |dot-config/programs/bin/honkers-launcher
           )$
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable

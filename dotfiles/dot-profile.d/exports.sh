@@ -24,7 +24,6 @@ if [ -z "${PATH-}" ]; then
   export PATH=/usr/local/bin:/usr/bin:/bin
 fi
 
-PATH="$PROGRAMS/bin/:$PATH"
 PATH="$PROGRAMS/py_scripts/:$PATH"
 PATH="$PROGRAMS/shell_scripts/:$PATH"
 PATH="$PROGRAMS/ruby/:$PATH"
