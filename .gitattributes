@@ -1,0 +1,7 @@
+# Vendored cursor packs are published as Windows files and stay byte-for-byte
+# what their author shipped: CRLF line endings included. Marked -text so git
+# neither normalises them on checkout nor counts every CR as trailing
+# whitespace in `git diff --check` -- the builder strips \r itself when it
+# reads Installer.inf, and the artwork metadata is not ours to rewrite.
+assets/*/cursors/*.inf -text
+assets/*/cursors/*.txt -text
