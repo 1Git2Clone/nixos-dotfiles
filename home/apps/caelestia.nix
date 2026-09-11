@@ -22,6 +22,21 @@ in
     extraConfig = builtins.readFile ../caelestia-shell.json;
   };
 
+  # The CLI reads cli.json; extraConfig above is the shell's shell.json, and
+  # the two are separate files. `caelestia record` passes no -a unless it is
+  # given --sound, and --sound is hardcoded to default_output -- the speakers.
+  # Nothing in it ever records a microphone, so the mic goes in here.
+  #
+  # One -a, sources merged with `|`, so both land on a single track: repeating
+  # -a makes a track each, and most players only ever play the first. Drop
+  # `default_output|` for a mic-only recording.
+  xdg.configFile."caelestia/cli.json".text = builtins.toJSON {
+    record.extraArgs = [
+      "-a"
+      "default_output|default_input"
+    ];
+  };
+
   xdg.configFile = {
     # Outside the dot-* trees, so the walk never reaches it.
     "caelestia/schemes/hu-tao/default/dark.txt".source =
