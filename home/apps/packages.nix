@@ -1,0 +1,142 @@
+# Everything the keybinds, scripts and dotfiles call that is not an app with
+# config of its own -- those have their own file beside this one.
+{ pkgs, ... }:
+let
+  app-icons = pkgs.callPackage ../../pkgs/app-icons.nix { };
+
+in
+{
+  # ── Packages ─────────────────────────────────────────────────────────────
+  # What the keybinds, scripts and dotfiles actually call. All of it
+  # userspace, so a user profile rather than environment.systemPackages;
+  # modules/desktop.nix keeps only what the SDDM greeter or root needs.
+  #
+  # Absent on purpose, not missing: gamemode, ydotool and bluez (mpris-proxy)
+  # come from programs.gamemode.enable, programs.ydotool.enable and
+  # hardware.bluetooth.enable, each of which installs its own package.
+  home.packages = with pkgs; [
+    # terminal / file manager  (the editor toolchain is modules/neovim.nix)
+    kitty
+    nautilus
+    floorp-bin
+
+    # launcher + session  (keybindings.lua: SUPER+Space, SUPER+M)
+    wofi
+    wlogout
+    app2unit # how caelestia launches everything it launches
+
+    # hypr tooling
+    hyprpaper
+    hyprshot
+    hyprpicker
+
+    # vibe coding
+    claude-code
+    opencode
+
+    # clipboard  (SUPER+CTRL+V, autostart cliphist watchers)
+    wl-clipboard
+    cliphist
+
+    # screenshots + OCR  (screenshot-*.sh, tesseract-screenshot.sh)
+    grim
+    slurp
+    swappy
+    tesseract
+
+    # notifications, 12 call sites across the scripts
+    libnotify
+
+    # media + brightness keys
+    playerctl
+    brightnessctl
+    pavucontrol
+
+    # autostart.lua
+    gnome-keyring
+    polkit_gnome
+    gammastep
+    espanso-wayland # the plain espanso build cannot see a Wayland session
+    trash-cli # trash-empty
+    glib # gsettings
+
+    # what .zshrc and dot-profile.d/*.sh call
+    atuin
+    libsecret # secret-tool, in environment.sh
+    python3 # urlencode/urldecode in aliases.sh, and programs/py_scripts
+    mpv # caelestia general.apps.playback
+    libqalculate # qalc, the launcher's calculator action
+    xdg-utils # xdg-open, in the shell_scripts
+    xcursorgen # add-icon.sh
+    ffmpeg # compress_video.py
+    nano
+
+    # shell / cli  (from the Arch list). modules/system.nix keeps root's own
+    # vim and curl, and nothing else -- these are the interactive set.
+    btop
+    fzf
+    ripgrep
+    lsd
+    zoxide
+    starship
+    lazygit
+    fastfetch
+    tmux
+    stow
+    jq
+    wget
+    zip
+    unzip
+    p7zip # 7z, 7za, 7zr
+    git
+    git-lfs
+
+    # dev
+    clang
+    nodejs
+    # Rust's default linker driver is `cc`, which is clang-wrapper here, and it
+    # ships only ld.bfd/ld.gold -- `-fuse-ld=lld` fails with "invalid linker
+    # name". mold is the fastest of the three and is what dot-cargo/config.toml
+    # asks for via link-arg. Verified: clang -fuse-ld=mold links, lld does not.
+    mold
+
+    # gaming
+    mangohud
+
+    # GCM works here only because `df` rewrites credentialStore to
+    # secretservice; gpg wants a ~/.password-store that does not exist.
+    gh
+    git-credential-manager
+
+    # What programs.gnupg.agent already points its pinentryPackage at; here so
+    # a signing prompt outside the agent still finds it.
+    pinentry-gnome3
+
+    # hyprqt6engine.conf names the theme; qt6ct is what reads it. The per-user
+    # profile is on QT_PLUGIN_PATH, so the plugin loads from here.
+    papirus-icon-theme
+    qt6Packages.qt6ct
+
+    # Hutao-Cursor inherits from Adwaita, so any shape it lacks needs this.
+    adwaita-icon-theme
+
+    # caelestia's launcher favourites reference both.
+    vesktop
+
+    viber
+
+    # The background service only: `stremio` itself was removed from nixpkgs
+    # for depending on the outdated qt5 webengine, and the web app is what
+    # this is for.
+    stremio-service
+
+    ente-auth
+
+    # misc from the Arch list
+    xauth
+    xhost
+
+    # let-bound above; a `let` binding shadows `with pkgs`.
+    app-icons
+  ];
+}

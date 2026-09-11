@@ -36,7 +36,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Imported by home/hutao.nix: the NixOS module would put per-user state in
+    # Imported by home/apps/hermes-agent.nix: the NixOS module would put per-user state in
     # /var/lib and export HERMES_HOME system-wide.
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
@@ -96,9 +96,9 @@
             useUserPackages = true;
             backupFileExtension = "hm-bak";
             extraSpecialArgs = { inherit inputs; };
-            # Which also imports modules/neovim.nix -- the editor toolchain
+            # ./home imports every file in home/apps -- the editor toolchain
             # is a user profile, not a system one.
-            users.hutao = import ./home/hutao.nix;
+            users.hutao = import ./home;
           };
         }
       ];

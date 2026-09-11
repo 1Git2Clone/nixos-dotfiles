@@ -34,7 +34,7 @@ firmware or a real install.
 ## VM
 
 `nix run .#vm` builds `hosts/hutao-vm` with the real `modules/desktop`,
-`modules/neovim.nix` and `home/hutao.nix`. No install, no LUKS, no sops, no
+`home/apps/neovim.nix` and `home/`. No install, no LUKS, no sops, no
 tailscale — it does not import `hosts/common`. It stops at the greeter; sshd is
 on 2223.
 
@@ -163,7 +163,7 @@ Then add it to `flake.nix` beside `hutao-desktop`, swapping the
 
 ## User layer
 
-`home/hutao.nix` replays `stow --dotfiles`: it walks the dotfiles tree, honours
+`home/` replays `stow --dotfiles`: it walks the dotfiles tree, honours
 `dotfiles/.stow-local-ignore`, renames `dot-foo` to `.foo`, and symlinks
 the result out of the store. Nothing is listed by hand, so nothing gets
 forgotten when the dotfiles gain a file.
@@ -292,9 +292,9 @@ host nobody can log into.
 
 - **`~/.config` is read-only.** It is symlinked into the store, so apps that
   persist settings there (fcitx5) cannot. To hack on the dotfiles in place,
-  point `src` in `home/hutao.nix` at `mkOutOfStoreSymlink`.
+  point `src` in `home/` at `mkOutOfStoreSymlink`.
 - **There is no `~/dotfiles`.** The configs that hardcoded `$HOME/dotfiles/...`
-  under stow are rewritten by `repath` in `home/hutao.nix` to the `~/.config`,
+  under stow are rewritten by `repath` in `home/` to the `~/.config`,
   `~/.local` and `~/.profile.d` the walk already links, so nothing depends on a
   second copy of the tree in `$HOME`.
 - **`~/.claude` is linked file by file**, not whole, so Claude Code keeps a
@@ -324,7 +324,7 @@ host nobody can log into.
   *not* exempt from the whitespace fixers or from gitleaks, both of which still
   cover it. See the closing note in `.pre-commit-config.yaml`.
 - **mason is disabled on NixOS.** Its prebuilt binaries cannot run here, so
-  `modules/neovim.nix` provides the servers instead. Add one there and to
+  `home/apps/neovim.nix` provides the servers instead. Add one there and to
   `nvim/lua/plugins/lspconfig.lua`'s `servers` table together, or it
   silently never attaches.
   `home/nvim-nixos.lua` silences the warning LazyVim's lang extras raise for

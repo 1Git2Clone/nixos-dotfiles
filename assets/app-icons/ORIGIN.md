@@ -5,7 +5,7 @@ Placeholder icons for the hand-written entries in `~/.local/share/applications`
 exist nowhere on the system, so the launcher drew Papirus' magenta
 `image-missing` instead.
 
-`home/hutao.nix` installs each file into `~/.local/share/icons/hicolor/scalable/apps/`
+`home/` installs each file into `~/.local/share/icons/hicolor/scalable/apps/`
 under the exact `Icon=` name, so normal icon-theme lookup finds it. The
 `.desktop` files themselves are untouched.
 
