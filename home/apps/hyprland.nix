@@ -34,7 +34,16 @@
       # A reload is best-effort: a stale socket must not fail the switch.
       run ${osConfig.programs.hyprland.package}/bin/hyprctl \
         -i "''${sig##*/}" reload || true
+
+      # The cursor is not config, so the reload above cannot carry it:
+      # Hyprland loads a theme at launch from XCURSOR_THEME and otherwise only
+      # on this command. Without it a switched pointer waits for the next
+      # login, and until then the compositor draws the old theme while every
+      # newly started client draws the new one -- the two halves of the same
+      # rebuild, visibly disagreeing.
+      run ${osConfig.programs.hyprland.package}/bin/hyprctl \
+        -i "''${sig##*/}" setcursor \
+        ${osConfig.stylix.cursor.name} ${toString osConfig.stylix.cursor.size} || true
     done
   '';
-
 }
