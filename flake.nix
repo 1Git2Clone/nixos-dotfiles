@@ -88,7 +88,7 @@
         home-manager.nixosModules.home-manager
 
         ./modules/system.nix
-        ./modules/desktop.nix
+        ./modules/desktop
 
         {
           home-manager = {

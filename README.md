@@ -33,7 +33,7 @@ firmware or a real install.
 
 ## VM
 
-`nix run .#vm` builds `hosts/hutao-vm` with the real `modules/desktop.nix`,
+`nix run .#vm` builds `hosts/hutao-vm` with the real `modules/desktop`,
 `modules/neovim.nix` and `home/hutao.nix`. No install, no LUKS, no sops, no
 tailscale — it does not import `hosts/common`. It stops at the greeter; sshd is
 on 2223.

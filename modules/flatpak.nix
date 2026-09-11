@@ -8,7 +8,7 @@
 # desktop layer, because that activation reaches the network and hutao-vm is
 # what CI evaluates.
 #
-# Flatpaks reach the host's portals, which is what modules/desktop.nix's
+# Flatpaks reach the host's portals, which is what modules/desktop's
 # xdg.portal and the hyprland session target in autostart.lua provide. Without
 # that a Flatpak has no file picker and no screencast.
 { inputs, ... }:

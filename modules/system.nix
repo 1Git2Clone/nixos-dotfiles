@@ -92,7 +92,7 @@
 
   # Root's floor, and nothing more: enough to edit and fetch a file on a
   # machine whose user profile is not in play. The interactive set lives in
-  # home/hutao.nix's home.packages.
+  # home/'s home.packages.
   environment.systemPackages = with pkgs; [
     vim
     curl
