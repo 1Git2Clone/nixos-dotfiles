@@ -36,7 +36,9 @@ hl.window_rule({
 hl.window_rule({ name = "suppress-maximize-events", match = { class = ".*" }, suppress_event = "maximize" })
 hl.window_rule({
   name = "hide-proton-empty-title-splash",
-  match = { initial_title = "^$", float = true },
+  -- xwayland pins this to Wine/Proton: GTK's untitled modals (the portal's
+  -- "replace this file?") are native Wayland, and hiding one hangs the save.
+  match = { initial_title = "^$", float = true, xwayland = true },
   workspace = "special:hiddenwindows silent",
   no_focus = true,
   no_anim = true,
