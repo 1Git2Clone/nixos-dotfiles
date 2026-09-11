@@ -8,7 +8,7 @@
 # because the launchers' /etc/hosts rules are system scope by nature.
 { inputs, ... }:
 let
-  aagl = inputs.aagl;
+  inherit (inputs) aagl;
 in
 {
   imports = [
