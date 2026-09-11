@@ -1,0 +1,79 @@
+# ==============================================================================
+# CI (Forgejo)
+# ==============================================================================
+# The same checks .github/workflows/ci.yml runs, for the instance this repo is
+# actually hosted on. Same .pre-commit-config.yaml as the local commit hook, so
+# a green CI means a clean `pre-commit run --all-files` and vice versa.
+#
+# Every `uses:` is a full URL. Forgejo resolves a bare `actions/checkout@v4`
+# against its own default registry -- data.forgejo.org -- and not github.com,
+# so the short form either fetches a different action or fails outright. The
+# URL form is unambiguous on both forges.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A second push supersedes the first; no point linting a commit that is
+# already two commits stale.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Format and lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://github.com/actions/checkout@v4
+        with:
+          # gitleaks scans commits; a shallow clone would scan almost nothing.
+          fetch-depth: 0
+
+      - uses: https://github.com/cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: pre-commit
+        run: nix develop .#ci -c pre-commit run --all-files --show-diff-on-failure
+
+      # The pre-commit hook scans the STAGED diff, which is empty in CI, so the
+      # history scan lives here instead. fetch-depth 0 above is what makes it a
+      # real scan rather than a scan of one commit.
+      - name: gitleaks (full history)
+        run: nix develop .#ci -c gitleaks git --redact --no-banner .
+
+  evaluate:
+    name: Evaluate the NixOS configurations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://github.com/actions/checkout@v4
+
+      - uses: https://github.com/cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      # Evaluation only, deliberately not a build. This catches the failure
+      # that actually happens in this repo -- a renamed package, a typo'd
+      # option, a module conflict -- without asking a CI runner to realise a
+      # multi-gigabyte desktop closure.
+      #
+      # hutao-vm rather than hutao-laptop: the laptop config needs
+      # hardware-configuration.nix and the encrypted hashes, neither of which
+      # exists in a fresh clone. hutao-vm shares every module that can break
+      # this way (modules/system.nix, modules/desktop, home-manager, stylix,
+      # caelestia), so it is the honest thing to evaluate here.
+      - name: Evaluate hutao-vm
+        run: |
+          nix eval --raw \
+            '.#nixosConfigurations.hutao-vm.config.system.build.toplevel.drvPath'
+
+      - name: Evaluate the installer ISO
+        run: |
+          nix eval --raw \
+            '.#nixosConfigurations.installer.config.system.build.isoImage.drvPath'
