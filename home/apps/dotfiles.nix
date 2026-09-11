@@ -340,6 +340,18 @@ let
     cp ${../../hosts + "/${hostName}/monitors.lua"} \
       $out/dot-config/hypr/modules/monitors.lua
 
+    # ── Cursor ───────────────────────────────────────────────────────────
+    # programs.lua is what the Hyprland side reads the pointer off, and
+    # modules/desktop/cursor.nix is what the system side sets. Substituted
+    # rather than kept in step by hand, so switching themes stays one line --
+    # and --replace-fail means a drifted literal is a failed build, not a
+    # desktop running two different cursors.
+    substituteInPlace $out/dot-config/hypr/modules/programs.lua \
+      --replace-fail 'cursor_theme = "Hutao-Cursor"' \
+        'cursor_theme = "${osConfig.stylix.cursor.name}"' \
+      --replace-fail 'cursor_size = 24' \
+        'cursor_size = ${toString osConfig.stylix.cursor.size}'
+
     # ── Paths ────────────────────────────────────────────────────────────
     ${substPhase repath}
 

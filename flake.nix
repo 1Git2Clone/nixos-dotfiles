@@ -159,7 +159,9 @@
         };
       };
 
-      packages.${system} = {
+      # Every cursor theme in assets/, by its directory name, so `nix build
+      # .#KAngel-Cursor` works and a new pointer needs no edit here.
+      packages.${system} = (pkgs.callPackage ./pkgs/cursors.nix { }) // {
         installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
 
         inherit (self.nixosConfigurations.hutao-vm.config.system.build) vm;
@@ -169,8 +171,6 @@
         # `github:nix-community/disko/latest`, which is a moving ref and can
         # partition with a different version than the config was written for.
         inherit (disko.packages.${system}) disko;
-
-        hutao-cursor = pkgs.callPackage ./pkgs/hutao-cursor.nix { };
 
         sddm-hu-tao = pkgs.callPackage ./pkgs/sddm-hu-tao.nix { };
 
