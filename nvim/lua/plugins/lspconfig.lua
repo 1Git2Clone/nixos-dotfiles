@@ -27,6 +27,16 @@ return {
           },
         },
         ts_ls = {},
+        -- An extra declares its server through LazyVim's `opts.servers`, and
+        -- the config function below replaces LazyVim's own -- the one that
+        -- reads them. So lang.svelte and lang.tailwind got nothing until they
+        -- were named here too; the same holds for every extra added later.
+        svelte = {},
+        tailwindcss = {},
+        -- vscode-langservers-extracted ships these three beside jsonls.
+        eslint = {},
+        cssls = {},
+        html = {},
         -- DELIBERATELY ABSENT. `lazyvim.plugins.extras.lang.rust` (enabled in
         -- lazyvim.json) installs rustaceanvim, which starts and owns the
         -- rust-analyzer client itself. LazyVim's extra sets
@@ -42,6 +52,7 @@ return {
         yamlls = {},
         jsonls = {},
         texlab = {},
+        marksman = {},
         pyright = {},
         jedi_language_server = {},
         nixd = {

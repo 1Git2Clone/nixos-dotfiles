@@ -74,6 +74,8 @@ in
     clang-tools
     lua-language-server
     typescript-language-server
+    svelte-language-server
+    tailwindcss-language-server
     rust-analyzer
     phpactor
     gopls
