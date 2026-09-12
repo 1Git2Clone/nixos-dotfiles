@@ -32,7 +32,27 @@ return {
         -- reads them. So lang.svelte and lang.tailwind got nothing until they
         -- were named here too; the same holds for every extra added later.
         svelte = {},
-        tailwindcss = {},
+        tailwindcss = {
+          -- lspconfig falls back to `.git` when no tailwind.config.* is
+          -- found, since Tailwind v4 no longer needs one -- which starts a
+          -- server in every JS repo. A dependency in package.json is the
+          -- signal v4 projects actually give.
+          root_dir = function(bufnr, on_dir)
+            local util = require("lspconfig.util")
+            local fname = vim.api.nvim_buf_get_name(bufnr)
+            local roots = util.insert_package_json({
+              "tailwind.config.js",
+              "tailwind.config.cjs",
+              "tailwind.config.mjs",
+              "tailwind.config.ts",
+              "postcss.config.js",
+              "postcss.config.cjs",
+              "postcss.config.mjs",
+              "postcss.config.ts",
+            }, "tailwindcss", fname)
+            on_dir(vim.fs.dirname(vim.fs.find(roots, { path = fname, upward = true })[1]))
+          end,
+        },
         -- vscode-langservers-extracted ships these three beside jsonls.
         eslint = {},
         cssls = {},
