@@ -106,6 +106,7 @@ in
     # GCM works here only because `df` rewrites credentialStore to
     # secretservice; gpg wants a ~/.password-store that does not exist.
     gh
+    forgejo-cli # `fj`
     git-credential-manager
 
     # What programs.gnupg.agent already points its pinentryPackage at; here so
