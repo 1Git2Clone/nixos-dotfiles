@@ -103,6 +103,8 @@ in
     # gaming
     mangohud
     modrinth-app
+    temurin-jre-bin-25
+    temurin-jre-bin-21
 
     # GCM works here only because `df` rewrites credentialStore to
     # secretservice; gpg wants a ~/.password-store that does not exist.
