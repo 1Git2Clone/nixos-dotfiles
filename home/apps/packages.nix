@@ -102,6 +102,7 @@ in
 
     # gaming
     mangohud
+    modrinth-app
 
     # GCM works here only because `df` rewrites credentialStore to
     # secretservice; gpg wants a ~/.password-store that does not exist.
