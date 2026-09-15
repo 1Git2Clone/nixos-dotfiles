@@ -103,8 +103,8 @@ in
     # gaming
     mangohud
     modrinth-app
-    temurin-jre-bin-25
-    temurin-jre-bin-21
+    # The JREs are deliberately not here: any two temurin builds collide on
+    # legal/jdk.localedata/cldr.md and buildEnv refuses. Both are linked below.
 
     # GCM works here only because `df` rewrites credentialStore to
     # secretservice; gpg wants a ~/.password-store that does not exist.
@@ -143,4 +143,13 @@ in
     # let-bound above; a `let` binding shadows `with pkgs`.
     app-icons
   ];
+
+  # Outside the profile there is no collision, and these paths stay put while
+  # the store hash behind them moves -- which is what Modrinth's "add Java
+  # version" dialog needs, since it only ever finds one `java` on PATH itself.
+  home.file.".local/share/jres/21".source = pkgs.temurin-jre-bin-21;
+  home.file.".local/share/jres/25".source = pkgs.temurin-jre-bin-25;
+
+  # Bare `java` outside Modrinth; 21 is reachable by full path above.
+  home.sessionPath = [ "$HOME/.local/share/jres/25/bin" ];
 }
