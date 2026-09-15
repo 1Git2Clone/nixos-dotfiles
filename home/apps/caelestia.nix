@@ -91,8 +91,12 @@ in
   # the kill only happens once that has been read. Best-effort throughout,
   # like the hyprland reload below -- no shell running, nothing to do, and a
   # failure here must not fail the switch.
+  # No -x: the process being looked for is quickshell-wrapped's
+  # `.quickshell-wrapped`, and a comm is 15 characters, so what /proc actually
+  # holds is `.quickshell-wra` and an exact match never hit. -f would match,
+  # but the activation script's own command line contains the pattern too.
   home.activation.caelestiaReload = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-    pid=$(${pkgs.procps}/bin/pgrep -u "$UID" -x quickshell 2>/dev/null | head -1 || true)
+    pid=$(${pkgs.procps}/bin/pgrep -u "$UID" quickshell 2>/dev/null | head -1 || true)
     if [ -n "$pid" ] && [ -r "/proc/$pid/environ" ]; then
       wl=$(tr '\0' '\n' < "/proc/$pid/environ" | grep -m1 '^WAYLAND_DISPLAY=' || true)
       sig=$(tr '\0' '\n' < "/proc/$pid/environ" | grep -m1 '^HYPRLAND_INSTANCE_SIGNATURE=' || true)
