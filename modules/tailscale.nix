@@ -13,10 +13,40 @@
 
     extraUpFlags = [ "--ssh" ];
 
-    # The tailnet name lives in Tailscale's control plane, so
-    # networking.hostName alone never renames an existing node.
-    extraSetFlags = [ "--hostname=${config.networking.hostName}" ];
+    extraSetFlags = [
+      # The tailnet name lives in Tailscale's control plane, so
+      # networking.hostName alone never renames an existing node.
+      "--hostname=${config.networking.hostName}"
+
+      # Already the default, and pinned here because it is a STORED pref: one
+      # `tailscale set --accept-dns=false` on a bad day persists across reboots
+      # and rebuilds with nothing in this repo to contradict it. Declaring it
+      # puts it back on every activation.
+      #
+      # On its own this flag resolves nothing — see services.resolved below.
+      "--accept-dns=true"
+    ];
   };
+
+  # WHAT ACTUALLY MAKES MagicDNS RESOLVE. accept-dns only tells tailscaled to
+  # *want* the tailnet's DNS config; it still needs somewhere to install it.
+  # With NetworkManager owning /etc/resolv.conf and no resolved to talk to,
+  # tailscaled has nowhere to put the split-DNS routes, so the config it was
+  # handed goes nowhere:
+  #
+  #   $ tailscale dns status        # MagicDNS: enabled, suffix dikdik-cloud.ts.net
+  #   $ getent hosts vps            # nothing
+  #   $ cat /etc/resolv.conf        # nameserver 1.1.1.1, no search domain
+  #
+  # The failure is quiet in the worst way — every tailscale-side check reports
+  # healthy and only name lookups are dead, so it reads as a DNS problem rather
+  # than a missing resolver. It cost a deploy: deploy-rs addresses this repo's
+  # VPS by its MagicDNS name and died on "Could not resolve hostname vps".
+  #
+  # resolved gives tailscaled the D-Bus interface it programs split DNS
+  # through, and NetworkManager defers to it once it is running. nsswitch picks
+  # up `resolve` from the NixOS module, so nothing else here needs changing.
+  services.resolved.enable = true;
 
   networking.firewall = {
     trustedInterfaces = [ "tailscale0" ];
