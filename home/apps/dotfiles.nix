@@ -387,6 +387,9 @@ let
     "dot-claude/hooks"
     "dot-config"
     "dot-config/caelestia"
+    # opencode writes a .gitignore into its own config dir on every boot;
+    # linked whole, that write is EROFS and the TUI dies at startup.
+    "dot-config/opencode"
     "dot-config/vesktop"
     "dot-config/vesktop/themes"
     "dot-hermes"
