@@ -1,8 +1,9 @@
 # Everything the keybinds, scripts and dotfiles call that is not an app with
 # config of its own -- those have their own file beside this one.
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 let
   app-icons = pkgs.callPackage ../../pkgs/app-icons.nix { };
+  openrouter-image-mcp = pkgs.callPackage ../../pkgs/openrouter-image-mcp.nix { };
 
 in
 {
@@ -33,6 +34,12 @@ in
     # vibe coding
     claude-code
     opencode
+
+    # MCP servers. Both agents spawn these by bare name -- neither expands `~`
+    # in a command, so a path in their config is a path that never resolves.
+    inputs.codebase-memory-mcp.packages.${pkgs.system}.default
+    openrouter-image-mcp
+    playwright-mcp
 
     # clipboard  (SUPER+CTRL+V, autostart cliphist watchers)
     wl-clipboard

@@ -137,6 +137,27 @@
         "type": "github"
       }
     },
+    "codebase-memory-mcp": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789492584,
+        "narHash": "sha256-6CrxqkyxfsSENQBAuS7hwZFgQX+4Ocxx0CH6eIeqw3E=",
+        "owner": "DeusData",
+        "repo": "codebase-memory-mcp",
+        "rev": "8972ea69c6ad94b1ef1d4ffbf0a92d78d2db1798",
+        "type": "github"
+      },
+      "original": {
+        "owner": "DeusData",
+        "ref": "v0.11.0",
+        "repo": "codebase-memory-mcp",
+        "type": "github"
+      }
+    },
     "deploy-rs": {
       "inputs": {
         "flake-compat": "flake-compat_2",
@@ -576,6 +597,7 @@
       "inputs": {
         "aagl": "aagl",
         "caelestia-shell": "caelestia-shell",
+        "codebase-memory-mcp": "codebase-memory-mcp",
         "deploy-rs": "deploy-rs",
         "disko": "disko",
         "hermes-agent": "hermes-agent",

@@ -53,6 +53,14 @@
     # Sober is Flatpak-only by upstream's choice, and this keeps that
     # declarative rather than a `flatpak install` nobody records.
     nix-flatpak.url = "github:gmodena/nix-flatpak";
+
+    # The code-graph MCP server opencode and claude-code both call. Upstream
+    # ships a flake, so this is their package rather than a build of ours --
+    # pinned to a tag, because the config names a binary this has to provide.
+    codebase-memory-mcp = {
+      url = "github:DeusData/codebase-memory-mcp/v0.11.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
