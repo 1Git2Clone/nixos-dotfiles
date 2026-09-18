@@ -5,6 +5,27 @@ let
   app-icons = pkgs.callPackage ../../pkgs/app-icons.nix { };
   openrouter-image-mcp = pkgs.callPackage ../../pkgs/openrouter-image-mcp.nix { };
 
+  # ktailctl names no QtQuick Controls style of its own, so Kirigami loads the
+  # Basic one -- which has hardcoded light colours and never reads the
+  # kdeglobals apps/theme.nix writes. Hence a white window on a dark desktop.
+  # org.kde.desktop is the style that does read it, and it already sits in
+  # ktailctl's own closure (qqc2-desktop-style, lib/qt-6/qml/org/kde/desktop).
+  #
+  # Wrapped per app rather than set session-wide: caelestia-shell imports
+  # QtQuick.Controls too -- bar popouts, tray menu, calendar -- so a global
+  # QT_QUICK_CONTROLS_STYLE would drag the bar into this style along with it.
+  # The desktop entry is `Exec=ktailctl`, a bare name off PATH, so the
+  # launcher finds this wrapper rather than walking past it.
+  ktailctl = pkgs.symlinkJoin {
+    name = "ktailctl-${pkgs.ktailctl.version}";
+    paths = [ pkgs.ktailctl ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/ktailctl \
+        --set QT_QUICK_CONTROLS_STYLE org.kde.desktop
+    '';
+  };
+
 in
 {
   # ── Packages ─────────────────────────────────────────────────────────────
@@ -145,7 +166,8 @@ in
 
     # Tray GUI for tailscaled, kept for its exit-node menu (Mullvad nodes get
     # their own per-country submenu). Exit nodes are stored prefs, so picking
-    # one here is runtime state and never wants a rebuild.
+    # one here is runtime state and never wants a rebuild. Let-bound above for
+    # the style wrapper; a `let` binding shadows `with pkgs`.
     ktailctl
 
     # misc from the Arch list
