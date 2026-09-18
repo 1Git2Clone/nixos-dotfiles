@@ -25,6 +25,11 @@
       #
       # On its own this flag resolves nothing — see services.resolved below.
       "--accept-dns=true"
+
+      # Without this every pref write is root-only, so `tailscale set` and the
+      # GUIs on top of it fail with "checkprefs access denied" -- which is
+      # every exit-node switch, the one pref changed from the desktop daily.
+      "--operator=hutao"
     ];
   };
 
