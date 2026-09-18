@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * OpenRouter Image Generation MCP Server
  *
