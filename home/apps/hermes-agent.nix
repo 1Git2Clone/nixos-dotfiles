@@ -17,6 +17,10 @@
     # A `str`, never a path literal: a literal would copy the plaintext into
     # /nix/store. Guarded because hutao-vm has no sops module, and hutao-vm is
     # what CI evaluates.
-    environmentFiles = lib.optional (osConfig ? sops) osConfig.sops.secrets."hermes/env".path;
+    #
+    # The same file dot-profile.d/environment.sh sources, rendered by
+    # modules/sops.nix out of the `llm:` section — one place holds the keys,
+    # and hermes picks up a new provider without a line here.
+    environmentFiles = lib.optional (osConfig ? sops) osConfig.sops.templates."llm.env".path;
   };
 }

@@ -1,26 +1,24 @@
 #!/bin/sh
-# Environment secrets — pulled from the system keyring via secret-tool.
+# Environment secrets — one sops-rendered env file, sourced into every shell.
 #
-# SC2155 (Declare and assign separately to avoid masking return values):
-# `export FOO=$(cmd)` masks the exit code of `cmd` behind the export.
-# If `cmd` fails the export still "succeeds" and we get an empty value
-# with no signal. Splitting into a separate assignment lets the script
-# bail out (or `set -e` will catch it) on a keyring lookup failure.
+# modules/sops.nix builds it from the `llm:` section of secrets/secrets.yaml,
+# one VAR=value line per provider, under the standard names (OPENROUTER_API_KEY,
+# OPENCODE_API_KEY, ...). Shell env is the whole registration: opencode,
+# claude-code and the MCP servers all read those names off their environment,
+# and hermes takes the same file directly.
 #
-# Splitting also means the var can be `readonly` later, and tools that
-# introspect env vars see the same final value.
+# `set -a` exports whatever the file assigns without naming any of it here, so
+# adding a provider stays a two-line change in secrets.yaml and sops.nix.
+#
+# Guarded: the file is absent on a host without sops (hutao-vm, or this tree
+# stowed anywhere else), and a missing one must not break login. It replaces a
+# row of `secret-tool` lookups against a keyring that holds none of these.
+LLM_ENV=/run/secrets/rendered/llm.env
 
-DEEPSEEK_API_KEY="$(secret-tool lookup account deepseek service api key key)"
-export DEEPSEEK_API_KEY
+if [ -r "$LLM_ENV" ]; then
+  set -a
+  . "$LLM_ENV"
+  set +a
+fi
 
-CLAUDE_API_KEY="$(secret-tool lookup account claude service api key key)"
-export CLAUDE_API_KEY
-
-CODECOV_TOKEN="$(secret-tool lookup account codecov service api key token)"
-export CODECOV_TOKEN
-
-OPENROUTER_TOKEN="$(secret-tool lookup account openrouter service api key token)"
-export OPENROUTER_TOKEN
-
-OPENCODE_TOKEN="$(secret-tool lookup account opencode service api key token)"
-export OPENCODE_TOKEN
+unset LLM_ENV

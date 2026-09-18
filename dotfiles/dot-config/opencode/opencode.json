@@ -77,7 +77,7 @@
       "type": "local",
       "command": ["node", "~/dotfiles/dot-opencode/mcp/openrouter-image-mcp-server/dist/index.js"],
       "environment": {
-        "OPENROUTER_API_KEY": "{env:OPENROUTER_TOKEN}"
+        "OPENROUTER_API_KEY": "{env:OPENROUTER_API_KEY}"
       }
     }
   },
