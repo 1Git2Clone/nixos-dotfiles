@@ -114,8 +114,8 @@ function M.setup(programs)
     mac_bind("BACKSPACE")
     hl.bind("ALT + CTRL + SPACE", exec("caelestia emoji -p"))
     hl.bind("ALT + CTRL + Q", exec("caelestia shell lock lock"))
-    hl.bind("ALT + LEFT", hl.dsp.focus({ workspace = "e-1" }))
-    hl.bind("ALT + RIGHT", hl.dsp.focus({ workspace = "e+1" }))
+    -- hl.bind("ALT + LEFT", hl.dsp.focus({ workspace = "e-1" }))
+    -- hl.bind("ALT + RIGHT", hl.dsp.focus({ workspace = "e+1" }))
 
     -- Ctrl+J/K → Arrow Down/Up in Firefox
     firefox_emacs_bind("CTRL + J", "", "DOWN")
