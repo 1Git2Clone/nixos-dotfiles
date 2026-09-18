@@ -1,6 +1,12 @@
 # Icons and the light/dark switch. The colours themselves are stylix's, set
 # system-side in modules/desktop/stylix.nix.
-{ pkgs, osConfig, ... }:
+{
+  lib,
+  pkgs,
+  osConfig,
+  palette,
+  ...
+}:
 let
   folderIcons = pkgs.callPackage ../../pkgs/hutao-folder-icons.nix { };
 
@@ -44,4 +50,98 @@ in
     [Appearance]
     icon_theme=${folderIcons.themeName}
   '';
+
+  # Kirigami/QtQuick apps (ktailctl today, any KDE app later) take no colour
+  # from stylix at all: its qt target writes qt6ct, which is the QtWidgets
+  # half, while KColorScheme reads kdeglobals and nothing else. With no
+  # kdeglobals they come up on stock Breeze light -- a white window on a dark
+  # desktop. stylix will not grow this on its own; modules/qt/hm.nix warns
+  # that any platform but qtct is unsupported, and `kdeglobals` appears
+  # nowhere in its module tree.
+  #
+  # The scheme already names KDE's own roles -- klink, kvisited, knegative,
+  # kneutral, kpositive and a *Selection variant of each -- so the foreground
+  # mapping below is caelestia's semantics rather than a guess.
+  xdg.configFile."kdeglobals".text =
+    let
+      inherit (palette) rgb;
+
+      # All seven groups take the same twelve keys and differ only in their
+      # surfaces, so the roles are written once.
+      group =
+        name:
+        {
+          bg,
+          alt,
+          fg ? "text",
+          inactive ? "subtext0",
+          active ? "primary",
+          # [Colors:Selection] sits on the accent, so it gets the scheme's
+          # *Selection variants: the same roles, legible against that instead
+          # of against a surface.
+          sel ? "",
+        }:
+        ''
+          [Colors:${name}]
+          BackgroundNormal=${rgb bg}
+          BackgroundAlternate=${rgb alt}
+          ForegroundNormal=${rgb fg}
+          ForegroundInactive=${rgb inactive}
+          ForegroundActive=${rgb active}
+          ForegroundLink=${rgb "klink${sel}"}
+          ForegroundVisited=${rgb "kvisited${sel}"}
+          ForegroundNegative=${rgb "knegative${sel}"}
+          ForegroundNeutral=${rgb "kneutral${sel}"}
+          ForegroundPositive=${rgb "kpositive${sel}"}
+          DecorationFocus=${rgb "primary"}
+          DecorationHover=${rgb "primary"}
+        '';
+    in
+    lib.concatStrings [
+      ''
+        [General]
+        ColorScheme=${palette.schemeJson.name}
+      ''
+      # Breeze puts the view below the window, not above it: the insets a
+      # window frames -- lists, text fields, the detail pane -- are the darkest
+      # thing on screen and the chrome is raised off them. So the surface
+      # ladder is read bottom-up, one rung per group, and every group's
+      # alternate is the next rung so alternating list rows actually differ.
+      # `mantle` is skipped on purpose: this scheme sets it equal to `base`.
+      (group "View" {
+        bg = "base";
+        alt = "surface0";
+      })
+      (group "Window" {
+        bg = "surface0";
+        alt = "surface1";
+      })
+      (group "Button" {
+        bg = "surface1";
+        alt = "surface2";
+      })
+      (group "Tooltip" {
+        bg = "surface2";
+        alt = "surface1";
+      })
+      # Kirigami's toolbars and its sidebar respectively; the sidebar drops
+      # below the view rather than rising above it, which is what separates
+      # ktailctl's node list from the pane beside it.
+      (group "Header" {
+        bg = "surface1";
+        alt = "surface2";
+      })
+      (group "Complementary" {
+        bg = "crust";
+        alt = "base";
+      })
+      (group "Selection" {
+        bg = "primary";
+        alt = "primary";
+        fg = "onPrimary";
+        inactive = "onPrimary";
+        active = "onPrimary";
+        sel = "Selection";
+      })
+    ];
 }

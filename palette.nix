@@ -90,6 +90,16 @@ rec {
     in
     "rgba(${byte 0}, ${byte 2}, ${byte 4}, ${alpha})";
 
+  # KDE's ini format is the odd one out: bare decimal channels, no prefix and
+  # no parentheses. A hex string in a kdeglobals colour key parses as black.
+  rgb =
+    key:
+    let
+      c = colours.${key};
+      byte = i: toString (lib.fromHexString (builtins.substring i 2 c));
+    in
+    "${byte 0},${byte 2},${byte 4}";
+
   # What caelestia writes to $XDG_STATE_HOME/caelestia/scheme.json, and what
   # the scheme directory's own name and path already say. `variant` is the
   # material generator preset the scheme was produced with; it is metadata,
