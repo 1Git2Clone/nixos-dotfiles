@@ -5,17 +5,34 @@
 # actually hosted on. Same .pre-commit-config.yaml as the local commit hook, so
 # a green CI means a clean `pre-commit run --all-files` and vice versa.
 #
-# Every `uses:` would need a full URL here -- Forgejo resolves a bare
-# `actions/checkout@v4` against data.forgejo.org and not github.com -- which is
-# moot, because this uses none. A JS action needs node inside the job's
-# container, and needing node is the only reason a Nix repo would run its CI on
-# an Ubuntu image and then spend a minute installing Nix into it. Cloning by
-# hand costs four lines and lets the job run in an image that already is Nix.
+# `runs-on: nix-node` is the whole reason this file is as short as it is. That
+# label is declared in the vps repo's modules/runner/ci-image.nix and resolves
+# to an image carrying BOTH nix and node. Node is what makes `uses:` possible at
+# all -- every JavaScript action, actions/checkout included, is executed by a
+# node binary inside the job's container -- and nix is what the steps below run.
+# Before that label existed this file had to pick one or the other, so it
+# overrode `container:` with a Nix image and cloned by hand.
 #
-# `runs-on: alpine` selects this instance's one runner by a label it registers
-# (ubuntu-latest, node-22, alpine); `container:` then overrides whatever image
-# that label maps to. Any of the three labels would do -- none of them decides
-# what the job runs in.
+# THE OLD SHAPE IS WORTH REMEMBERING, because it went wrong in two ways at once:
+#
+#   container: image: nixos/nix:latest
+#
+# A floating tag. The runner pins nixos/nix:2.35.2 for its own `nix` label; this
+# job overrode that with a `:latest` free to move underneath it between runs,
+# which is the opposite of what a repo full of pinned flake inputs is for. The
+# image behind `nix-node` is pinned by the vps repo's flake.lock.
+#
+#   git clone "https://oauth2:$TOKEN@..."
+#
+# A hand-written clone has to thread the job token through itself or it is
+# anonymous -- and an anonymous clone still works against a public repo, so the
+# mistake is invisible until a repo is private. This one IS private.
+# actions/checkout defaults its `token` input to the token Forgejo injects, so
+# that concern now lives in the action rather than in this file.
+#
+# The bare `actions/...` form resolves against DEFAULT_ACTIONS_URL, unset on
+# this instance and therefore Forgejo's own default, which carries a synced
+# mirror of the upstream action. No full URL needed.
 name: CI
 
 on:
@@ -30,28 +47,23 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  # The image ships neither flag on, and every step below is a flake command.
-  NIX_CONFIG: "experimental-features = nix-command flakes"
+# NIX_CONFIG is deliberately absent. The nix-node image bakes
+# `experimental-features = nix-command flakes` into its own /etc/nix/nix.conf,
+# asserted by tests/ci-image.nix in the vps repo, so declaring it here would be
+# a second copy to keep in step with the image.
 
 jobs:
   lint:
     name: Format and lint
-    runs-on: alpine
-    container:
-      image: nixos/nix:latest
+    runs-on: nix-node
     steps:
-      # Full history, not a shallow clone: gitleaks below scans every commit,
-      # and against a shallow clone it would scan almost nothing.
-      - name: Clone at the tested commit
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          nix shell nixpkgs#git -c sh -eu -c '
-            git config --global --add safe.directory "$PWD"
-            git clone -q "https://oauth2:$TOKEN@${GITHUB_SERVER_URL#https://}/$GITHUB_REPOSITORY" .
-            git checkout -q --detach "$GITHUB_SHA"
-          '
+      # fetch-depth: 0 is load-bearing, not caution. gitleaks below scans every
+      # commit, and against the default shallow clone it would scan exactly one
+      # and report clean -- a green run that checked almost nothing.
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: pre-commit
         run: nix develop .#ci -c pre-commit run --all-files --show-diff-on-failure
@@ -63,22 +75,12 @@ jobs:
 
   evaluate:
     name: Evaluate the NixOS configurations
-    runs-on: alpine
-    container:
-      image: nixos/nix:latest
+    runs-on: nix-node
     steps:
-      # One commit is all an evaluation reads, so this fetches exactly that.
-      - name: Fetch the tested commit
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          nix shell nixpkgs#git -c sh -eu -c '
-            git config --global --add safe.directory "$PWD"
-            git init -q .
-            git remote add origin "https://oauth2:$TOKEN@${GITHUB_SERVER_URL#https://}/$GITHUB_REPOSITORY"
-            git fetch -q --depth 1 origin "$GITHUB_SHA"
-            git checkout -q FETCH_HEAD
-          '
+      # No fetch-depth here: one commit is all an evaluation reads, and this
+      # job has no history scanner to starve.
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
 
       # Evaluation only, deliberately not a build. This catches the failure
       # that actually happens in this repo -- a renamed package, a typo'd
