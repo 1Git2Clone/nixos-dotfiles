@@ -27,6 +27,15 @@
             "async": true
           }
         ]
+      },
+      {
+        "matcher": "permission_prompt|elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "workmux set-window-status waiting"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -36,6 +45,14 @@
           {
             "type": "command",
             "command": "atuin hook claude-code"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "workmux set-window-status working"
           }
         ]
       }
@@ -118,6 +135,15 @@
             "command": "~/.claude/hooks/cbm-session-reminder"
           }
         ]
+      },
+      {
+        "matcher": "startup|resume|clear|fork",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "workmux register-agent"
+          }
+        ]
       }
     ],
     "Stop": [
@@ -128,6 +154,14 @@
             "command": "/home/hutao/Documents/Code/cc-reels/action.sh hide",
             "timeout": 5,
             "async": true
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "workmux set-window-status done"
           }
         ]
       }
@@ -151,6 +185,14 @@
             "command": "/home/hutao/Documents/Code/cc-reels/action.sh show",
             "timeout": 5,
             "async": true
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "workmux set-window-status working"
           }
         ]
       }
