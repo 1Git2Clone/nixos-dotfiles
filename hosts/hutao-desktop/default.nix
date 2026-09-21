@@ -45,7 +45,20 @@ in
   # for the printer below.
   home-manager.users.hutao.home.packages = with pkgs; [
     teams-for-linux
-    simple-scan
+
+    # SANE's dll backend finds a driver through LD_LIBRARY_PATH, and brscan4's
+    # lives in its own store path, linked into /etc/sane-libs. NixOS exports
+    # that in /etc/set-environment, which only login shells read -- the
+    # graphical session carries no LD_LIBRARY_PATH at all, so the backend
+    # silently fails to load and simple-scan reports a missing driver.
+    # Wrapped here rather than exported session-wide: one app needs the
+    # linker path, every other app on the desktop does not.
+    (symlinkJoin {
+      name = "simple-scan-sane-libs";
+      paths = [ simple-scan ];
+      nativeBuildInputs = [ makeWrapper ];
+      postBuild = "wrapProgram $out/bin/simple-scan --prefix LD_LIBRARY_PATH : /etc/sane-libs";
+    })
   ];
 
   # The Brother DCP-1512E hangs off this machine's USB. brlaser rather than
