@@ -126,9 +126,10 @@ function M.setup(programs)
     firefox_emacs_bind("CTRL + N", "", "DOWN")
     firefox_emacs_bind("CTRL + P", "", "UP")
 
-    -- Alt+N/P/K → original Ctrl+N/P/K in Firefox
+    -- Alt+N/P/J/K → original Ctrl+N/P/J/K in Firefox
     firefox_emacs_bind("ALT + N", "CTRL", "N")
     firefox_emacs_bind("ALT + P", "CTRL", "P")
+    firefox_emacs_bind("ALT + J", "CTRL", "J")
     firefox_emacs_bind("ALT + K", "CTRL", "K")
 
     hl.bind(main_mod .. " + F", hl.dsp.window.fullscreen())
