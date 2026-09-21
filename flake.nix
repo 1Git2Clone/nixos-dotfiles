@@ -61,6 +61,14 @@
       url = "github:DeusData/codebase-memory-mcp/v0.11.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Worktree + tmux window per agent. Upstream's own flake, pinned to a tag:
+    # it releases several times a day, and a moving ref would rebuild the
+    # binary on every `nix flake update`.
+    workmux = {
+      url = "github:raine/workmux/v0.1.264";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

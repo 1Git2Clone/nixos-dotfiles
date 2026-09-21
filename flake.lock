@@ -606,7 +606,8 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
         "sops-nix": "sops-nix",
-        "stylix": "stylix"
+        "stylix": "stylix",
+        "workmux": "workmux"
       }
     },
     "rust-overlay": {
@@ -818,6 +819,27 @@
       "original": {
         "owner": "pyproject-nix",
         "repo": "uv2nix",
+        "type": "github"
+      }
+    },
+    "workmux": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789971701,
+        "narHash": "sha256-rQrXhARAthx4A0tX8EsG4iBEe98WmJfosEUsX5iDaaY=",
+        "owner": "raine",
+        "repo": "workmux",
+        "rev": "229aee165c67a5eba9adfc54e6878d23c1a300ab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "raine",
+        "ref": "v0.1.264",
+        "repo": "workmux",
         "type": "github"
       }
     }
