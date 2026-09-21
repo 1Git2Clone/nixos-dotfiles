@@ -20,10 +20,11 @@ local function firefox_emacs_bind(keys, mods, key)
     local window = hl.get_active_window()
 
     if window and (window.class == "firefox" or window.class == "floorp") then
+      -- No window selector: a class regex resolves to the first match in the
+      -- window list, not the focused one, so a second Floorp window steals it.
       hl.dispatch(hl.dsp.send_shortcut({
         mods = mods,
         key = key,
-        window = "class:^(firefox|floorp)$",
       }))
       return { ok = true }
     end
@@ -125,9 +126,10 @@ function M.setup(programs)
     firefox_emacs_bind("CTRL + N", "", "DOWN")
     firefox_emacs_bind("CTRL + P", "", "UP")
 
-    -- Alt+N/P → original Ctrl+N/P in Firefox
+    -- Alt+N/P/K → original Ctrl+N/P/K in Firefox
     firefox_emacs_bind("ALT + N", "CTRL", "N")
     firefox_emacs_bind("ALT + P", "CTRL", "P")
+    firefox_emacs_bind("ALT + K", "CTRL", "K")
 
     hl.bind(main_mod .. " + F", hl.dsp.window.fullscreen())
     hl.bind(main_mod .. " + S", exec("~/dotfiles/dot-config/programs/shell_scripts/screenshot-selection-copy.sh"))
