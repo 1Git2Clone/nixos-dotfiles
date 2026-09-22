@@ -80,16 +80,6 @@
         ]
       },
       {
-        "matcher": "Grep|Glob",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/cbm-code-discovery-gate",
-            "timeout": 5
-          }
-        ]
-      },
-      {
         "matcher": "Bash",
         "hooks": [
           {
@@ -100,42 +90,6 @@
       }
     ],
     "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/cbm-session-reminder"
-          }
-        ]
-      },
-      {
-        "matcher": "resume",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/cbm-session-reminder"
-          }
-        ]
-      },
-      {
-        "matcher": "clear",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/cbm-session-reminder"
-          }
-        ]
-      },
-      {
-        "matcher": "compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/cbm-session-reminder"
-          }
-        ]
-      },
       {
         "matcher": "startup|resume|clear|fork",
         "hooks": [
@@ -162,17 +116,6 @@
           {
             "type": "command",
             "command": "workmux set-window-status done"
-          }
-        ]
-      }
-    ],
-    "SubagentStart": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/cbm-subagent-reminder"
           }
         ]
       }
@@ -204,57 +147,57 @@
     "padding": 0
   },
   "enabledPlugins": {
-    "accessibility-compliance@claude-code-workflows": true,
-    "agent-orchestration@claude-code-workflows": true,
-    "agent-teams@claude-code-workflows": true,
-    "api-scaffolding@claude-code-workflows": true,
-    "api-testing-observability@claude-code-workflows": true,
-    "application-performance@claude-code-workflows": true,
-    "backend-api-security@claude-code-workflows": true,
-    "backend-development@claude-code-workflows": true,
+    "accessibility-compliance@claude-code-workflows": false,
+    "agent-orchestration@claude-code-workflows": false,
+    "agent-teams@claude-code-workflows": false,
+    "api-scaffolding@claude-code-workflows": false,
+    "api-testing-observability@claude-code-workflows": false,
+    "application-performance@claude-code-workflows": false,
+    "backend-api-security@claude-code-workflows": false,
+    "backend-development@claude-code-workflows": false,
     "chrome-devtools-mcp@claude-plugins-official": true,
-    "claude-code-setup@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true,
-    "code-documentation@claude-code-workflows": true,
-    "code-review@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": false,
+    "claude-md-management@claude-plugins-official": false,
+    "code-documentation@claude-code-workflows": false,
+    "code-review@claude-plugins-official": false,
+    "code-simplifier@claude-plugins-official": false,
     "commit-commands@claude-plugins-official": true,
-    "comprehensive-review@claude-code-workflows": true,
-    "context-management@claude-code-workflows": true,
+    "comprehensive-review@claude-code-workflows": false,
+    "context-management@claude-code-workflows": false,
     "context7@claude-plugins-official": true,
-    "developer-essentials@claude-code-workflows": true,
-    "discord@claude-plugins-official": true,
-    "error-debugging@claude-code-workflows": true,
-    "error-diagnostics@claude-code-workflows": true,
-    "feature-dev@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "frontend-mobile-security@claude-code-workflows": true,
-    "full-stack-orchestration@claude-code-workflows": true,
-    "git-pr-workflows@claude-code-workflows": true,
-    "github@claude-plugins-official": true,
-    "gitlab@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true,
-    "greptile@claude-plugins-official": true,
+    "developer-essentials@claude-code-workflows": false,
+    "discord@claude-plugins-official": false,
+    "error-debugging@claude-code-workflows": false,
+    "error-diagnostics@claude-code-workflows": false,
+    "feature-dev@claude-plugins-official": false,
+    "frontend-design@claude-plugins-official": false,
+    "frontend-mobile-security@claude-code-workflows": false,
+    "full-stack-orchestration@claude-code-workflows": false,
+    "git-pr-workflows@claude-code-workflows": false,
+    "github@claude-plugins-official": false,
+    "gitlab@claude-plugins-official": false,
+    "gopls-lsp@claude-plugins-official": false,
+    "greptile@claude-plugins-official": false,
     "lua-lsp@claude-plugins-official": true,
-    "mcp-server-dev@claude-plugins-official": true,
-    "observability-monitoring@claude-code-workflows": true,
+    "mcp-server-dev@claude-plugins-official": false,
+    "observability-monitoring@claude-code-workflows": false,
     "ponytail@ponytail": true,
-    "pr-review-toolkit@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": false,
     "pyright-lsp@claude-plugins-official": true,
     "ralph-loop@claude-plugins-official": true,
     "remember@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "security-compliance@claude-code-workflows": true,
+    "security-compliance@claude-code-workflows": false,
     "security-guidance@claude-plugins-official": true,
-    "security-scanning@claude-code-workflows": true,
-    "sentry@claude-plugins-official": true,
-    "shell-scripting@claude-code-workflows": true,
-    "skill-creator@claude-plugins-official": true,
+    "security-scanning@claude-code-workflows": false,
+    "sentry@claude-plugins-official": false,
+    "shell-scripting@claude-code-workflows": false,
+    "skill-creator@claude-plugins-official": false,
     "superpowers@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "ui-design@claude-code-workflows": true,
-    "unit-testing@claude-code-workflows": true,
-    "web-scripting@claude-code-workflows": true
+    "ui-design@claude-code-workflows": false,
+    "unit-testing@claude-code-workflows": false,
+    "web-scripting@claude-code-workflows": false
   },
   "extraKnownMarketplaces": {
     "claude-code-workflows": {
