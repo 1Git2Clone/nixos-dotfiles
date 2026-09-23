@@ -1,5 +1,10 @@
 # Every sops key, in one place. Nesting lives in `key = "section/name"`.
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   # The whole provider story: the key under `llm:` in secrets.yaml, mapped to
   # the env var opencode, hermes and every SDK already look for. One line here
@@ -10,9 +15,9 @@ let
     opencode = "OPENCODE_API_KEY";
   };
 
-  # Private-flake tokens, by host, for the netrc template below. Forgejo is the
-  # source of truth and GitHub the mirror, so either can be a flake input URL.
-  # Adding a host is one entry here plus one key under `nix:` in secrets.yaml.
+  # Private-flake tokens, by host. Forgejo is the source of truth and GitHub the
+  # mirror, so either can be a flake input URL. Adding a host is one entry here
+  # plus one key under `nix:` in secrets.yaml.
   nixTokens = {
     forgejo_token = {
       host = "git.hu-tao.dev";
@@ -23,6 +28,23 @@ let
       login = "1Git2Clone";
     };
   };
+
+  # Nix hands `git+https://` inputs to git, so what authenticates them is a
+  # *git* credential helper — not nix.settings.netrc-file, which only covers
+  # the downloads Nix makes itself.
+  #
+  # `store` is the helper git ships: it reads a file, so it needs no daemon, no
+  # keyring and no session, which is exactly what root has. One section per
+  # host, and deliberately NOT in /etc/gitconfig: git consults system, then
+  # global, then local helpers and stops at the first that answers, so a
+  # system-wide store helper would answer for hutao too and never reach the
+  # GCM/keyring path their interactive git is set up for.
+  rootGitconfig = pkgs.writeText "root-gitconfig" (
+    lib.concatMapStringsSep "\n" (token: ''
+      [credential "https://${token.host}"]
+        helper = store --file=${config.sops.templates."git-credentials".path}
+    '') (lib.attrValues nixTokens)
+  );
 in
 {
   sops = {
@@ -57,7 +79,7 @@ in
       # boot of the machine it unlocks. Only install.sh needs it.
     }
     # Default root:root 0400 is right: nothing reads these directly, only the
-    # template below, and that is what carries the owner.
+    # templates below, and those are what carry the owner.
     // lib.mapAttrs' (name: _: lib.nameValuePair "llm/${name}" { }) llmKeys
     // lib.mapAttrs' (name: _: lib.nameValuePair "nix/${name}" { }) nixTokens;
 
@@ -72,32 +94,27 @@ in
       );
     };
 
-    # Credentials for private flake inputs over HTTPS, keyed by host so either
-    # Forgejo or GitHub can be the input URL.
-    #
-    # `git+https://` consults this file via nix.settings.netrc-file below. The
-    # `github:` shorthand would instead need nix.settings.access-tokens, which
-    # writes the token into the world-readable store -- so use `git+https://`
-    # for private repos and let the tokens stay here.
-    #
-    # Not 0400 root-only like the secrets above: the daemon and sudo fetch as
-    # root, but a plain `nix flake update` runs as hutao and would fail on a
-    # root-only file. 0440 plus hutao's primary group covers both.
-    templates."nix-netrc" = {
+    # git's credential-store format: one line per host. Rendered to /run at
+    # activation and root-only, so the token stays sops-only — never in the
+    # store, never world-readable. sops-nix renders this one 0600 rather than
+    # the 0400 requested in `mode`; only root being able to read it is the part
+    # that matters. Root reads it because root reads any file; no group
+    # membership is involved, whatever gid a sudo'd process carries.
+    templates."git-credentials" = {
       owner = "root";
-      group = "users";
-      mode = "0440";
+      mode = "0400";
       content = lib.concatStringsSep "\n" (
         lib.mapAttrsToList (
-          name: host:
-          "machine ${host.host} login ${host.login} password ${config.sops.placeholder."nix/${name}"}"
+          name: token: "https://${token.login}:${config.sops.placeholder."nix/${name}"}@${token.host}"
         ) nixTokens
       );
     };
   };
 
-  # The consumer side of the template above. Kept in this module rather than
-  # modules/system.nix because the installer image does not import sops, and
-  # config.sops is undefined there.
-  nix.settings.netrc-file = config.sops.templates."nix-netrc".path;
+  # `sudo nixos-rebuild` evaluates the flake as root, which has no keyring and
+  # no git config of its own, so every private input dies with "could not read
+  # Username". This is the config root does read. Kept in this module rather
+  # than modules/system.nix because the installer image does not import sops,
+  # and config.sops is undefined there.
+  systemd.tmpfiles.rules = [ "L+ /root/.gitconfig - - - - ${rootGitconfig}" ];
 }
