@@ -86,6 +86,22 @@
       url = "git+https://git.hu-tao.dev/hutao/cli-utils?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Artwork that is not ours to publish, so it lives in its own private repo:
+    # a clone of THIS repo must not carry it, and neither must any copy of it.
+    # Per-pack terms are in that repo's README.
+    #
+    # `flake = false` because it is a tree of packs rather than a flake -- one
+    # directory per theme, which is the shape pkgs/cursors.nix reads.
+    #
+    # `path:` until the repo is pushed, as cli-utils was. Swap it for the private
+    # URL once it is up; a flake input does not fail over, so there is one:
+    #
+    #   url = "git+https://git.hu-tao.dev/hutao/nixos-dotfiles-third-party-assets?ref=main";
+    third-party-assets = {
+      url = "path:/home/hutao/Projects/nixos-dotfiles-third-party-assets";
+      flake = false;
+    };
   };
 
   outputs =
@@ -98,6 +114,7 @@
       stylix,
       home-manager,
       deploy-rs,
+      third-party-assets,
       ...
     }:
     let
@@ -192,10 +209,11 @@
         };
       };
 
-      # Every cursor theme in assets/ and assets/third-party/, by its directory
-      # name, so `nix build .#KAngel-Cursor` works and a new pointer needs no
-      # edit here.
-      packages.${system} = (pkgs.callPackage ./pkgs/cursors.nix { }) // {
+      # Every cursor theme, by its directory name, so `nix build
+      # .#KAngel-Cursor` works and a new pointer needs no edit here. The packs
+      # come from third-party-assets; assets/ is scanned too, for a theme that
+      # is ours to publish.
+      packages.${system} = (pkgs.callPackage ./pkgs/cursors.nix { thirdParty = third-party-assets; }) // {
         installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
 
         inherit (self.nixosConfigurations.hutao-vm.config.system.build) vm;

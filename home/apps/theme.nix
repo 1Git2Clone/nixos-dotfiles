@@ -3,12 +3,15 @@
 {
   lib,
   pkgs,
+  inputs,
   osConfig,
   palette,
   ...
 }:
 let
-  folderIcons = pkgs.callPackage ../../pkgs/hutao-folder-icons.nix { };
+  folderIcons = pkgs.callPackage ../../pkgs/hutao-folder-icons.nix {
+    thirdParty = inputs.third-party-assets;
+  };
 
   # Icons for the hand-written ~/.local/share/applications entries.
 in

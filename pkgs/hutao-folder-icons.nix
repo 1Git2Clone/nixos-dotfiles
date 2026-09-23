@@ -1,5 +1,6 @@
-# A Windows folder-icon pack as a freedesktop icon theme — see
-# assets/third-party/Hutao-Folders/ORIGIN.md.
+# A Windows folder-icon pack as a freedesktop icon theme. The pack itself lives
+# in the third-party-assets repo, provenance and all -- it is not ours to
+# redistribute, which is why it is not in this repo.
 #
 # Each .ico carries the same drawing thirteen times: legacy 4- and 8-bit
 # entries, seven 32-bit ones from 16 to 64, and a PNG-compressed 256. icotool
@@ -14,10 +15,11 @@
   lib,
   runCommandLocal,
   icoutils,
+  thirdParty,
 }:
 let
   theme = "Hutao-Folders";
-  src = ../assets/third-party/Hutao-Folders;
+  src = thirdParty + "/Hutao-Folders";
 
   # Sizes to lift out, all present in every file as 32-bit entries.
   sizes = [
