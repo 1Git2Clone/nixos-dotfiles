@@ -76,6 +76,12 @@ in
     # notifications, 12 call sites across the scripts
     libnotify
 
+    # Libreoffice
+    libreoffice-fresh
+
+    # Google
+    google-chrome
+
     # media + brightness keys
     playerctl
     brightnessctl
