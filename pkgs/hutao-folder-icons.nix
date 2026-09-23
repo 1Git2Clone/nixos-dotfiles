@@ -1,5 +1,5 @@
 # A Windows folder-icon pack as a freedesktop icon theme — see
-# assets/Hutao-Folders/ORIGIN.md.
+# assets/third-party/Hutao-Folders/ORIGIN.md.
 #
 # Each .ico carries the same drawing thirteen times: legacy 4- and 8-bit
 # entries, seven 32-bit ones from 16 to 64, and a PNG-compressed 256. icotool
@@ -17,7 +17,7 @@
 }:
 let
   theme = "Hutao-Folders";
-  src = ../assets/Hutao-Folders;
+  src = ../assets/third-party/Hutao-Folders;
 
   # Sizes to lift out, all present in every file as 32-bit entries.
   sizes = [

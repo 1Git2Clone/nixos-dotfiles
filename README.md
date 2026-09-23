@@ -311,9 +311,10 @@ host nobody can log into.
   conflict. They are not on a second palette, though — see
   [Colours](#colours).
 - **Folder icons are `Hutao-Folders`**, built by `pkgs/hutao-folder-icons.nix`
-  from a Windows `.ico` pack in `assets/Hutao-Folders/`. It inherits
-  Papirus-Dark and is set for GTK and qt6ct both; nautilus' sidebar keeps
-  Papirus' symbolic icons, which are SVGs and cannot come from raster art.
+  from a Windows `.ico` pack in `assets/third-party/Hutao-Folders/`. It
+  inherits Papirus-Dark and is set for GTK and qt6ct both; nautilus' sidebar
+  keeps Papirus' symbolic icons, which are SVGs and cannot come from raster
+  art.
 - **A rebuild reloads Hyprland.** `home.activation.hyprlandReload` runs
   `hyprctl reload` after linkGeneration, because Hyprland's own watcher never
   fires here: a rebuild repoints `~/.config/hypr` at a new store path rather
@@ -342,6 +343,6 @@ host nobody can log into.
   which is why neither lives in a module.
 - **Suspend/resume** is the known hazard on the laptop (fixed by DMI quirks in
   Linux 6.6, so unstable is fine). Start there if it misbehaves.
-- **`assets/Hutao-Cursor/` cannot be published.**
+- **`assets/third-party/Hutao-Cursor/` cannot be published.**
   [EbiEbiBeam's](https://ko-fi.com/s/52f093af4c) artwork, free but not
   redistributable. The wallpapers are unattributed fan art, same question.

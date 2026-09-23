@@ -1,4 +1,5 @@
-# One builder for every cursor theme under assets/. A theme is any directory
+# One builder for every cursor theme assets/ holds -- top level, or under
+# third-party/ when the artwork is someone else's. A theme is any directory
 # there with a cursors/ inside it; pkgs/cursors.nix finds them and names each
 # theme after its own directory, so adding one is dropping a folder.
 #

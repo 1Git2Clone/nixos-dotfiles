@@ -3,5 +3,8 @@
 # neither normalises them on checkout nor counts every CR as trailing
 # whitespace in `git diff --check` -- the builder strips \r itself when it
 # reads Installer.inf, and the artwork metadata is not ours to rewrite.
-assets/*/cursors/*.inf -text
-assets/*/cursors/*.txt -text
+#
+# `**` rather than `*` because a pack one level deeper is still the author's:
+# assets/third-party/<theme>/cursors/.
+assets/**/cursors/*.inf -text
+assets/**/cursors/*.txt -text

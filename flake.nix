@@ -192,8 +192,9 @@
         };
       };
 
-      # Every cursor theme in assets/, by its directory name, so `nix build
-      # .#KAngel-Cursor` works and a new pointer needs no edit here.
+      # Every cursor theme in assets/ and assets/third-party/, by its directory
+      # name, so `nix build .#KAngel-Cursor` works and a new pointer needs no
+      # edit here.
       packages.${system} = (pkgs.callPackage ./pkgs/cursors.nix { }) // {
         installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
 
