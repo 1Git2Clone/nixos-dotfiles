@@ -19,7 +19,7 @@
 }:
 let
   theme = "Hutao-Folders";
-  src = thirdParty + "/Hutao-Folders";
+  src = thirdParty + "/assets/third-party/Hutao-Folders";
 
   # Sizes to lift out, all present in every file as 32-bit entries.
   sizes = [

@@ -796,8 +796,8 @@
     "third-party-assets": {
       "flake": false,
       "locked": {
-        "lastModified": 1790195754,
-        "narHash": "sha256-19zYXSw3TttmaJIDimXszY+tDBpWcLO1MLBHg3Wr0GY=",
+        "lastModified": 1790196494,
+        "narHash": "sha256-uXPjvcDcsqeWNOJa3FGm1igzkeLW1/jLd4WT7mAPyCs=",
         "path": "/home/hutao/Projects/nixos-dotfiles-third-party-assets",
         "type": "path"
       },

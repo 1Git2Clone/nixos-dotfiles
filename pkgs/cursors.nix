@@ -4,8 +4,10 @@
 # Two sources, because whose artwork it is decides where it lives: ours at the
 # top of assets/, and everyone else's in the third-party-assets input -- a
 # separate private repo precisely because those packs may not be redistributed.
-# A theme is still named after its own directory either way, so a pack moving
-# between the two changes nothing but where it is read from.
+# That repo mirrors this one's shape, so its packs sit at assets/third-party/
+# there, which is the path appended below. A theme is still named after its own
+# directory either way, so a pack moving between the two changes nothing but
+# where it is read from.
 #
 # This is what makes adding a pointer a matter of dropping a folder: nothing
 # names a theme twice, so there is no list to forget to update. Picking which
@@ -18,7 +20,8 @@
 let
   roots = builtins.filter builtins.pathExists [
     ../assets
-    thirdParty
+    # Parenthesised: a bare `+` is not a valid list element.
+    (thirdParty + "/assets/third-party")
   ];
 
   themesIn =
