@@ -3,36 +3,36 @@
   "presets": {
     "deepseek": {
       "orchestrator": {
-        "model": "deepseek/deepseek-reasoner",
+        "model": "openrouter/deepseek/deepseek-v4-flash",
         "skills": ["*"],
         "mcps": ["*"]
       },
       "oracle": {
-        "model": "deepseek/deepseek-reasoner",
+        "model": "openrouter/deepseek/deepseek-v4-flash",
         "variant": "high",
         "skills": ["simplify"],
         "mcps": []
       },
       "librarian": {
-        "model": "deepseek/deepseek-chat",
+        "model": "openrouter/deepseek/deepseek-v4-flash",
         "variant": "low",
         "skills": [],
         "mcps": ["websearch", "context7", "grep_app"]
       },
       "explorer": {
-        "model": "deepseek/deepseek-chat",
+        "model": "openrouter/deepseek/deepseek-v4-flash",
         "variant": "low",
         "skills": [],
         "mcps": []
       },
       "designer": {
-        "model": "deepseek/deepseek-chat",
+        "model": "openrouter/deepseek/deepseek-v4-flash",
         "variant": "medium",
         "skills": ["agent-browser"],
         "mcps": []
       },
       "fixer": {
-        "model": "deepseek/deepseek-chat",
+        "model": "openrouter/deepseek/deepseek-v4-flash",
         "variant": "low",
         "skills": [],
         "mcps": []
