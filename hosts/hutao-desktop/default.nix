@@ -61,16 +61,27 @@ in
     })
   ];
 
-  # The Brother DCP-1512E hangs off this machine's USB. brlaser rather than
-  # Brother's own dcp1510 driver: it ships a "DCP-1510 series" model whose
-  # 1284DeviceID matches what the printer reports, so CUPS picks the PPD up on
-  # its own, and it is a real open-source filter rather than a repackaged
-  # 32-bit binary.
-  #
-  # No avahi here -- the 1512E is USB-only, there is nothing to browse for.
-  services.printing = {
-    enable = true;
-    drivers = [ pkgs.brlaser ];
+  services = {
+    # My power button was too easy to misclick.
+    # NOTE:
+    # 1. This *DOESN'T* affect starting the system, only poweroff.
+    # 2. The 4+ second hold force off still works (BIOS/firmware enforced)
+    logind.settings = {
+      Login = {
+        HandlePowerKey = "ignore";
+      };
+    };
+    # The Brother DCP-1512E hangs off this machine's USB. brlaser rather than
+    # Brother's own dcp1510 driver: it ships a "DCP-1510 series" model whose
+    # 1284DeviceID matches what the printer reports, so CUPS picks the PPD up on
+    # its own, and it is a real open-source filter rather than a repackaged
+    # 32-bit binary.
+    #
+    # No avahi here -- the 1512E is USB-only, there is nothing to browse for.
+    printing = {
+      enable = true;
+      drivers = [ pkgs.brlaser ];
+    };
   };
 
   # cupsd on its own only makes the printer *discoverable*; nothing lists a
