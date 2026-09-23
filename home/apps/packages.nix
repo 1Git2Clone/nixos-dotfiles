@@ -56,6 +56,7 @@ in
     claude-code
     opencode
     inputs.workmux.packages.${pkgs.system}.default
+    inputs.cli-utils.packages.${pkgs.system}.default
 
     # MCP servers. Both agents spawn these by bare name -- neither expands `~`
     # in a command, so a path in their config is a path that never resolves.

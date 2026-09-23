@@ -69,6 +69,23 @@
       url = "github:raine/workmux/v0.1.264";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Local toolbox of language-agnostic CLI utilities. Forgejo is the source of
+    # truth and GitHub is a push-only mirror; both hosts are credentialed by the
+    # netrc that modules/sops.nix renders, so either URL works.
+    #
+    # Nix flake inputs do not fail over, so this is the primary and the mirror is
+    # the escape hatch -- one flag, no edit, no dirty tree:
+    #
+    #   sudo nixos-rebuild switch --flake ~/Projects/nixos-dotfiles#hutao-desktop \
+    #     --override-input cli-utils git+https://github.com/1Git2Clone/cli-utils?ref=main
+    #
+    # It is a git input now, not `path:`, so it is locked to a revision: a push
+    # needs `nix flake update cli-utils` before a rebuild sees it.
+    cli-utils = {
+      url = "git+https://git.hu-tao.dev/hutao/cli-utils?ref=main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
