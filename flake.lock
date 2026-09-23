@@ -796,14 +796,18 @@
     "third-party-assets": {
       "flake": false,
       "locked": {
-        "lastModified": 1790196494,
-        "narHash": "sha256-uXPjvcDcsqeWNOJa3FGm1igzkeLW1/jLd4WT7mAPyCs=",
-        "path": "/home/hutao/Projects/nixos-dotfiles-third-party-assets",
-        "type": "path"
+        "lastModified": 1790196425,
+        "narHash": "sha256-ulFk94HNlXGad4HVLwAtnrRs8yzXNCr108t/RkJgEvM=",
+        "ref": "main",
+        "rev": "a933d2c50257124a332b4ba1529be141b615d859",
+        "revCount": 5,
+        "type": "git",
+        "url": "https://git.hu-tao.dev/hutao/nixos-dotfiles-third-party-assets"
       },
       "original": {
-        "path": "/home/hutao/Projects/nixos-dotfiles-third-party-assets",
-        "type": "path"
+        "ref": "main",
+        "type": "git",
+        "url": "https://git.hu-tao.dev/hutao/nixos-dotfiles-third-party-assets"
       }
     },
     "tinted-kitty": {

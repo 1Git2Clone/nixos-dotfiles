@@ -92,14 +92,13 @@
     # Per-pack terms are in that repo's README.
     #
     # `flake = false` because it is a tree of packs rather than a flake -- one
-    # directory per theme, which is the shape pkgs/cursors.nix reads.
+    # directory per theme under assets/third-party/, which is the shape
+    # pkgs/cursors.nix reads after appending that segment.
     #
-    # `path:` until the repo is pushed, as cli-utils was. Swap it for the private
-    # URL once it is up; a flake input does not fail over, so there is one:
-    #
-    #   url = "git+https://git.hu-tao.dev/hutao/nixos-dotfiles-third-party-assets?ref=main";
+    # Locked to a revision like cli-utils, so a push to that repo needs
+    # `nix flake update third-party-assets` before a rebuild sees it.
     third-party-assets = {
-      url = "path:/home/hutao/Projects/nixos-dotfiles-third-party-assets";
+      url = "git+https://git.hu-tao.dev/hutao/nixos-dotfiles-third-party-assets?ref=main";
       flake = false;
     };
   };
