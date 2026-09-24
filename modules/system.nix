@@ -20,6 +20,35 @@
     options = "--delete-older-than 30d";
   };
 
+  # /tmp is swept by systemd's own tmpfiles cleaner rather than by a unit of
+  # ours: it already runs daily, and it already knows to leave the X11 and
+  # systemd-private sockets alone. What it lacked was a wall clock -- upstream
+  # starts it 15min after boot and every 24h after that, so on a machine that
+  # is rebooted at all it drifts into the middle of the working day.
+  #
+  # 00-nixos.conf sorts ahead of the systemd package's tmp.conf, so the age
+  # below wins and the sweep logs one "Duplicate line for path /tmp, ignoring"
+  # for the 10d rule it skipped. A week outlives any build that legitimately
+  # keeps something in /tmp; past that it is a killed nix-shell's leftovers.
+  systemd.tmpfiles.rules = [ "q /tmp 1777 root root 7d" ];
+
+  systemd.timers.systemd-tmpfiles-clean = {
+    # A drop-in, not a unit of our own -- the packaged one carries the
+    # documentation and the initrd condition, and all this changes is when it
+    # fires. The empty values reset what the package set: systemd reads
+    # `OnBootSec=` as "forget the earlier value", not as "zero seconds", and
+    # leaving them in place would keep the boot-relative schedule alongside
+    # the calendar one. OnCalendar is local time, so this follows
+    # time.timeZone below rather than UTC.
+    overrideStrategy = "asDropin";
+    timerConfig = {
+      OnBootSec = "";
+      OnUnitActiveSec = "";
+      OnCalendar = "04:00";
+      Persistent = true;
+    };
+  };
+
   time.timeZone = "Europe/Sofia";
   i18n.defaultLocale = "en_US.UTF-8";
 
