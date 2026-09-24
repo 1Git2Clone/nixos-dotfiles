@@ -61,15 +61,17 @@ jobs:
       # option, a module conflict — without asking a CI runner to realise a
       # multi-gigabyte desktop closure.
       #
-      # hutao-vm rather than hutao-laptop: the laptop config needs
-      # hardware-configuration.nix and the encrypted hashes, neither of which
-      # exists in a fresh clone. hutao-vm shares every module that can break
-      # this way (modules/system.nix, modules/desktop.nix, home-manager,
-      # stylix, caelestia), so it is the honest thing to evaluate here.
-      - name: Evaluate hutao-vm
+      # The two real machines rather than hutao-vm: they import everything the
+      # VM does plus disko and sops-nix, and a fresh clone carries both their
+      # hardware-configuration.nix and the sops ciphertext — which is decrypted
+      # at activation, never at evaluation. hutao-vm stays a `nix run .#vm`
+      # target, which is a thing to boot rather than a thing to evaluate.
+      - name: Evaluate the desktop and the laptop
         run: |
-          nix eval --raw \
-            '.#nixosConfigurations.hutao-vm.config.system.build.toplevel.drvPath'
+          for host in hutao-desktop hutao-laptop; do
+            nix eval --raw \
+              ".#nixosConfigurations.$host.config.system.build.toplevel.drvPath"
+          done
 
       - name: Evaluate the installer ISO
         run: |
