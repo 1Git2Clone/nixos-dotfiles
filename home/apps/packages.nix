@@ -139,6 +139,7 @@ in
     # gaming
     mangohud
     modrinth-app
+    osu-lazer-bin
     # The JREs are deliberately not here: any two temurin builds collide on
     # legal/jdk.localedata/cldr.md and buildEnv refuses. Both are linked below.
 
