@@ -74,7 +74,7 @@ jobs:
         run: nix develop .#ci -c gitleaks git --redact --no-banner .
 
   evaluate:
-    name: Evaluate the NixOS configurations
+    name: Evaluate the installer image
     runs-on: nix-node
     steps:
       # No fetch-depth here: one commit is all an evaluation reads, and this
@@ -82,23 +82,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7.0.1
 
-      # Evaluation only, deliberately not a build. This catches the failure
-      # that actually happens in this repo -- a renamed package, a typo'd
-      # option, a module conflict -- without asking a CI runner to realise a
-      # multi-gigabyte desktop closure.
-      #
-      # The two real machines rather than hutao-vm: they import everything the
-      # VM does plus disko and sops-nix, and a fresh clone carries both their
-      # hardware-configuration.nix and the sops ciphertext -- which is decrypted
-      # at activation, never at evaluation. hutao-vm stays a `nix run .#vm`
-      # target, which is a thing to boot rather than a thing to evaluate.
-      - name: Evaluate the desktop and the laptop
-        run: |
-          for host in hutao-desktop hutao-laptop; do
-            nix eval --raw \
-              ".#nixosConfigurations.$host.config.system.build.toplevel.drvPath"
-          done
-
+      # Evaluation only, deliberately not a build -- and only the installer.
+      # The two real machines pull their cursor theme from the private
+      # third-party-assets repo, so evaluating them here would mean handing a
+      # runner a credential for that instance. They are rebuilt several times a
+      # day on the machines themselves, and a rebuild that boots is a stronger
+      # check than an eval that does not; a generation to roll back to is right
+      # there if one does not. The installer imports nothing private.
       - name: Evaluate the installer ISO
         run: |
           nix eval --raw \
