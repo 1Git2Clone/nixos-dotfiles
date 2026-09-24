@@ -209,10 +209,23 @@
       };
 
       # Every cursor theme, by its directory name, so `nix build
-      # .#KAngel-Cursor` works and a new pointer needs no edit here. The packs
-      # come from third-party-assets; assets/ is scanned too, for a theme that
-      # is ours to publish.
-      packages.${system} = (pkgs.callPackage ./pkgs/cursors.nix { thirdParty = third-party-assets; }) // {
+      # .#cursors.KAngel-Cursor` works and a new pointer needs no edit here.
+      # The packs come from third-party-assets; assets/ is scanned too, for a
+      # theme that is ours to publish.
+      #
+      # legacyPackages rather than packages, and nested rather than merged in
+      # with //, for the same reason: `//` forces both operands, so ANY lookup
+      # in packages.${system} -- `nix develop .#ci` probing it for a shell, to
+      # name the one that bit -- fetched the private assets repo just to learn
+      # the attribute names. That made a lint job that never touches a cursor
+      # need a credential to run. Under a lazy attribute nothing is fetched
+      # until someone actually asks for a theme, and legacyPackages is where a
+      # nested set belongs: `packages` must be derivations all the way down.
+      legacyPackages.${system}.cursors = pkgs.callPackage ./pkgs/cursors.nix {
+        thirdParty = third-party-assets;
+      };
+
+      packages.${system} = {
         installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
 
         inherit (self.nixosConfigurations.hutao-vm.config.system.build) vm;
