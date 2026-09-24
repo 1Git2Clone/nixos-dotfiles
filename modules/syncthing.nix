@@ -17,10 +17,11 @@ let
   # anyway -- settings.devices.*.id is a plain str read at build time, and the
   # module has no idFile.
   #
-  # hutao-laptop is absent because an ID only exists once syncthing has run
-  # there. Add it here and both machines pick it up.
+  # A host missing here still pairs from the GUI, but the folder below is not
+  # shared with it, so it offers the folder back on every connection.
   peers = {
     hutao-desktop = "2UE2BQ2-AGJLUEY-IXUSURZ-INSQRGF-PMWKNZD-VSVZ4JJ-6XWGTWL-C6XQMQ5";
+    hutao-laptop = "IARCZU3-3HVMAAR-TDJA2LI-3HFWJCU-HKH2E7F-X24WDVO-7LCZHOZ-XDYZRA3";
     vps = "Z3BRNQT-T2HJQY2-XNDOXNO-FJLIJR5-S7U6UUA-Z4CYGYS-UVF5EYH-DZMFWQM";
 
     # A phone, so it never imports this module and never appears as hostName.
