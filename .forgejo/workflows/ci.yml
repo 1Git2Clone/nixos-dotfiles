@@ -26,7 +26,7 @@
 #
 # A hand-written clone has to thread the job token through itself or it is
 # anonymous -- and an anonymous clone still works against a public repo, so the
-# mistake is invisible until a repo is private. This one IS private.
+# mistake stays invisible here, as this one is public, until a repo is private.
 # actions/checkout defaults its `token` input to the token Forgejo injects, so
 # that concern now lives in the action rather than in this file.
 #
