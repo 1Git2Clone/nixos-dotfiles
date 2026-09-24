@@ -35,16 +35,14 @@
   systemd.timers.systemd-tmpfiles-clean = {
     # A drop-in, not a unit of our own -- the packaged one carries the
     # documentation and the initrd condition, and all this changes is when it
-    # fires. The empty values reset what the package set: systemd reads
-    # `OnBootSec=` as "forget the earlier value", not as "zero seconds", and
-    # leaving them in place would keep the boot-relative schedule alongside
-    # the calendar one. OnCalendar is local time, so this follows
-    # time.timeZone below rather than UTC.
+    # fires. An empty trigger resets *every* trigger the package set, calendar
+    # and boot-relative alike, so it must come immediately before the new
+    # value -- as separate keys, alphabetical rendering put
+    # `OnUnitActiveSec=` after OnCalendar and left the timer with none.
+    # OnCalendar is local time, so this follows time.timeZone below.
     overrideStrategy = "asDropin";
     timerConfig = {
-      OnBootSec = "";
-      OnUnitActiveSec = "";
-      OnCalendar = "04:00";
+      OnCalendar = [ "" "04:00" ];
       Persistent = true;
     };
   };
