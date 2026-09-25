@@ -171,7 +171,7 @@
           ];
         };
 
-        # Ryzen 5 3600X, RX 5700 XT, 16GB, NVMe + an NTFS HDD it only mounts.
+        # Ryzen 5 3600X, RX 5600 XT, 16GB, NVMe + a LUKS ext4 HDD it only mounts.
         hutao-desktop = nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = { inherit inputs; };

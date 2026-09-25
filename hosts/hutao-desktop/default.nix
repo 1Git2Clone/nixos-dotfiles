@@ -1,4 +1,4 @@
-# Ryzen 5 3600X, RX 5700 XT (Navi 10), 16GB, 512GB NVMe + 2TB NTFS HDD.
+# Ryzen 5 3600X, RX 5600 XT (Navi 10), 16GB, 512GB NVMe + 2TB LUKS ext4 HDD.
 # This machine only; anything shared lives in hosts/common or modules/.
 let
   disk = import ./disk.nix;
