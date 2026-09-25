@@ -19,8 +19,11 @@ login.
 
 ## To another machine, with rollback
 
-`deploy.nodes` in `flake.nix` drives deploy-rs over Tailscale SSH. Today that
-is `hutao-laptop`.
+`deploy.nodes` in `flake.nix` drives deploy-rs over Tailscale SSH. It declares
+one node, `hutao-laptop`, which any machine on the tailnet with Nix can deploy
+to; in practice that is the desktop. `hutao-desktop` has no node, so it is
+rebuilt in place rather than deployed to. A `deploy.nodes.hutao-desktop` shaped
+like the laptop's would make it work in both directions.
 
 ```bash
 nix develop -c deploy .#hutao-laptop                  # build here, activate there
@@ -54,6 +57,16 @@ Also keep the tailnet ACL from forcing an interactive SSH re-auth, or
 **`nixos-rebuild --target-host` does not work** as `hutao`: only `root` is in
 `nix.settings.trusted-users`, so the target rejects the unsigned paths built
 here. Use deploy-rs, or rebuild on the machine itself.
+
+## The VPS
+
+The VPS is deploy-rs too, but from its own repo, and by a different path: the
+tailnet name `vps`, then the host's **own sshd on port 2222** as `hutao`, not
+Tailscale SSH. Tailscale SSH is off there, and port 22 belongs to Forgejo's git
+SSH. The laptop's rules above still apply (Nix and MagicDNS on the deploying
+machine), and the details are in the vps handbook's
+[Deploying](https://pages.hu-tao.dev/hutao/vps/docs/operations/deploying.html)
+chapter.
 
 ## Updating inputs
 

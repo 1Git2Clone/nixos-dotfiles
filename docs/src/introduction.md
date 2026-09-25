@@ -10,26 +10,28 @@ config change and the system change it needs are one commit.
 
 ## The machines
 
-```mermaid
-flowchart TB
-    subgraph tailnet["tailnet"]
-        direction TB
-        desktop["hutao-desktop<br/>Ryzen 5 3600X · RX 5600 XT"]
-        laptop["hutao-laptop<br/>Ryzen 3 7320U"]
-        vps["vps · its own repo<br/>publishes this book"]
-    end
+| Machine         | What it is                                               |
+| --------------- | -------------------------------------------------------- |
+| `hutao-desktop` | Ryzen 5 3600X, RX 5600 XT; the main workstation          |
+| `hutao-laptop`  | Ryzen 3 7320U; the same desktop, and a third monitor     |
+| `vps`           | its own repo; on the tailnet, and publishes this book    |
+| `hutao-vm`      | not a machine: the desktop layer under QEMU, for testing |
 
-    vm["hutao-vm<br/>the desktop layer under QEMU"]
+How they talk to each other, all over the tailnet:
 
-    laptop -- "Moonlight: third monitor" --> desktop
-    desktop -- "deploy-rs over Tailscale SSH" --> laptop
-    desktop <-- "Syncthing" --> laptop
-    vps <-- "Syncthing" --> desktop
-```
+| From                          | To          | What                                                              |
+| ----------------------------- | ----------- | ----------------------------------------------------------------- |
+| laptop                        | desktop     | Moonlight: the desktop streams its third monitor to the laptop    |
+| desktop                       | laptop      | deploy-rs over Tailscale SSH                                      |
+| desktop                       | vps         | deploy-rs over the VPS's own sshd on port 2222, from the vps repo |
+| desktop, laptop, vps, a phone | one another | Syncthing, sharing `~/syncthing`                                  |
 
-`hutao-vm` is not a machine. It is the same desktop layer booted in QEMU, for
-testing anything above the disk without installing it. See
-[Hosts and layers](architecture/hosts.md).
+Both deploys run from the desktop because that is where you usually sit. deploy-rs builds locally and activates remotely, so any machine on the
+tailnet with Nix can drive them. The desktop itself has no deploy node: it is
+rebuilt in place. See [Rebuilding and deploying](operations/deploying.md).
+
+`hutao-vm` boots the same desktop layer without an install, for testing
+anything above the disk. See [Hosts and layers](architecture/hosts.md).
 
 ## Where to start
 

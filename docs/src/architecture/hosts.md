@@ -1,25 +1,10 @@
 # Hosts and layers
 
 Every configuration in `flake.nix` is a stack of the same layers, and the
-layers are the answer to "where does this go".
-
-```mermaid
-flowchart TB
-    desktop_layer["desktopModules<br/>modules/system.nix · modules/desktop/ · home/"]
-    common["hosts/common<br/>Limine · kernel · graphics · firewall · sops<br/>users · tailscale · syncthing · flatpak"]
-    hw["nixos-hardware profiles · disko · sops-nix"]
-    laptop["hosts/hutao-laptop"]
-    desk["hosts/hutao-desktop"]
-    vm["hosts/hutao-vm"]
-
-    desktop_layer --> laptop
-    desktop_layer --> desk
-    desktop_layer --> vm
-    common --> laptop
-    common --> desk
-    hw --> laptop
-    hw --> desk
-```
+layers are the answer to "where does this go". `desktopModules` goes into all
+three configurations; `hosts/common` and the hardware modules (the
+`nixos-hardware` profiles, disko and sops-nix) go only into the laptop and the
+desktop, which is why `hutao-vm` boots without an install.
 
 | Layer            | What it holds                                                                      | Who gets it           |
 | ---------------- | ---------------------------------------------------------------------------------- | --------------------- |
