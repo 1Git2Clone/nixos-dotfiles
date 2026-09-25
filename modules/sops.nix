@@ -74,6 +74,12 @@ in
         owner = "hutao";
       };
 
+      # Plaintext too: `sunshine --creds` salts and hashes it itself. owner
+      # because Sunshine is a user service.
+      sunshine_password = {
+        owner = "hutao";
+      };
+
       # luks_passphrase is in secrets.yaml but deliberately not declared:
       # it would render the disk's own passphrase to /run/secrets on every
       # boot of the machine it unlocks. Only install.sh needs it.
