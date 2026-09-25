@@ -42,7 +42,10 @@
     # OnCalendar is local time, so this follows time.timeZone below.
     overrideStrategy = "asDropin";
     timerConfig = {
-      OnCalendar = [ "" "04:00" ];
+      OnCalendar = [
+        ""
+        "04:00"
+      ];
       Persistent = true;
     };
   };
