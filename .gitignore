@@ -19,3 +19,9 @@ monitor.sock
 *.dec
 *.plain
 secrets/*.yaml.tmp
+
+# The handbook's render, and the two files `mdbook-mermaid install docs` writes
+# verbatim at a version flake.lock already pins.
+docs/book/
+docs/mermaid.min.js
+docs/mermaid-init.js

@@ -261,6 +261,26 @@
             }
           }/bin/install-test";
         };
+
+        # The handbook, live-reloading. mdbook-mermaid install writes the two
+        # gitignored JS files docs/book.toml references; without them the
+        # build fails naming a file nobody wrote.
+        docs = {
+          type = "app";
+          program = "${
+            pkgs.writeShellApplication {
+              name = "serve-docs";
+              runtimeInputs = with pkgs; [
+                mdbook
+                mdbook-mermaid
+              ];
+              text = ''
+                mdbook-mermaid install docs
+                exec mdbook serve docs "$@"
+              '';
+            }
+          }/bin/serve-docs";
+        };
       };
 
       devShells.${system} = {
@@ -289,6 +309,10 @@
             shellcheck
             shfmt
             markdownlint-cli
+
+            # The handbook in docs/; see docs/book.toml.
+            mdbook
+            mdbook-mermaid
           ];
         };
 
@@ -304,6 +328,9 @@
             shellcheck
             shfmt
             markdownlint-cli
+            # For the mdbook pre-commit hook and .forgejo/workflows/pages.yml.
+            mdbook
+            mdbook-mermaid
           ];
         };
       };
