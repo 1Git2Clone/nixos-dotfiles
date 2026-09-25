@@ -8,7 +8,6 @@
 {
   imports = [
     inputs.caelestia-shell.homeManagerModules.default
-    inputs.hermes-agent.homeManagerModules.default
   ]
   ++ import ../lib/auto.nix { inherit lib; } ./apps;
 

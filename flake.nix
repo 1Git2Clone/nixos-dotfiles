@@ -36,13 +36,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Imported by home/apps/hermes-agent.nix: the NixOS module would put
-    # per-user state in /var/lib and export HERMES_HOME system-wide.
-    hermes-agent = {
-      url = "github:NousResearch/hermes-agent";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # The an-anime-team launchers. Its own binary cache is the point --
     # see modules/desktop/aagl.nix.
     aagl = {

@@ -372,7 +372,6 @@ let
     "dot-config/opencode"
     "dot-config/vesktop"
     "dot-config/vesktop/themes"
-    "dot-hermes"
     "dot-local"
     "dot-local/share"
     "dot-local/share/icons"

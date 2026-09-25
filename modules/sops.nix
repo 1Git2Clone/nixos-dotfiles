@@ -7,7 +7,7 @@
 }:
 let
   # The whole provider story: the key under `llm:` in secrets.yaml, mapped to
-  # the env var opencode, hermes and every SDK already look for. One line here
+  # the env var opencode and every SDK already look for. One line here
   # plus one in secrets.yaml is one more provider — a key listed but absent
   # from secrets.yaml fails activation, so only add a line once you hold it.
   llmKeys = {
@@ -83,10 +83,9 @@ in
     // lib.mapAttrs' (name: _: lib.nameValuePair "llm/${name}" { }) llmKeys
     // lib.mapAttrs' (name: _: lib.nameValuePair "nix/${name}" { }) nixTokens;
 
-    # One env file out of the section above, because an env file is the shape
-    # both consumers take: hermes' environmentFiles, and the `set -a` in
+    # One env file out of the section above, for the `set -a` in
     # dot-profile.d/environment.sh that hands the keys to every shell-launched
-    # tool. owner, because both read it as hutao.
+    # tool. owner, because it reads it as hutao.
     templates."llm.env" = {
       owner = "hutao";
       content = lib.concatStringsSep "\n" (

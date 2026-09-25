@@ -4,8 +4,7 @@
 # modules/sops.nix builds it from the `llm:` section of secrets/secrets.yaml,
 # one VAR=value line per provider, under the standard names (OPENROUTER_API_KEY,
 # OPENCODE_API_KEY, ...). Shell env is the whole registration: opencode,
-# claude-code and the MCP servers all read those names off their environment,
-# and hermes takes the same file directly.
+# claude-code and the MCP servers all read those names off their environment.
 #
 # `set -a` exports whatever the file assigns without naming any of it here, so
 # adding a provider stays a two-line change in secrets.yaml and sops.nix.
