@@ -3,7 +3,12 @@
 let
   disk = import ./disk.nix;
 in
-{ pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   imports = [
     ../common
@@ -82,6 +87,90 @@ in
       enable = true;
       drivers = [ pkgs.brlaser ];
     };
+
+    # hutao-laptop as a third monitor, right of DP-1: Moonlight there streams
+    # a headless output that exists only for the session, so the pointer
+    # cannot wander onto an invisible screen while the laptop is closed.
+    #
+    # No openFirewall: tailscale0 is trusted, and the tailnet is the only way
+    # in. wlr capture, not KMS, because a headless output has no CRTC to read.
+    sunshine = {
+      enable = true;
+      settings = {
+        capture = "wlr";
+        output_name = "LAPTOP";
+        # A monitor, not a game: the desktop keeps its own sound.
+        stream_audio = "disabled";
+      };
+      applications.apps =
+        let
+          hyprctl = "${config.programs.hyprland.package}/bin/hyprctl";
+        in
+        [
+          {
+            name = "Laptop screen";
+            prep-cmd = [
+              {
+                do = "${hyprctl} output create headless LAPTOP";
+                undo = "${hyprctl} output remove LAPTOP";
+              }
+            ];
+          }
+        ];
+    };
+    # sunshine turns it on for LAN discovery; mDNS never crosses the tailnet,
+    # so Moonlight adds this host by name instead.
+    avahi.enable = false;
+  };
+
+  # The web UI login, from sops rather than a first-run form. --creds merges
+  # into sunshine_state.json, so paired clients survive the re-seed on every
+  # start. Given the same config file as ExecStart so both resolve the same
+  # state file.
+  # ponytail: the password is in argv for the instant --creds runs, readable by
+  # any local user; hash it into the json ourselves if this ever isn't
+  # single-user.
+  systemd.user.services.sunshine.serviceConfig.ExecStartPre =
+    let
+      cfg = config.services.sunshine;
+      configFile = (pkgs.formats.keyValue { }).generate "sunshine.conf" cfg.settings;
+    in
+    pkgs.writeShellScript "sunshine-seed-login" ''
+      exec ${lib.getExe cfg.package} ${configFile} \
+        --creds hutao "$(< ${config.sops.secrets.sunshine_password.path})"
+    '';
+
+  # Sunshine only runs the prep-cmd's undo when the app quits; a disconnect
+  # (lid shut, wifi drop, closing Moonlight) keeps it running for a resume and
+  # leaves LAPTOP behind as an invisible screen. It has no disconnect hook, so
+  # quit the app through its own API and let it run the undo itself -- a
+  # reconnect then relaunches it and gets LAPTOP back.
+  # ponytail: keyed on the literal log line; if a Sunshine update rewords
+  # "CLIENT DISCONNECTED", this silently stops firing.
+  systemd.user.services.sunshine-quit-on-disconnect = {
+    description = "Quit the Sunshine app when its client disconnects";
+    wantedBy = [ "sunshine.service" ];
+    bindsTo = [ "sunshine.service" ];
+    after = [ "sunshine.service" ];
+    path = [
+      config.systemd.package
+      pkgs.curl
+      pkgs.gnugrep
+    ];
+    # No Origin header from curl, so Sunshine wants basic auth but no CSRF token.
+    script =
+      let
+        webPort = toString (config.services.sunshine.settings.port + 1);
+      in
+      ''
+        journalctl --user -fu sunshine -o cat -n 0 \
+          | grep --line-buffered -F 'CLIENT DISCONNECTED' \
+          | while read -r _; do
+              curl -sk --netrc-file ${config.sops.templates."sunshine-netrc".path} \
+                -X POST https://localhost:${webPort}/api/apps/close \
+                || true
+            done
+      '';
   };
 
   # cupsd on its own only makes the printer *discoverable*; nothing lists a
