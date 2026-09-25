@@ -1,5 +1,6 @@
 # Lenovo IdeaPad 1 15AMN7 — Ryzen 3 7320U, Radeon 610M, 8GB, NVMe.
-_: {
+{ pkgs, ... }:
+{
   imports = [
     ../common
     (import ../../modules/disk-layout.nix (import ./disk.nix))
@@ -13,6 +14,9 @@ _: {
   # the unlock instead.
   hardware.amdgpu.initrd.enable = false;
   boot.kernelModules = [ "amdgpu" ];
+
+  # The viewer for hutao-desktop's Sunshine: this screen as its third monitor.
+  home-manager.users.hutao.home.packages = [ pkgs.moonlight-qt ];
 
   # Never change after install.
   system.stateVersion = "26.05";
