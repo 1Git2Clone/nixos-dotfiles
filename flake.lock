@@ -146,11 +146,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1790187807,
-        "narHash": "sha256-KmOBm8lZcQaFC6fqqXkBg3HnkOo791q/KohExygDLXI=",
+        "lastModified": 1790350708,
+        "narHash": "sha256-n2fUK7slDzcyTS0MbWZls84bN56HmA+4u2bJfF5KvWk=",
         "ref": "main",
-        "rev": "2d64f5223f338b79facb2a87067a1cea04fb8fac",
-        "revCount": 1,
+        "rev": "7d8246a9120ede46a314f11127f90bb2252db71f",
+        "revCount": 4,
         "type": "git",
         "url": "https://git.hu-tao.dev/hutao/cli-utils"
       },
