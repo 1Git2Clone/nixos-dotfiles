@@ -39,7 +39,8 @@ bump: a config change and the system change that needs it are one commit.
 ├── secrets/               # sops-encrypted values + a plaintext example
 ├── install.sh             # partition, encrypt, install, from the ISO
 ├── vm/                    # the install rehearsal
-└── docs/                  # the handbook, mdBook source in docs/src/
+├── docs/                  # the handbook, mdBook source in docs/src/
+└── AGENTS.md              # for agents: keep docs/ in step with every change
 ```
 
 ## The handbook
