@@ -173,16 +173,6 @@ dot-config/opencode/.oh-my-opencode-slim
 !/dot-claude/settings.json
 !/dot-claude/statusline-command.sh
 
-###############################################################################
-# Programs (scripts really)
-###############################################################################
-
-!/dot-config/programs
-!/dot-config/programs/**/*
-
-# ignore the pyinstaller stuff
-/dot-config/programs/build/
-
 
 ###############################################################################
 # systemd (user units)

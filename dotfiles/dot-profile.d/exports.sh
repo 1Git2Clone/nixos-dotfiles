@@ -14,8 +14,6 @@ export MANPAGER="nvim +Man!"
 
 export LC_ALL=en_US.UTF-8
 
-export PROGRAMS="$HOME/.config/programs/"
-
 export DOTNET_ROOT=$HOME/.dotnet
 export PNPM_HOME="$HOME/.local/share/pnpm"
 
@@ -23,10 +21,6 @@ export PNPM_HOME="$HOME/.local/share/pnpm"
 if [ -z "${PATH-}" ]; then
   export PATH=/usr/local/bin:/usr/bin:/bin
 fi
-
-PATH="$PROGRAMS/py_scripts/:$PATH"
-PATH="$PROGRAMS/shell_scripts/:$PATH"
-PATH="$PROGRAMS/ruby/:$PATH"
 
 PATH="$PATH:$HOME/.cargo/bin"
 

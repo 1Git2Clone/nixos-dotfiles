@@ -255,22 +255,6 @@ let
     "dot-config/hypr/hyprpaper.conf" = [
       { "~/dotfiles/dot-config/hypr/" = "~/.config/hypr/"; }
     ];
-
-    # One prefix, seven binds -- substituteInPlace replaces every occurrence.
-    "dot-config/hypr/modules/keybindings.lua" = [
-      { "~/dotfiles/dot-config/programs/" = "~/.config/programs/"; }
-    ];
-
-    "dot-config/hypr/modules/autostart.lua" = [
-      { "~/dotfiles/dot-config/programs/" = "~/.config/programs/"; }
-    ];
-
-    # It writes into ICON_DIR, which was a store path via ~/dotfiles and is a
-    # store path via ~/.local -- read-only either way, so this changes the
-    # route and not the outcome.
-    "dot-config/programs/shell_scripts/add-icon.sh" = [
-      { "$HOME/dotfiles/dot-local/" = "$HOME/.local/"; }
-    ];
   };
 
   # One substituteInPlace per file, --replace-fail per pair.

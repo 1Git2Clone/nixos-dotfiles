@@ -99,7 +99,7 @@ in
     # what .zshrc and dot-profile.d/*.sh call
     atuin
     libsecret # secret-tool, in environment.sh
-    python3 # urlencode/urldecode in aliases.sh, and programs/py_scripts
+    python3 # urlencode/urldecode in aliases.sh
     mpv # caelestia general.apps.playback
     libqalculate # qalc, the launcher's calculator action
     xdg-utils # xdg-open, in the shell_scripts

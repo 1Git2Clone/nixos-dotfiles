@@ -133,23 +133,23 @@ function M.setup(programs)
     firefox_emacs_bind("ALT + K", "CTRL", "K")
 
     hl.bind(main_mod .. " + F", hl.dsp.window.fullscreen())
-    hl.bind(main_mod .. " + S", exec("~/dotfiles/dot-config/programs/shell_scripts/screenshot-selection-copy.sh"))
+    hl.bind(main_mod .. " + S", exec("screenshot-selection-copy.sh"))
     hl.bind(
       main_mod .. " + SHIFT + S",
-      exec("~/dotfiles/dot-config/programs/shell_scripts/screenshot-focused-monitor.sh")
+      exec("screenshot-focused-monitor.sh")
     )
     hl.bind(main_mod .. " + CTRL + V", exec("cliphist list | wofi -dmenu | cliphist decode | wl-copy"))
-    hl.bind(main_mod .. " + CTRL + C", exec("~/dotfiles/dot-config/programs/shell_scripts/cliphist-remove-entry.sh"))
-    -- hl.bind("CTRL + ALT + C", exec("~/dotfiles/dot-config/programs/shell_scripts/get-cursor-pos.sh"))
+    hl.bind(main_mod .. " + CTRL + C", exec("cliphist-remove-entry.sh"))
+    -- hl.bind("CTRL + ALT + C", exec("get-cursor-pos.sh"))
     hl.bind("CTRL + ALT + T", exec([[kitty --class "floating-term"]]))
-    hl.bind(main_mod .. " + T", exec("~/dotfiles/dot-config/programs/shell_scripts/tesseract-screenshot.sh"))
+    hl.bind(main_mod .. " + T", exec("tesseract-screenshot.sh"))
     hl.bind(
       main_mod .. " + SHIFT + T",
-      exec("~/dotfiles/dot-config/programs/shell_scripts/tesseract-screenshot.sh eng")
+      exec("tesseract-screenshot.sh eng")
     )
     hl.bind("ALT + E", exec("caelestia emoji -p"))
-    hl.bind(main_mod .. " + SHIFT + P", exec("~/dotfiles/dot-config/programs/shell_scripts/power-mode.sh"))
-    hl.bind("CTRL + " .. main_mod .. " + J", exec("~/dotfiles/dot-config/programs/shell_scripts/autoclicker.sh"))
+    hl.bind(main_mod .. " + SHIFT + P", exec("power-mode.sh"))
+    hl.bind("CTRL + " .. main_mod .. " + J", exec("autoclicker.sh"))
 
     hl.bind(main_mod .. " + left", hl.dsp.focus({ direction = "left" }))
     hl.bind(main_mod .. " + right", hl.dsp.focus({ direction = "right" }))

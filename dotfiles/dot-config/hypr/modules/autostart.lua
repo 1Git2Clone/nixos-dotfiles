@@ -38,7 +38,7 @@ function M.setup(programs)
     hl.exec_cmd("fcitx5")
     hl.exec_cmd("espanso start")
 
-    hl.exec_cmd("~/dotfiles/dot-config/programs/shell_scripts/usb-device-connect.sh")
+    hl.exec_cmd("usb-device-connect.sh")
   end)
 end
 
