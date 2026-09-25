@@ -8,6 +8,7 @@
   lib,
   runCommandLocal,
   palette,
+  thirdParty,
 }:
 let
   name = "sddm-hu-tao";
@@ -31,6 +32,11 @@ runCommandLocal name
     cp -r ${src}/. "$dir"/
     chmod -R u+w "$dir"
     rm -f "$dir/ORIGIN.md"
+
+    # The background is fan art, so it comes from the private
+    # third-party-assets input rather than this public vendored copy.
+    mkdir -p "$dir/Backgrounds"
+    cp ${thirdParty}/assets/third-party/sddm-hu-tao/hu-tao.png "$dir/Backgrounds/"
 
     # A missing file here presents as "the theme did not apply": SDDM falls
     # back to its default silently.

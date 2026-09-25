@@ -3,10 +3,14 @@
   pkgs,
   palette,
   cursor,
+  inputs,
   ...
 }:
 let
-  sddm-hu-tao = pkgs.callPackage ../../pkgs/sddm-hu-tao.nix { inherit palette; };
+  sddm-hu-tao = pkgs.callPackage ../../pkgs/sddm-hu-tao.nix {
+    inherit palette;
+    thirdParty = inputs.third-party-assets;
+  };
 in
 {
   services.displayManager.sddm = {

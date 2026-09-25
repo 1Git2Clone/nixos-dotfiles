@@ -19,9 +19,11 @@ your own background: `Themes/*.conf` are files inside the store path, so
 changing one means an overlay that rewrites a file in someone else's
 derivation and re-downloads 22 MB to change one line.
 
-Vendoring the ~90 KB actually needed makes the background a tracked file you
-can swap by dropping a new PNG in `Backgrounds/` and changing one line in
-`Themes/hu-tao.conf`.
+Vendoring the ~90 KB actually needed makes the background ours to choose. The
+image itself is fan art, so it is not in this directory: `pkgs/sddm-hu-tao.nix`
+copies it into `Backgrounds/` at build time from the private
+third-party-assets input (`assets/third-party/sddm-hu-tao/hu-tao.png` there).
+Swap it by replacing that file, or change one line in `Themes/hu-tao.conf`.
 
 ## What was taken
 

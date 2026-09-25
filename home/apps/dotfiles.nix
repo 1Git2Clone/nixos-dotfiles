@@ -9,6 +9,7 @@
   lib,
   osConfig,
   palette,
+  inputs,
   ...
 }:
 let
@@ -282,6 +283,13 @@ let
   df = pkgs.runCommandLocal "hutao-dotfiles-${hostName}" { } ''
     cp -r ${src} $out
     chmod -R u+w $out
+
+    # Someone else's art, so the private third-party-assets input carries it.
+    # Copied back to where the tree used to hold it, which is the path
+    # hyprpaper, hyprlock and the caelestia seed all read.
+    mkdir -p $out/dot-config/hypr/backgrounds
+    cp ${inputs.third-party-assets}/assets/third-party/Wallpapers/* \
+      $out/dot-config/hypr/backgrounds/
 
     # `command`, not a path, so the wrapper still shadows itself.
     substituteInPlace $out/dot-profile.d/utils.sh \

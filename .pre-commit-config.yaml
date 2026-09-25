@@ -21,15 +21,9 @@ repos:
         # Nothing here acts on sops output. The *.example.yaml files are
         # plaintext, so they stay checked.
         exclude: ^secrets/(?!.*\.example\.yaml$).*\.yaml$
+      # The default ceiling. Images are what used to need more, and art that
+      # is not ours now lives in the private third-party-assets repo.
       - id: check-added-large-files
-        # 5M fits the tracked greeter background (4.4M) and still catches a
-        # stray ISO. The two ported files over it are named rather than
-        # waived by raising the ceiling.
-        args: [--maxkb=5120]
-        exclude: |
-          (?x)^dotfiles/(
-            dot-config/hypr/backgrounds/Hu_Tao_(00056_1|1)\.png
-          )$
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
         # dot-profile.d/*.sh carry a shebang for the editor but are sourced,

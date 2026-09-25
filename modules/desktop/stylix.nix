@@ -3,6 +3,7 @@
   pkgs,
   palette,
   cursor,
+  inputs,
   ...
 }:
 {
@@ -16,7 +17,7 @@
 
     # Wallpaper only; base16Scheme above is explicit, so nothing derives
     # colours from this.
-    image = ../../dotfiles/dot-config/hypr/backgrounds/Hu_Tao_00056_1.png;
+    image = inputs.third-party-assets + "/assets/third-party/Wallpapers/Hu_Tao_00056_1.png";
 
     fonts = {
       monospace = {
