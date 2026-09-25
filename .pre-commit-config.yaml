@@ -77,6 +77,20 @@ repos:
         language: system
         files: \.md$
 
+      # The pages workflow runs on main only, so this is where a broken book
+      # fails first: before the commit, and in CI on a pull request. It
+      # catches what mdbook itself rejects -- a SUMMARY.md chapter with no
+      # file (book.toml's create-missing = false), a bad book.toml, a missing
+      # mermaid asset. A dead link *inside* a page still builds cleanly.
+      # mdbook-mermaid install first, for the two gitignored JS files the
+      # build references.
+      - id: mdbook
+        name: mdbook build
+        entry: nix develop .#ci -c sh -c 'mdbook-mermaid install docs && mdbook build docs'
+        language: system
+        files: ^docs/
+        pass_filenames: false
+
       # --staged, not a directory scan: a directory scan reads gitignored
       # files too. Full history is CI's job.
       - id: gitleaks

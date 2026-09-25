@@ -1,0 +1,60 @@
+# ==============================================================================
+# Pages — build the handbook and hand it to the VPS
+# ==============================================================================
+# The vps repo's pages.yml, trimmed. This job publishes nothing itself: it
+# uploads an artifact named `pages`, and the VPS's modules/pages-pull.nix
+# discovers every public repo holding one and unpacks it. Uploading is what
+# makes this a pages repo; there is no list on the VPS to add it to.
+#
+# Published at https://pages.hu-tao.dev/hutao/nixos-dotfiles/docs/ — the
+# artifact's layout IS the URL below <owner>/<repo>/, hence _site/docs/.
+name: Pages
+
+# main only, and gated here rather than on the upload step: a pull_request
+# trigger with a skipped upload rehearses everything except the part that
+# breaks. No `paths:` filter either; a missed path is a site that silently
+# stops matching the repo.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  pages:
+    name: Build the handbook
+    # nix-node carries node as well as nix, so actions/checkout and
+    # upload-artifact run as-is. The vps repo's copy runs on `nix` and has to
+    # put the dev shell's node on PATH first.
+    runs-on: nix-node
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      # mdbook-mermaid install writes the two gitignored JS files book.toml
+      # references, so it is not optional.
+      - name: Build
+        run: |
+          nix develop .#ci -c mdbook-mermaid install docs
+          nix develop .#ci -c mdbook build docs
+
+      # The staging directory name is the `/docs/` in the published URL.
+      - name: Stage
+        run: |
+          rm -rf _site
+          mkdir -p _site/docs
+          cp -r docs/book/. _site/docs/
+
+      # forgejo/, not actions/: upstream's v4 mistakes Forgejo for GitHub
+      # Enterprise Server and throws before uploading. The name `pages` is the
+      # contract with pages-pull.
+      - name: Publish
+        uses: forgejo/upload-artifact@v5
+        with:
+          name: pages
+          path: _site/
+          # An empty upload would otherwise leave the last good site up forever.
+          if-no-files-found: error
