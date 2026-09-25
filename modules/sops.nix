@@ -99,6 +99,13 @@ in
       );
     };
 
+    # The Sunshine web UI login as a curl --netrc-file, so the disconnect
+    # watcher in hosts/hutao-desktop never puts the password in argv.
+    templates."sunshine-netrc" = {
+      owner = "hutao";
+      content = "machine localhost login hutao password ${config.sops.placeholder.sunshine_password}";
+    };
+
     # git's credential-store format: one line per host. Rendered to /run at
     # activation and root-only, so the token stays sops-only — never in the
     # store, never world-readable. sops-nix renders this one 0600 rather than
