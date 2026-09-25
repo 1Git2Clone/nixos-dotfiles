@@ -28,7 +28,13 @@ confirm() {
   read -rp "$1 [y/N] " reply
   [[ $reply == [yY] ]] || die "Aborted."
 }
-sops_get() { SOPS_AGE_KEY_FILE="$AGE_KEY" sops -d --extract "[\"$1\"]" "$SECRETS" 2>/dev/null; }
+# Takes a sops-nix key path, so nested keys like llm/openrouter work too.
+sops_get() {
+  local parts path
+  IFS=/ read -ra parts <<<"$1"
+  path=$(printf '["%s"]' "${parts[@]}")
+  SOPS_AGE_KEY_FILE="$AGE_KEY" sops -d --extract "$path" "$SECRETS" 2>/dev/null
+}
 trap 'shred -u "$LUKS_KEY" 2>/dev/null || true' EXIT INT TERM
 
 # ── Preflight ───────────────────────────────────────────────────────────────
@@ -47,16 +53,28 @@ AGE_PUB=$(age-keygen -y "$AGE_KEY") || die "$AGE_KEY is not a valid age private 
 grep -q "$AGE_PUB" "$REPO/.sops.yaml" ||
   die "$AGE_PUB is not a recipient in .sops.yaml -- the installed host could not decrypt anything."
 
-for key in luks_passphrase root_password user_password tailscale_authkey; do
+# Every key the host declares, read from the flake rather than listed here:
+# sops-nix fails the build on any declared key missing from secrets.yaml, and
+# in an install that build is nixos-install, after disko has wiped the disk.
+# luks_passphrase is the one read by this script and never declared.
+git -C "$REPO" add -A >/dev/null 2>&1 || true # flakes ignore untracked files
+# shellcheck disable=SC2016 # ${n} is Nix interpolation, for nix eval, not the shell
+declared=$(nix eval --raw "$REPO#nixosConfigurations.$HOST.config.sops.secrets" --apply \
+  's: builtins.concatStringsSep "\n" (map (n: s.${n}.key) (builtins.attrNames s))') ||
+  die "Could not list $HOST's secrets; the flake does not evaluate. Disk untouched."
+mapfile -t keys <<<"$declared"
+keys+=(luks_passphrase)
+
+for key in "${keys[@]}"; do
   value=$(sops_get "$key") || die "secrets.yaml has no '$key'. Add it: sops secrets/secrets.yaml"
   [[ -n $value ]] || die "'$key' is empty."
   # hashedPasswordFile wants crypt(3), not a digest. A sha512sum locks you out silently.
   case "$key=$value" in
-    *_password='$'*'$'*) ;;
-    *_password=*) die "'$key' is not a crypt(3) hash. Generate it with: mkpasswd -m yescrypt" ;;
+    root_password='$'*'$'* | user_password='$'*'$'*) ;;
+    root_password=* | user_password=*) die "'$key' is not a crypt(3) hash. Generate it with: mkpasswd -m yescrypt" ;;
   esac
 done
-say "UEFI, tools, age key ($AGE_PUB) and all four secrets check out"
+say "UEFI, tools, age key ($AGE_PUB) and all ${#keys[@]} secrets check out"
 
 # ── Target disk ─────────────────────────────────────────────────────────────
 if [[ $NONINTERACTIVE == 1 ]]; then
