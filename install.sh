@@ -5,7 +5,7 @@
 #   INSTALL_AGE_KEY=/tmp/age.key HOST=hutao-desktop ./install.sh
 #
 # Credentials all come from secrets/secrets.yaml -- nothing is prompted for
-# or written back. README > Install carries the why for each step below.
+# or written back. docs/src/operations/installing.md carries the why for each step.
 set -euo pipefail
 
 HOST="${HOST:-hutao-laptop}"
@@ -44,9 +44,9 @@ for t in sops age git nixos-install nixos-generate-config; do
   command -v "$t" >/dev/null ||
     die "Missing '$t'. Re-run inside: nix-shell -p sops age git --run ./install.sh"
 done
-[[ -f $AGE_KEY ]] || die "No age key at $AGE_KEY. See README > Install."
+[[ -f $AGE_KEY ]] || die "No age key at $AGE_KEY. See docs/src/operations/installing.md."
 [[ -f $SECRETS ]] || die "No $SECRETS. Author it first: sops secrets/secrets.yaml"
-[[ -f $DISK_NIX ]] || die "No $DISK_NIX. See README > On new hardware."
+[[ -f $DISK_NIX ]] || die "No $DISK_NIX. See docs/src/operations/installing.md, On new hardware."
 
 # A non-recipient key installs cleanly, then cannot decrypt its own passwords.
 AGE_PUB=$(age-keygen -y "$AGE_KEY") || die "$AGE_KEY is not a valid age private key."
