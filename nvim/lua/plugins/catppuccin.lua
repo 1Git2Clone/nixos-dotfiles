@@ -9,22 +9,8 @@ return {
       functions = { "bold" },
     },
     opts = {
-      color_overrides = {
-        all = {
-          text = "#f7c0c8",
-          subtext1 = "#e6aab3",
-          subtext0 = "#d4939d",
-          overlay2 = "#c17c87",
-          overlay1 = "#ab6670",
-          overlay0 = "#965159",
-          surface2 = "#7f3e44",
-          surface1 = "#6a2f36",
-          surface0 = "#541f27",
-          base = colors.catppuccin.base,
-          mantle = colors.catppuccin.mantle,
-          crust = colors.catppuccin.crust,
-        },
-      },
+      -- Filled in by config below, which re-reads it on every scheme switch.
+      color_overrides = { all = {} },
       background = { light = "latte", dark = "mocha" },
       transparent_background = false,
       dim_inactive = { enabled = false },
@@ -93,7 +79,7 @@ return {
             SnacksPickerList = { bg = colors.default_bg },
             SnacksPickerListBorder = colors.default_fg_bg,
             SnacksPickerListCursor = { fg = colors.hl_col, bg = colors.default_bg },
-            SnacksPickerListCurrent = { fg = colors.default_fg, bg = colors.surface0 or "#541f27" },
+            SnacksPickerListCurrent = { fg = colors.default_fg, bg = colors.ramp.surface0 },
             SnacksPickerMatch = { fg = colors.hl_col, bold = true },
             -- Level-specific snacks notifier borders
             SnacksNotifierBorderTrace = colors.default_fg_bg,
@@ -109,6 +95,13 @@ return {
             NoiceConfirmBorder = colors.default_fg_bg,
             NoiceCmdlinePopup = { bg = colors.default_bg },
             NoiceCmdlinePopupBorder = colors.default_fg_bg,
+
+            -- Alpha, here rather than in alpha.lua so a scheme switch's
+            -- :colorscheme does not clear them.
+            AlphaHeader = { fg = colors.default_fg },
+            AlphaButtons = colors.default_fg_bg,
+            AlphaFooter = { fg = colors.default_fg, italic = true },
+            AlphaShortcut = { fg = colors.default_fg, italic = true },
 
             -- LSP / Treesitter
             ["@lsp.type.namespace"] = { fg = colors.module_col },
@@ -189,8 +182,16 @@ return {
       },
     },
     config = function(_, opts)
-      require("catppuccin").setup(opts)
-      vim.cmd.colorscheme("catppuccin")
+      -- catppuccin hashes its options, highlight_overrides' output included,
+      -- and recompiles when the hash moves, so a new scheme is a new theme.
+      local function apply()
+        colors.reload()
+        opts.color_overrides.all = vim.tbl_extend("force", colors.ramp, colors.catppuccin)
+        require("catppuccin").setup(opts)
+        vim.cmd.colorscheme("catppuccin")
+      end
+      apply()
+      colors.watch(apply)
     end,
   },
 }
