@@ -34,7 +34,7 @@ bump: a config change and the system change that needs it are one commit.
 │   └── firewall.nix tailscale.nix syncthing.nix users.nix system.nix flatpak.nix
 ├── home/                  # home-manager: the dotfiles walk, one file per app
 ├── dotfiles/  nvim/       # the user layer itself
-├── palette.nix            # the colour scheme, parsed once for everything
+├── palette.nix            # the picked caelestia scheme, for what needs a rebuild
 ├── pkgs/                  # greeter, cursors, folder icons, app icons
 ├── secrets/               # sops-encrypted values + a plaintext example
 ├── install.sh             # partition, encrypt, install, from the ISO
@@ -57,7 +57,7 @@ nix run .#docs
 | ----------------------------------------------------------------------- | --------------------------------------------------- |
 | [Hosts and layers](docs/src/architecture/hosts.md)                      | where a change goes, and what each machine has      |
 | [The user layer](docs/src/architecture/user-layer.md)                   | the dotfiles walk, its patches, what stays writable |
-| [Colours](docs/src/architecture/colours.md)                             | one scheme file, and everything generated from it   |
+| [Colours](docs/src/architecture/colours.md)                             | pick a scheme in caelestia, and what follows it     |
 | [Secrets](docs/src/architecture/secrets.md)                             | every key, its shape, and the build-time check      |
 | [Network and the tailnet](docs/src/architecture/network.md)             | one open port, Tailscale, MagicDNS, Syncthing       |
 | [The laptop as a third monitor](docs/src/architecture/third-monitor.md) | Sunshine, Moonlight, and the disconnect watcher     |
