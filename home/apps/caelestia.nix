@@ -323,21 +323,19 @@ in
     # `.quickshell-wrapped`, and a comm is 15 characters, so what /proc actually
     # holds is `.quickshell-wra` and an exact match never hit. -f would match,
     # but the activation script's own command line contains the pattern too.
-    home.activation.caelestiaReload =
-      lib.hm.dag.entryAfter [ "linkGeneration" ]
-        ''
-          pid=$(${pkgs.procps}/bin/pgrep -u "$UID" quickshell 2>/dev/null | head -1 || true)
-          if [ -n "$pid" ] && [ -r "/proc/$pid/environ" ]; then
-            sig=$(tr '\0' '\n' < "/proc/$pid/environ" | sed -n 's/^HYPRLAND_INSTANCE_SIGNATURE=//p' | head -1)
-            if [ -n "$sig" ]; then
-              # The CLI finds caelestia-shell on PATH, which activation's lacks.
-              run env PATH="${config.programs.caelestia.package}/bin:$PATH" \
-                ${cli}/bin/caelestia shell -k || true
-              run ${osConfig.programs.hyprland.package}/bin/hyprctl -i "$sig" \
-                eval 'hl.exec_cmd(dofile("${config.xdg.configHome}/hypr/modules/programs.lua").shell)' || true
-            fi
-          fi
-        '';
+    home.activation.caelestiaReload = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+      pid=$(${pkgs.procps}/bin/pgrep -u "$UID" quickshell 2>/dev/null | head -1 || true)
+      if [ -n "$pid" ] && [ -r "/proc/$pid/environ" ]; then
+        sig=$(tr '\0' '\n' < "/proc/$pid/environ" | sed -n 's/^HYPRLAND_INSTANCE_SIGNATURE=//p' | head -1)
+        if [ -n "$sig" ]; then
+          # The CLI finds caelestia-shell on PATH, which activation's lacks.
+          run env PATH="${config.programs.caelestia.package}/bin:$PATH" \
+            ${cli}/bin/caelestia shell -k || true
+          run ${osConfig.programs.hyprland.package}/bin/hyprctl -i "$sig" \
+            eval 'hl.exec_cmd(dofile("${config.xdg.configHome}/hypr/modules/programs.lua").shell)' || true
+        fi
+      fi
+    '';
 
     home.activation.caelestiaScheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       state="${config.xdg.stateHome}/caelestia"
