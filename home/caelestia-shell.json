@@ -437,7 +437,7 @@
         "enableFprint": true,
         "hideNotifs": false,
         "maxFprintTries": 3,
-        "recolourLogo": false
+        "recolourLogo": true
     },
     "notifs": {
         "actionOnClick": false,
