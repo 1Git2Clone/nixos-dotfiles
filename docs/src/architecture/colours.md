@@ -115,9 +115,13 @@ writer per file:
 
 ## Worth knowing
 
-- **Qt 5 apps get no theme.** qtengine is Qt 6 only.
-- **qtengine's font is caelestia's**, `Sans Serif` at 12, from its template
-  rather than `stylix.fonts`. Changing it means overriding that template.
+- **qtengine is Qt 6 only.** Nothing here is Qt 5; see `modules/desktop/fcitx5.nix`
+  for the one thing that was.
+- **The Qt font is set in caelestia's own template.** The CLI override in
+  `home/apps/caelestia.nix` patches `qtengine.json` to `stylix.fonts.monospace`
+  (JetBrainsMono Nerd Font) at weight 300, Light, and the applications size.
+  caelestia rewrites `config.json` on every switch, so editing that file does
+  nothing lasting.
 - **Every switch dirties the checkout** when the scheme differs from the
   committed one. Commit `current.json` and `dynamic.txt` when you want the
   pick kept.

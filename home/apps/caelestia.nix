@@ -5,6 +5,7 @@
   pkgs,
   lib,
   config,
+  osConfig,
   inputs,
   palette,
   dotfiles,
@@ -18,8 +19,16 @@ let
 
   caelestiaPkgs = inputs.caelestia-shell.packages.${pkgs.stdenv.hostPlatform.system};
 
+  qtFont = osConfig.stylix.fonts.monospace.name;
+  qtFontSize = toString osConfig.stylix.fonts.sizes.applications;
+
   # The CLI lists schemes out of its own package and nowhere else -- not
   # ~/.config/caelestia/schemes -- so ours are copied in beside upstream's.
+  #
+  # Its qtengine template also hardcodes the Qt font (Sans Serif and
+  # Monospace, 12), and the rendered config.json is rewritten on every
+  # switch, so the template is where it changes. qtengine hands weight to
+  # QFont as is: 300 is QFont::Light.
   cli =
     inputs.caelestia-shell.inputs.caelestia-cli.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs
       (old: {
@@ -28,7 +37,13 @@ let
           (old.postInstall or "")
           + "\n"
           + ''
-            cp -r ${../../dotfiles/caelestia/schemes}/. $out/lib/python3*/site-packages/caelestia/data/schemes/
+            data=$(echo $out/lib/python3*/site-packages/caelestia/data)
+            cp -r ${../../dotfiles/caelestia/schemes}/. "$data/schemes/"
+            substituteInPlace "$data/templates/qtengine.json" \
+              --replace-fail '"family": "Sans Serif"' '"family": "${qtFont}"' \
+              --replace-fail '"family": "Monospace"' '"family": "${qtFont}"' \
+              --replace-fail '"size": 12' '"size": ${qtFontSize}' \
+              --replace-fail '"weight": -1' '"weight": 300'
           '';
       });
 
