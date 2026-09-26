@@ -73,6 +73,20 @@ fires here: a rebuild points `~/.config/hypr` at a new store path rather than
 changing the file the watcher holds, so without this an edit waits for the
 next login.
 
+## The shell restarts on rebuild
+
+`home.activation.caelestiaReload` in `home/apps/caelestia.nix` kills the
+shell (`caelestia shell -k`), because a running shell keeps icon lookups
+cached from the profile it started with. It then has Hyprland start it again
+over `hyprctl eval`, with `programs.shell` from
+`hypr/modules/programs.lua`, the command `autostart.lua` runs too.
+
+Learned the hard way on 2026-09-26: started from the activation service, the
+shell inherits `QT_QPA_PLATFORM=offscreen`, finds no display, and exits,
+leaving no shell until one is started by hand. The eval uses `dofile`, not
+`require`, so it reads the new `programs.lua` rather than a module cached
+from before the switch.
+
 ## Not linted
 
 `dotfiles/` is exempt from markdownlint, shellcheck and shfmt, because that

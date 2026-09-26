@@ -35,7 +35,7 @@ bump: a config change and the system change that needs it are one commit.
 ├── home/                  # home-manager: the dotfiles walk, one file per app
 ├── dotfiles/  nvim/       # the user layer itself
 ├── palette.nix            # the picked caelestia scheme, for what needs a rebuild
-├── pkgs/                  # greeter, cursors, folder icons, app icons
+├── pkgs/                  # greeter, cursors, folder icons, app icons, CaelestiaFox
 ├── secrets/               # sops-encrypted values + a plaintext example
 ├── install.sh             # partition, encrypt, install, from the ISO
 ├── vm/                    # the install rehearsal

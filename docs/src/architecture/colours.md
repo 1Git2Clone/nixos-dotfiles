@@ -20,8 +20,8 @@ flowchart TB
     hook --> repo
     repo -->|nixos-rebuild| palette
 
-    state --> l_apps["caelestia · neovim · tmux<br/>gtk · qt (caelestia's own appliers)"]
-    render --> t_apps["kitty · hypr · waybar · wofi · wlogout · swaylock<br/>mako · lazygit · vesktop · MangoHud · starship · KDE apps"]
+    state --> l_apps["caelestia · neovim · tmux · Floorp<br/>gtk · qt (caelestia's own appliers)"]
+    render --> t_apps["kitty · hypr · waybar · wofi · wlogout · swaylock<br/>mako · lazygit · vesktop · MangoHud · starship · ccstatusline · KDE apps"]
     palette --> b_apps["stylix: grub · plymouth · tty<br/>SDDM · the seeded scheme.json"]
 ```
 
@@ -69,7 +69,8 @@ it from `recolour`, the table of every colour literal in the dotfiles by the
 scheme key it means, substituted with `palette.template`'s fields instead
 of hex. The literals stay in the files, so the configs remain valid when
 `~/.config` points at the raw tree, and `--replace-fail` still turns a moved
-literal into a failed build. `theme.nix` adds `kdeglobals`.
+literal into a failed build. `theme.nix` adds `kdeglobals`, and
+`ccstatusline.nix` the status line's settings.
 
 A rebuild can change a template without the scheme changing, and caelestia
 only renders on a switch, so activation renders them too
@@ -129,5 +130,12 @@ writer per file:
 - **ANSI green, blue, cyan and magenta are one colour in hu-tao.** The scheme
   sets `term2`, `term4`, `term6`, `term10`, `term12` and `term14` to the same
   `ff9b8a`. Retune those keys to tell them apart in the terminal.
+- **CaelestiaFox is two halves, and only one is Nix's.** Install the
+  extension by hand from
+  [AMO](https://addons.mozilla.org/en-US/firefox/addon/caelestiafox).
+  Floorp's wrapper links the native app's manifest into
+  `~/.mozilla/native-messaging-hosts` when Floorp starts (Floorp reads it from
+  there, though its profile is in `~/.config/floorp`), so restart Floorp after
+  the first rebuild that brings it.
 - **`palette.nix` holds no hex of its own.** A missing colour is a key to add
   to the scheme, not a constant to inline.
