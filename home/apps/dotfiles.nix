@@ -164,7 +164,7 @@ let
       { "#d29db0" = hex.primaryFixedDim; }
       { "#090c0b" = hex.crust; }
       { "#f07185" = hex.primary; }
-      { "#e4e3e5" = hex.text; }
+      { "#e4e3e5" = hex.onPrimary; }
       { "#603745" = hex.secondaryContainer; }
       { "#362124" = hex.surfaceContainerHighest; }
       { "#301e1d" = hex.surfaceContainerHigh; }
