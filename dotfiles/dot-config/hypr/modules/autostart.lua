@@ -33,7 +33,7 @@ function M.setup(programs)
     hl.exec_cmd("mpris-proxy")
 
     hl.exec_cmd("caelestia resizer -d")
-    hl.exec_cmd("QT_QPA_PLATFORMTHEME=hyprqt6engine XDG_DATA_DIRS=" .. programs.xdg_data_dirs .. " caelestia shell -d")
+    hl.exec_cmd(programs.shell)
 
     hl.exec_cmd("fcitx5")
     hl.exec_cmd("espanso start")
