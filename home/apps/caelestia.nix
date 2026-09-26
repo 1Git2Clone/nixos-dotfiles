@@ -153,6 +153,9 @@ let
       fi
       # Only with a session: activation runs its own reload in hyprland.nix.
       if [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then hyprctl reload > /dev/null || true; fi
+      # Vencord re-reads its themes on any event in their directory, and the
+      # rewrite lands behind the symlinks, outside it.
+      touch -ch "${config.xdg.configHome}"/vesktop/themes/*.theme.css 2> /dev/null || true
     '';
   };
 in
