@@ -322,9 +322,11 @@ in
         wl=$(tr '\0' '\n' < "/proc/$pid/environ" | grep -m1 '^WAYLAND_DISPLAY=' || true)
         sig=$(tr '\0' '\n' < "/proc/$pid/environ" | grep -m1 '^HYPRLAND_INSTANCE_SIGNATURE=' || true)
         if [ -n "$wl" ]; then
-          run ${config.programs.caelestia.package}/bin/caelestia shell -k || true
-          run env "$wl" "$sig" \
-            ${config.programs.caelestia.package}/bin/caelestia shell -d || true
+          # The CLI finds caelestia-shell on PATH, which activation's lacks.
+          run env PATH="${config.programs.caelestia.package}/bin:$PATH" \
+            ${cli}/bin/caelestia shell -k || true
+          run env "$wl" "$sig" PATH="${config.programs.caelestia.package}/bin:$PATH" \
+            ${cli}/bin/caelestia shell -d || true
         fi
       fi
     '';
