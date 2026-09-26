@@ -6,9 +6,9 @@
 # it is the single scheme every themed service reads.
 #
 # hyprland.lua needs Hyprland 0.55+, which is why this tracks unstable.
-{ lib, ... }:
+{ lib, inputs, ... }:
 {
   imports = import ../../lib/auto.nix { inherit lib; } ./.;
 
-  _module.args.palette = import ../../palette.nix { inherit lib; };
+  _module.args.palette = import ../../palette.nix { inherit lib inputs; };
 }

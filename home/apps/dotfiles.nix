@@ -13,10 +13,15 @@
   ...
 }:
 let
-  inherit (palette)
+  # Every colour below is a caelestia template field, not a colour: the files
+  # they land in are rendered by caelestia on each scheme switch (see
+  # hutao.caelestiaTemplates in caelestia.nix), so the apps follow the scheme
+  # without a rebuild.
+  inherit (palette.template)
     hex
     argb
     rgba
+    colours
     ;
 
   src = ../../dotfiles;
@@ -24,7 +29,7 @@ let
   kittyColours = pkgs.writeText "mocha.conf" ''
     # vim:ft=kitty
     #
-    # Generated from the caelestia scheme; see palette.nix. Was a hand-edited
+    # A caelestia template, rendered on every scheme switch. Was a hand-edited
     # Catppuccin Mocha, which is where the filename comes from.
 
     # The basic colors
@@ -122,12 +127,12 @@ let
     "dot-config/swaylock/config" = [
       { "1f1d2e80" = argb "surface0" "80"; }
       { "00000000" = argb "scrim" "00"; }
-      { "1f1d2e" = palette.colours.surface0; }
-      { "191724" = palette.colours.base; }
-      { "eb6f92" = palette.colours.primary; }
-      { "e0def4" = palette.colours.text; }
-      { "31748f" = palette.colours.red; }
-      { "9ccfd8" = palette.colours.green; }
+      { "1f1d2e" = colours.surface0; }
+      { "191724" = colours.base; }
+      { "eb6f92" = colours.primary; }
+      { "e0def4" = colours.text; }
+      { "31748f" = colours.red; }
+      { "9ccfd8" = colours.green; }
     ];
 
     "dot-config/mako/config" = [
@@ -135,13 +140,6 @@ let
       { "#551111" = hex.overlay0; }
       { "#d08770" = hex.maroon; }
       { "#bf616a" = hex.red; }
-    ];
-
-    "dot-config/hypr/modules/look_and_feel.lua" = [
-      { "rgba(ff3333ee)" = "rgba(${argb "primary" "ee"})"; }
-      { "rgba(ff0099ee)" = "rgba(${argb "term5" "ee"})"; }
-      { "rgba(595959aa)" = "rgba(${argb "outline" "aa"})"; }
-      { "rgba(1a1a1aee)" = "rgba(${argb "crust" "ee"})"; }
     ];
 
     "dot-config/lazygit/config.yml" = [
@@ -154,12 +152,12 @@ let
 
     # Bare hex, no leading '#'.
     "dot-config/MangoHud/MangoHud.conf" = [
-      { "c8c5d1" = palette.colours.subtext1; }
-      { "190707" = palette.colours.base; }
-      { "d94f6e" = palette.colours.term5; }
-      { "eb6c6c" = palette.colours.primary; }
-      { "ab6670" = palette.colours.mauve; }
-      { "d3a891" = palette.colours.flamingo; }
+      { "c8c5d1" = colours.subtext1; }
+      { "190707" = colours.base; }
+      { "d94f6e" = colours.term5; }
+      { "eb6c6c" = colours.primary; }
+      { "ab6670" = colours.mauve; }
+      { "d3a891" = colours.flamingo; }
     ];
 
     "dot-config/starship.toml" = [
@@ -225,6 +223,17 @@ let
     ];
   };
 
+  # ~/.config/hypr is one store link (hyprland.nix), so look_and_feel.lua
+  # cannot be a template itself; it dofile()s this one instead, and keeps its
+  # own literals for when the rendered file is not there.
+  hyprColours = pkgs.writeText "hypr-colours.lua" ''
+    return {
+      active_border = { "rgba(${argb "primary" "ee"})", "rgba(${argb "term5" "ee"})" },
+      inactive_border = "rgba(${argb "outline" "aa"})",
+      shadow = "rgba(${argb "crust" "ee"})",
+    }
+  '';
+
   # 5% of the HSL lightness per step, off the hue's own var, so the ladder is
   # the browser's arithmetic on one palette colour instead of twenty baked
   # percentages. Relative colour syntax; Vesktop's Electron is well past it.
@@ -273,9 +282,6 @@ let
           ) pairs}
       '') files
     );
-
-  # What `caelestia scheme set` would write, built from the scheme file it
-  # would have read, so the seed below is never a second copy of the colours.
 
   inherit (osConfig.networking) hostName;
 
@@ -347,6 +353,14 @@ let
     cp ${kittyColours} $out/dot-config/mocha/mocha.conf
 
     ${substPhase recolour}
+
+    # look_and_feel.lua's fallback, for when hypr-colours.lua is not rendered
+    # yet: the scheme as of this build rather than literals from none.
+    substituteInPlace $out/dot-config/hypr/modules/look_and_feel.lua \
+      --replace-fail 'rgba(ff3333ee)' 'rgba(${palette.argb "primary" "ee"})' \
+      --replace-fail 'rgba(ff0099ee)' 'rgba(${palette.argb "term5" "ee"})' \
+      --replace-fail 'rgba(595959aa)' 'rgba(${palette.argb "outline" "aa"})' \
+      --replace-fail 'rgba(1a1a1aee)' 'rgba(${palette.argb "crust" "ee"})'
   '';
 
   # Read rather than restated, so the two cannot drift.
@@ -385,6 +399,23 @@ let
     "dot-local/share/icons"
   ];
 
+  # Every file with a colour in it: `df` makes each a template, and the app's
+  # path links to what caelestia renders from it instead of into `df`.
+  templated = lib.attrNames recolour ++ [ "dot-config/mocha/mocha.conf" ];
+
+  # caelestia renders templates by bare file name, so the path is flattened
+  # into one: .config/waybar/style.css is waybar-style.css.
+  templateName = p: lib.replaceStrings [ "/" ] [ "-" ] (lib.removePrefix ".config/" (target p));
+
+  # A link inside a linked directory is impossible, so every directory above
+  # a templated file is walked entry by entry.
+  ancestors =
+    p:
+    let
+      parts = lib.splitString "/" p;
+    in
+    map (n: lib.concatStringsSep "/" (lib.take n parts)) (lib.range 1 (lib.length parts - 1));
+
   # Owned elsewhere: `df`, programs.ydotool and stylix respectively.
   elsewhere = [
     "dot-config/hypr"
@@ -406,9 +437,14 @@ let
       let
         p = if prefix == "" then name else "${prefix}/${name}";
       in
-      if builtins.elem name ignore || builtins.elem p ignore || builtins.elem p elsewhere then
+      if
+        builtins.elem name ignore
+        || builtins.elem p ignore
+        || builtins.elem p elsewhere
+        || builtins.elem p templated
+      then
         { }
-      else if type == "directory" && builtins.elem p expand then
+      else if type == "directory" && builtins.elem p (expand ++ lib.concatMap ancestors templated) then
         walk p
       else
         {
@@ -425,4 +461,18 @@ in
   _module.args.dotfiles = df;
 
   home.file = walk "";
+
+  hutao.caelestiaTemplates =
+    lib.listToAttrs (
+      map (p: {
+        name = templateName p;
+        value = {
+          source = "${df}/${p}";
+          target = target p;
+        };
+      }) templated
+    )
+    // {
+      "hypr-colours.lua".source = hyprColours;
+    };
 }

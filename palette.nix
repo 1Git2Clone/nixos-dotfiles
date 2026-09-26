@@ -1,19 +1,37 @@
 # The single source of every colour in this configuration.
 #
-# The one file to edit is the scheme itself:
-#   dotfiles/caelestia/schemes/hu-tao/default/dark.txt
+# Which scheme that is, is caelestia's call: dotfiles/caelestia/current.json
+# records what was last picked in the shell, and caelestia-theme-hook
+# rewrites it on every switch (see home/apps/caelestia.nix). This file reads
+# the colours of that scheme:
 #
-# That file is caelestia's own format -- `key value`, 110 semantic keys -- and
-# is kept canonical rather than mirrored so `caelestia scheme set hu-tao`
-# keeps round-tripping. Everything else (stylix's base16 slots, the seeded
-# scheme.json, kitty, waybar, mako, nvim, the greeter, ...) is derived from it
-# at build time by this file, so a retune is one edit.
+#   dynamic   dotfiles/caelestia/dynamic.txt, the hook's copy of what
+#             caelestia generated from the wallpaper
+#   ours      dotfiles/caelestia/schemes/<name>/<flavour>/<mode>.txt
+#   upstream  the same path in caelestia-cli's own data/schemes
+#
+# All three are caelestia's own format -- `key value`, 110 semantic keys. The
+# desktop recolours itself at runtime off caelestia's templates; what is
+# derived here is what only a rebuild can reach (stylix's base16 slots, SDDM,
+# the seeded scheme.json) and the template placeholders themselves.
 #
 # No hex literal belongs here. A colour that is missing is a key to add to the
 # scheme, not a constant to inline.
-{ lib }:
+{ lib, inputs }:
 let
-  scheme = ./dotfiles/caelestia/schemes/hu-tao/default/dark.txt;
+  current = lib.importJSON ./dotfiles/caelestia/current.json;
+
+  schemePath = "${current.name}/${current.flavour}/${current.mode}.txt";
+  ours = ./dotfiles/caelestia/schemes + "/${schemePath}";
+  upstream = "${inputs.caelestia-shell.inputs.caelestia-cli}/src/caelestia/data/schemes/${schemePath}";
+
+  scheme =
+    if current.name == "dynamic" then
+      ./dotfiles/caelestia/dynamic.txt
+    else if builtins.pathExists ours then
+      ours
+    else
+      upstream;
 
   # `key rrggbb` per line. The regex is the validator too: a typo'd or
   # short hex silently drops its key, and every consumer below indexes
@@ -100,15 +118,27 @@ rec {
     in
     "${byte 0},${byte 2},${byte 4}";
 
-  # What caelestia writes to $XDG_STATE_HOME/caelestia/scheme.json, and what
-  # the scheme directory's own name and path already say. `variant` is the
-  # material generator preset the scheme was produced with; it is metadata,
-  # not a colour, which is why it can live here.
-  schemeJson = {
-    name = "hu-tao";
-    flavour = "default";
-    mode = "dark";
-    variant = "tonalspot";
+  inherit (current) mode;
+
+  # The same helpers, as caelestia template fields instead of colours, for
+  # files caelestia renders into $XDG_STATE_HOME/caelestia/theme on every
+  # scheme switch. `hex` is caelestia's bare rrggbb.
+  template =
+    let
+      field = key: form: "{{ ${key}.${form} }}";
+      channels = key: "${field key "red"}, ${field key "green"}, ${field key "blue"}";
+    in
+    {
+      colours = lib.mapAttrs (key: _: field key "hex") colours;
+      hex = lib.mapAttrs (key: _: "#${field key "hex"}") colours;
+      argb = key: alpha: "${field key "hex"}${alpha}";
+      rgba = key: alpha: "rgba(${channels key}, ${alpha})";
+      rgb = key: "${field key "red"},${field key "green"},${field key "blue"}";
+    };
+
+  # What caelestia writes to $XDG_STATE_HOME/caelestia/scheme.json, seeded
+  # before caelestia has run once.
+  schemeJson = current // {
     inherit colours;
   };
 
@@ -116,9 +146,9 @@ rec {
   # guess: base16's slot comments are in the comment column below.
   base16 = {
     system = "base16";
-    name = "hu-tao";
-    author = "hutao";
-    variant = "dark";
+    inherit (current) name;
+    author = "caelestia";
+    variant = current.mode;
     palette = {
       base00 = colours.base; # default background
       base01 = colours.surface0; # lighter background, status bars

@@ -11,7 +11,7 @@
   ]
   ++ import ../lib/auto.nix { inherit lib; } ./apps;
 
-  _module.args.palette = import ../palette.nix { inherit lib; };
+  _module.args.palette = import ../palette.nix { inherit lib inputs; };
 
   home.stateVersion = "26.05";
 }
