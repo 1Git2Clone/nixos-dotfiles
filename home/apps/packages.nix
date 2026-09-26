@@ -5,6 +5,12 @@ let
   app-icons = pkgs.callPackage ../../pkgs/app-icons.nix { };
   openrouter-image-mcp = pkgs.callPackage ../../pkgs/openrouter-image-mcp.nix { };
 
+  # CaelestiaFox (the extension, from AMO) recolours the browser with the
+  # scheme, off a native app it talks to; the wrapper registers it.
+  floorp = pkgs.floorp-bin.override {
+    nativeMessagingHosts = [ (pkgs.callPackage ../../pkgs/caelestiafox.nix { }) ];
+  };
+
   # ktailctl names no QtQuick Controls style of its own, so Kirigami loads the
   # Basic one -- which has hardcoded light colours and never reads the
   # kdeglobals apps/theme.nix writes. Hence a white window on a dark desktop.
@@ -40,7 +46,7 @@ in
     # terminal / file manager  (the editor toolchain is modules/neovim.nix)
     kitty
     nautilus
-    floorp-bin
+    floorp
 
     # launcher + session  (keybindings.lua: SUPER+Space, SUPER+M)
     wofi
