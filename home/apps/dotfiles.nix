@@ -430,6 +430,8 @@ let
       s: if lib.hasPrefix "dot-" s then "." + lib.removePrefix "dot-" s else s
     ) (lib.splitString "/" p);
 
+  expanded = lib.unique (expand ++ lib.concatMap ancestors templated);
+
   walk =
     prefix:
     lib.concatMapAttrs (
@@ -444,7 +446,7 @@ let
         || builtins.elem p templated
       then
         { }
-      else if type == "directory" && builtins.elem p (expand ++ lib.concatMap ancestors templated) then
+      else if type == "directory" && builtins.elem p expanded then
         walk p
       else
         {
@@ -461,6 +463,19 @@ in
   _module.args.dotfiles = df;
 
   home.file = walk "";
+
+  # A directory that goes from linked whole to linked entry by entry keeps its
+  # old link: home-manager only drops a link the new generation has nothing
+  # at, and it has a directory there. Its entries then land inside the old,
+  # read-only store directory and activation fails. So such a link goes
+  # first -- only one into a home-manager generation, nothing else.
+  home.activation.unlinkExpandedDirs = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+    for d in ${lib.escapeShellArgs (map target expanded)}; do
+      if [[ -L "$HOME/$d" && "$(readlink "$HOME/$d")" == /nix/store/*-home-manager-files/* ]]; then
+        run rm "$HOME/$d"
+      fi
+    done
+  '';
 
   hutao.caelestiaTemplates =
     lib.listToAttrs (
