@@ -69,7 +69,7 @@ hl.window_rule({
 hl.window_rule({
   name = "terminal",
   match = { class = "^[Kk]itty$" },
-  opacity = "0.93",
+  opacity = "0.98",
 })
 
 hl.window_rule({
@@ -96,7 +96,7 @@ hl.window_rule({
 hl.window_rule({
   name = "evolution",
   match = { class = [[org\.gnome\.Evolution]] },
-  opacity = "0.85",
+  opacity = "0.95",
 })
 
 hl.window_rule({

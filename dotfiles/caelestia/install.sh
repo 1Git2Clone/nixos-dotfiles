@@ -30,8 +30,8 @@ fi
 
 # ── hu-tao scheme ──────────────────────────────────────────────────
 echo "Installing hu-tao scheme..."
-sudo mkdir -p "$SCHEMES_DIR/hu-tao/default"
-sudo cp "$SCRIPT_DIR/schemes/hu-tao/default/dark.txt" "$SCHEMES_DIR/hu-tao/default/dark.txt"
+sudo mkdir -p "$SCHEMES_DIR/hu-tao/red"
+sudo cp "$SCRIPT_DIR/schemes/hu-tao/red/dark.txt" "$SCHEMES_DIR/hu-tao/red/dark.txt"
 
 # ── Apply live ──────────────────────────────────────────────────────
 # caelestia keeps the active scheme's colours cached in memory, so
@@ -40,7 +40,7 @@ sudo cp "$SCRIPT_DIR/schemes/hu-tao/default/dark.txt" "$SCHEMES_DIR/hu-tao/defau
 # restart the dashboard shell so quickshell picks up the new colours.
 echo "Applying hu-tao scheme..."
 caelestia scheme set -n dynamic
-caelestia scheme set -n hu-tao
+caelestia scheme set -n hu-tao -f red
 pkill -f "qs -c caelestia" || true
 QT_QPA_PLATFORMTHEME=hyprqt6engine XDG_DATA_DIRS="$XDG_DATA_DIRS" caelestia shell -d
 

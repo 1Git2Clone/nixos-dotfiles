@@ -1,5 +1,4 @@
 {
-  lib,
   pkgs,
   palette,
   cursor,
@@ -9,7 +8,7 @@
 {
   stylix = {
     enable = true;
-    polarity = "dark";
+    polarity = palette.mode;
 
     # The 16 slots read straight out of the caelestia scheme by their
     # semantic names, so this and the shell cannot drift. See palette.nix.
@@ -53,12 +52,17 @@
     };
   };
 
-  # stylix's qt target sets platformTheme = "qt5ct", which a Qt6 app cannot
-  # load — QIcon::themeName() comes back empty and caelestia's launcher icons
-  # all vanish. Keep the target, which is what installs the plugin and puts
-  # lib/qt-6/plugins on QT_PLUGIN_PATH, and override only the name. Raw
-  # variable and mkForce: the NixOS enum has no qt6ct value, and the target
-  # defines this too.
-  stylix.targets.qt.enable = true;
-  environment.variables.QT_QPA_PLATFORMTHEME = lib.mkForce "qt6ct";
+  # caelestia owns Qt: every scheme switch rewrites ~/.config/qtengine, which
+  # is qtengine's config, and names Darkly as the style. stylix's qt target
+  # would point QT_QPA_PLATFORMTHEME at qt5ct instead, whose colours only a
+  # rebuild can change. qt.enable, with no platform theme of its own, is what
+  # puts each profile's lib/qt-6/plugins on QT_PLUGIN_PATH, which is where
+  # both plugins below are found. Qt 6 only: qtengine has no Qt 5 build.
+  stylix.targets.qt.enable = false;
+  qt.enable = true;
+  environment.variables.QT_QPA_PLATFORMTHEME = "qtengine";
+  environment.systemPackages = [
+    pkgs.qtengine
+    pkgs.darkly
+  ];
 }

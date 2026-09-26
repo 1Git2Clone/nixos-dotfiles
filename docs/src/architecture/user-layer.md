@@ -34,7 +34,10 @@ and upstream gitignores it because it is per machine.
 `third-party-assets` input, since they are fan art this public repo cannot
 carry. That is still the path hyprpaper, hyprlock and the caelestia seed read.
 
-**Colours**, substituted from the one scheme. See [Colours](colours.md).
+**Colours**, substituted with caelestia template fields rather than hex. Each
+file with a colour in it becomes a caelestia template, and its path in `$HOME`
+links to what caelestia renders from it, so the desktop recolours on a scheme
+switch without a rebuild. See [Colours](colours.md).
 
 ## What stays writable
 
@@ -44,6 +47,9 @@ handled on purpose:
 - `lazy-lock.json`, `lazyvim.json`, caelestia's active scheme and
   `~/Pictures/Wallpapers` are **seeded once** from the tracked copy and then
   left alone, so `:Lazy update` and `caelestia scheme set` keep working.
+- The **colour-bearing configs** (kitty, waybar, mako, starship, …) link out
+  of the store into `$XDG_STATE_HOME/caelestia/theme/`, which caelestia
+  rewrites on every scheme switch and activation renders on every rebuild.
 - `~/.config/nvim` and `~/.claude` are **linked entry by entry**, not whole, so
   lazy.nvim and Claude Code get a real directory to write into. Link nvim whole
   and lazy.nvim's first write fails, aborting `init.lua` on every first boot.
@@ -66,6 +72,20 @@ after home-manager links the new generation. Hyprland's own file watcher never
 fires here: a rebuild points `~/.config/hypr` at a new store path rather than
 changing the file the watcher holds, so without this an edit waits for the
 next login.
+
+## The shell restarts on rebuild
+
+`home.activation.caelestiaReload` in `home/apps/caelestia.nix` kills the
+shell (`caelestia shell -k`), because a running shell keeps icon lookups
+cached from the profile it started with. It then has Hyprland start it again
+over `hyprctl eval`, with `programs.shell` from
+`hypr/modules/programs.lua`, the command `autostart.lua` runs too.
+
+Learned the hard way on 2026-09-26: started from the activation service, the
+shell inherits `QT_QPA_PLATFORM=offscreen`, finds no display, and exits,
+leaving no shell until one is started by hand. The eval uses `dofile`, not
+`require`, so it reads the new `programs.lua` rather than a module cached
+from before the switch.
 
 ## Not linted
 

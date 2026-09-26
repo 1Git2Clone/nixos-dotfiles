@@ -156,7 +156,7 @@
             "maxWindowIcons": 0,
             "occupiedBg": false,
             "occupiedLabel": "\udb82\udfaf",
-            "perMonitorWorkspaces": true,
+            "perMonitor": true,
             "showWindows": true,
             "showWindowsOnSpecialWorkspaces": true,
             "shown": 5,
@@ -437,7 +437,7 @@
         "enableFprint": true,
         "hideNotifs": false,
         "maxFprintTries": 3,
-        "recolourLogo": false
+        "recolourLogo": true
     },
     "notifs": {
         "actionOnClick": false,
@@ -477,11 +477,11 @@
             }
         ],
         "smartScheme": true,
-        "useFahrenheit": false,
-        "useFahrenheitPerformance": false,
-        "useTwelveHourClock": false,
         "visualiserBars": 45,
-        "weatherLocation": "Sofia"
+        "weatherLocation": "Sofia",
+        "weatherUnits": "Celsius",
+        "sensorUnits": "Celsius",
+        "clockFormat": "TwentyFourHour"
     },
     "session": {
         "commands": {
@@ -568,12 +568,6 @@
         "vpn": {
             "enabled": true,
             "provider": [
-                {
-                    "displayName": null,
-                    "id": "vpn-mt30qr9y-8tw6y",
-                    "interface": null,
-                    "name": null
-                },
                 {
                     "displayName": "Tailscale",
                     "id": "vpn-mt30qr9y-2tkuh",

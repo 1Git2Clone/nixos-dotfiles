@@ -1,5 +1,3 @@
-local colors = require("utils.colors")
-
 ---@type LazySpec
 return {
   "goolord/alpha-nvim",
@@ -17,11 +15,6 @@ return {
       "  ▀    ▀▀▀                 █        ▀  ",
       "                          ▀            ",
     }
-
-    vim.api.nvim_set_hl(0, "AlphaHeader", { fg = colors.default_fg })
-    vim.api.nvim_set_hl(0, "AlphaButtons", colors.default_fg_bg)
-    vim.api.nvim_set_hl(0, "AlphaFooter", { fg = colors.default_fg, italic = true })
-    vim.api.nvim_set_hl(0, "AlphaShortcut", { fg = colors.default_fg, italic = true })
 
     dashboard.section.buttons.val = {
       dashboard.button("n", "  New file", ":ene <BAR> startinsert<CR>"),
