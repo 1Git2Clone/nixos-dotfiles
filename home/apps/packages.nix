@@ -185,7 +185,6 @@ in
     vesktop
 
     viber
-    spotify
 
     # The background service only: `stremio` itself was removed from nixpkgs
     # for depending on the outdated qt5 webengine, and the web app is what

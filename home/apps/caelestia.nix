@@ -161,6 +161,11 @@ let
       # Vencord re-reads its themes on any event in their directory, and the
       # rewrite lands behind the symlinks, outside it.
       touch -ch "${config.xdg.configHome}"/vesktop/themes/*.theme.css 2> /dev/null || true
+      # color.ini into colors.css; spicetify.nix's theme.js picks it up. Only
+      # once activation has applied, or spicetify goes looking for a Spotify.
+      if [ -d "${config.xdg.dataHome}/spotify-spicetify/Apps/xpui" ]; then
+        ${lib.getExe pkgs.spicetify-cli} -q refresh > /dev/null || true
+      fi
     '';
   };
 in
