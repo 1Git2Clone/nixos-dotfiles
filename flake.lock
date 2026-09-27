@@ -656,11 +656,11 @@
     "third-party-assets": {
       "flake": false,
       "locked": {
-        "lastModified": 1790357618,
-        "narHash": "sha256-+Wy2Yo5KKpmNejVYBCwdSLDk+y/exWotHWCVg825fVs=",
+        "lastModified": 1790496437,
+        "narHash": "sha256-Vfh3zXZB73N5cX8Yo7h9BN4PjG4PAWo4+ZFRNglJd0E=",
         "ref": "main",
-        "rev": "1fa6d2fe7ee36bbb327593815bd7e922ba71dd22",
-        "revCount": 6,
+        "rev": "03766a33fa1d3c48ecb635b6e1df6e7d664f53fb",
+        "revCount": 7,
         "type": "git",
         "url": "https://git.hu-tao.dev/hutao/nixos-dotfiles-third-party-assets"
       },
