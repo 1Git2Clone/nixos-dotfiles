@@ -54,6 +54,7 @@ flavour, which is why ours is `hu-tao/red/dark` and not `hu-tao/default/dark-red
 | next time the app starts | GTK and Qt apps                                                     | caelestia's `enableGtk`, `enableQt`: `gtk.css`, `~/.config/qtengine`                               |
 | next time the app starts | lazygit, wofi, wlogout, swaylock, MangoHud, KDE apps (`kdeglobals`) | a template                                                                                         |
 | next rebuild             | grub, plymouth, the tty, SDDM                                       | `palette.nix`, off `current.json`                                                                  |
+| next rebuild             | the Limine and SDDM backgrounds, the wallpaper                      | `stylix.image`, off `current.json`'s `wallpaper`, looked up in third-party-assets                  |
 
 ## Templates
 
@@ -91,7 +92,11 @@ here).
 `caelestia-theme-hook` runs after every switch. It writes the scheme's name,
 flavour, mode and variant to `dotfiles/caelestia/current.json`, and on
 `dynamic` the generated colours to `dotfiles/caelestia/dynamic.txt`, in
-caelestia's format. Both are tracked, so the next rebuild builds the scheme
+caelestia's format. `current.json` also gets the wallpaper's file name, read
+off caelestia's `wallpaper/path.txt`: `caelestia wallpaper` runs the same
+hook. `modules/desktop/stylix.nix` looks that name up in third-party-assets'
+`Wallpapers/` for `stylix.image`, which is Limine's background through
+stylix's limine target and SDDM's through `pkgs/sddm-hu-tao.nix`. Both are tracked, so the next rebuild builds the scheme
 you are looking at and the pick is in git once you commit it. A flake reads a
 tracked file's working-tree contents, so the rebuild does not wait for the
 commit.
@@ -127,6 +132,10 @@ writer per file:
 - **Every switch dirties the checkout** when the scheme differs from the
   committed one. Commit `current.json` and `dynamic.txt` when you want the
   pick kept.
+- **A wallpaper that is not in third-party-assets fails the rebuild.** A
+  flake cannot read `~/Pictures/Wallpapers`, so a picked wallpaper has to be
+  added to that repo's `assets/third-party/Wallpapers/` under the same name,
+  then `nix flake update third-party-assets`. The error names the file.
 - **ANSI green, blue, cyan and magenta are one colour in hu-tao.** The scheme
   sets `term2`, `term4`, `term6`, `term10`, `term12` and `term14` to the same
   `ff9b8a`. Retune those keys to tell them apart in the terminal.
