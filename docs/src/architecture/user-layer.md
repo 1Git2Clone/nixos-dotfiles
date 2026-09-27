@@ -90,6 +90,23 @@ leaving no shell until one is started by hand. The eval uses `dofile`, not
 `require`, so it reads the new `programs.lua` rather than a module cached
 from before the switch.
 
+## Fonts
+
+`hutao.uiFont` in `home/apps/fonts.nix` is the one switch for every UI's
+font, by default stylix's monospace, JetBrainsMono Nerd Font. It reaches:
+
+- GTK through `gtk.font`, and so Nautilus, Evolution, and the chrome of the
+  browsers and LibreOffice;
+- Qt through caelestia's qtengine template (`home/apps/caelestia.nix`), and
+  so KTailctl;
+- the caelestia shell through `programs.caelestia.settings.appearance.font`;
+- Discord's `--font` and fcitx5's `classicui.conf`, both literals in the
+  dotfiles that `home/apps/dotfiles.nix` substitutes (`refont`).
+
+fontconfig's defaults stay stylix's `sansSerif` and `serif`, so web pages and
+LibreOffice documents keep a proportional face: a document asking for Calibri
+falls back to sans-serif, and that should not be a monospace.
+
 ## Spotify and spicetify
 
 spicetify patches Spotify's `Apps` directory in place, and the store copy is
