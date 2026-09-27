@@ -19,7 +19,8 @@ let
 
   caelestiaPkgs = inputs.caelestia-shell.packages.${pkgs.stdenv.hostPlatform.system};
 
-  qtFont = osConfig.stylix.fonts.monospace.name;
+  qtFont = cfg.uiFont.name;
+  qtFixedFont = osConfig.stylix.fonts.monospace.name;
   qtFontSize = toString osConfig.stylix.fonts.sizes.applications;
 
   # The CLI lists schemes out of its own package and nowhere else -- not
@@ -41,7 +42,7 @@ let
             cp -r ${../../dotfiles/caelestia/schemes}/. "$data/schemes/"
             substituteInPlace "$data/templates/qtengine.json" \
               --replace-fail '"family": "Sans Serif"' '"family": "${qtFont}"' \
-              --replace-fail '"family": "Monospace"' '"family": "${qtFont}"' \
+              --replace-fail '"family": "Monospace"' '"family": "${qtFixedFont}"' \
               --replace-fail '"size": 12' '"size": ${qtFontSize}' \
               --replace-fail '"weight": -1' '"weight": 300'
           '';

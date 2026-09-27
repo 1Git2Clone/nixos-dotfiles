@@ -1,12 +1,11 @@
 # GTK, Qt and KDE's colours, all of which caelestia rewrites on every scheme
 # switch: GTK and Qt through its own appliers (enableGtk, enableQt), KDE
 # through a template here. What is left for a rebuild is the theme each one
-# starts from, the fonts and the icons.
+# starts from and the icons; the fonts are fonts.nix's.
 {
   lib,
   pkgs,
   inputs,
-  osConfig,
   palette,
   ...
 }:
@@ -33,10 +32,6 @@ in
       name = "adw-gtk3-dark";
     };
     gtk4.theme = null;
-    font = {
-      inherit (osConfig.stylix.fonts.sansSerif) package name;
-      size = osConfig.stylix.fonts.sizes.applications;
-    };
   };
 
   # Nothing set an icon theme before this, which left every GTK app on

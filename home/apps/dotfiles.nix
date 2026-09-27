@@ -7,6 +7,7 @@
 {
   pkgs,
   lib,
+  config,
   osConfig,
   palette,
   inputs,
@@ -267,6 +268,19 @@ let
     ];
   };
 
+  # Font names written as literals, by the same rule: the literal is the
+  # placeholder. hutao.uiFont is the switch (fonts.nix).
+  refont =
+    let
+      inherit (config.hutao.uiFont) name;
+    in
+    {
+      "dot-config/fcitx5/conf/classicui.conf" = [ { "JetBrainsMono Nerd Font" = name; } ];
+      "dot-config/vesktop/themes/caelestia.theme.css" = [
+        { "--font: \"figtree\"" = "--font: \"${name}\""; }
+      ];
+    };
+
   # One substituteInPlace per file, --replace-fail per pair.
   substPhase =
     files:
@@ -348,6 +362,9 @@ let
 
     # ── Paths ────────────────────────────────────────────────────────────
     ${substPhase repath}
+
+    # ── Fonts ────────────────────────────────────────────────────────────
+    ${substPhase refont}
 
     # ── Colours ──────────────────────────────────────────────────────────
     cp ${kittyColours} $out/dot-config/mocha/mocha.conf
