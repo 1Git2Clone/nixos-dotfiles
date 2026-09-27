@@ -55,6 +55,7 @@ let
     marketplace
     userCss
     ../spicetify-theme.js
+    ../spicetify-settings.js
   ];
 in
 {
@@ -67,6 +68,7 @@ in
     "spicetify/CustomApps/marketplace".source = marketplace;
     "spicetify/Themes/caelestia/user.css".source = userCss;
     "spicetify/Themes/caelestia/theme.js".source = ../spicetify-theme.js;
+    "spicetify/Extensions/hutao-settings.js".source = ../spicetify-settings.js;
   };
 
   home.file = {
@@ -112,10 +114,26 @@ in
             current_theme caelestia \
             color_scheme caelestia \
             custom_apps marketplace \
+            extensions hutao-settings.js \
             check_spicetify_update 0
           # -n: never kill a running Spotify from a rebuild.
           run ${lib.getExe spicetify-cli} -q -n backup apply
           echo "${sources}" > "${spotifyDir}/stamp"
         fi
+
+        # Very high streaming and download quality (4; 0 is automatic). Only
+        # these keys: the rest of the file stays Settings'. A profile appears
+        # on first login, so a fresh home picks these up on the next rebuild.
+        for p in "${config.xdg.configHome}"/spotify/Users/*/prefs; do
+          [ -e "$p" ] || continue
+          for kv in audio.play_bitrate_enumeration=4 \
+            audio.play_bitrate_non_metered_enumeration=4 \
+            audio.sync_bitrate_enumeration=4; do
+            if ! grep -qxF "$kv" "$p"; then
+              run sed -i "/^''${kv%%=*}=/d" "$p"
+              echo "$kv" >> "$p"
+            fi
+          done
+        done
       '';
 }
