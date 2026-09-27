@@ -73,6 +73,13 @@ hl.window_rule({
 })
 
 hl.window_rule({
+  name = "browser",
+  match = { class = "^(floorp|firefox|zen|zen-beta|google-chrome)$" },
+  -- override: a bare 1 multiplies active_opacity/inactive_opacity instead.
+  opacity = "1 override",
+})
+
+hl.window_rule({
   name = "floating-terminal",
   match = { class = "^(floating-term)$" },
   float = true,
