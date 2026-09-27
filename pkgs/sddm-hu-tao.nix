@@ -8,7 +8,7 @@
   lib,
   runCommandLocal,
   palette,
-  thirdParty,
+  background,
 }:
 let
   name = "sddm-hu-tao";
@@ -33,17 +33,21 @@ runCommandLocal name
     chmod -R u+w "$dir"
     rm -f "$dir/ORIGIN.md"
 
-    # The background is fan art, so it comes from the private
-    # third-party-assets input rather than this public vendored copy.
-    mkdir -p "$dir/Backgrounds"
-    cp ${thirdParty}/assets/third-party/sddm-hu-tao/hu-tao.png "$dir/Backgrounds/"
-
     # A missing file here presents as "the theme did not apply": SDDM falls
     # back to its default silently.
     test -f "$dir/metadata.desktop"
     test -f "$dir/Main.qml"
     conf=$(sed -n 's/^ConfigFile=//p' "$dir/metadata.desktop")
     test -f "$dir/$conf"
+
+    # The background is caelestia's wallpaper (stylix.image), fan art from
+    # the private third-party-assets input, in place of the vendored one.
+    wall="${background}"
+    mkdir -p "$dir/Backgrounds"
+    cp "$wall" "$dir/Backgrounds/wallpaper.''${wall##*.}"
+    substituteInPlace "$dir/$conf" \
+      --replace-fail 'Background="Backgrounds/hu-tao.png"' \
+        "Background=\"Backgrounds/wallpaper.''${wall##*.}\""
     bg=$(sed -n 's/^Background="\(.*\)"$/\1/p' "$dir/$conf")
     test -f "$dir/$bg"
 

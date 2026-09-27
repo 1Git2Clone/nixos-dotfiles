@@ -1,15 +1,15 @@
 # Stylix has no sddm target, so the greeter is themed by hand.
 {
+  config,
   pkgs,
   palette,
   cursor,
-  inputs,
   ...
 }:
 let
   sddm-hu-tao = pkgs.callPackage ../../pkgs/sddm-hu-tao.nix {
     inherit palette;
-    thirdParty = inputs.third-party-assets;
+    background = config.stylix.image;
   };
 in
 {
