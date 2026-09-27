@@ -109,6 +109,13 @@ mismatch makes it re-apply on the next rebuild.
 
 Marketplace installs live in Spotify's own storage, not in the repo.
 
+Two settings are Nix's, and the rest of Settings stays the GUI's. Activation
+sets streaming and download quality to very high (`audio.*bitrate_enumeration=4`)
+in each profile's `~/.config/spotify/Users/*/prefs`, touching only those keys.
+"Show the now-playing panel on click of play" lives in Spotify's local
+storage rather than a prefs file, so `home/spicetify-settings.js`, a
+spicetify extension, turns it off on every launch.
+
 ## Not linted
 
 `dotfiles/` is exempt from markdownlint, shellcheck and shfmt, because that
