@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   palette,
   cursor,
@@ -15,8 +16,19 @@
     base16Scheme = palette.base16;
 
     # Wallpaper only; base16Scheme above is explicit, so nothing derives
-    # colours from this.
-    image = inputs.third-party-assets + "/assets/third-party/Wallpapers/Hu_Tao_00056_1.png";
+    # colours from this. It is caelestia's current one, which the theme hook
+    # records by name in current.json; the file itself has to be in the
+    # private assets input. Limine takes it through stylix's limine target,
+    # SDDM through sddm.nix.
+    image =
+      let
+        name = (lib.importJSON ../../dotfiles/caelestia/current.json).wallpaper;
+        image = inputs.third-party-assets + "/assets/third-party/Wallpapers/${name}";
+      in
+      if builtins.pathExists image then
+        image
+      else
+        throw "caelestia's wallpaper ${name} is not in third-party-assets' Wallpapers; add it there and `nix flake update third-party-assets`.";
 
     fonts = {
       monospace = {

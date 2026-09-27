@@ -128,9 +128,14 @@ let
       if [ -n "''${SCHEME_NAME:-}" ]; then
         dir="$(cat "$pointer" 2> /dev/null || true)/dotfiles/caelestia"
         if [ -d "$dir" ]; then
+          # The wallpaper by name only: the rebuild finds the file in
+          # third-party-assets (stylix.nix). caelestia wallpaper runs this
+          # hook too, after it has written path.txt.
+          wallpaper=$(basename "$(cat "''${XDG_STATE_HOME:-$HOME/.local/state}/caelestia/wallpaper/path.txt" 2> /dev/null || true)")
           jq -n --arg name "$SCHEME_NAME" --arg flavour "$SCHEME_FLAVOUR" \
             --arg mode "$SCHEME_MODE" --arg variant "$SCHEME_VARIANT" \
-            '{$name, $flavour, $mode, $variant}' | put "$dir/current.json"
+            --arg wallpaper "$wallpaper" \
+            '{$name, $flavour, $mode, $variant, $wallpaper}' | put "$dir/current.json"
 
           if [ "$SCHEME_NAME" = dynamic ]; then
             {
