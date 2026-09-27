@@ -63,6 +63,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # The new tab and site themes that follow the caelestia scheme, and Zen's
+    # live colours (lib.wrapZen). Pinned to the prototype's branch until it
+    # merges; `nix flake update caelestia-tab` to pick up a push.
+    caelestia-tab = {
+      url = "git+https://git.hu-tao.dev/hutao/caelestia-tab?ref=feat/prototype";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Zen isn't in nixpkgs. Its packages are wrapFirefox builds, so they take
     # nativeMessagingHosts the same way floorp-bin does.
     zen-browser = {

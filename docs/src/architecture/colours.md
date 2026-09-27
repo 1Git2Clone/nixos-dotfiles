@@ -50,7 +50,8 @@ flavour, which is why ours is `hu-tao/red/dark` and not `hu-tao/default/dark-red
 | at once                  | neovim                                                              | `utils/colors.lua` watches `scheme.json` and re-applies catppuccin, lualine                        |
 | at once                  | kitty, waybar, mako, tmux, Hyprland                                 | a template, then the hook's USR1, USR2, `makoctl reload`, `tmux-apply-colors.sh`, `hyprctl reload` |
 | at once                  | vesktop, starship, ccstatusline                                     | a template; the hook touches the theme links Vencord watches, the rest read per render             |
-| at once                  | Floorp, Firefox, Zen                                                | CaelestiaFox from AMO, fed by its native app (`pkgs/caelestiafox.nix`)                             |
+| at once                  | Floorp, Firefox                                                     | CaelestiaFox from AMO, fed by its native app (`pkgs/caelestiafox.nix`)                             |
+| at once                  | Zen's window                                                        | caelestia-tab's Zen mod, reloaded live by the autoconfig `lib.wrapZen` adds                        |
 | next time the app starts | GTK and Qt apps                                                     | caelestia's `enableGtk`, `enableQt`: `gtk.css`, `~/.config/qtengine`                               |
 | next time the app starts | lazygit, wofi, wlogout, swaylock, MangoHud, KDE apps (`kdeglobals`) | a template                                                                                         |
 | next rebuild             | grub, plymouth, the tty, SDDM                                       | `palette.nix`, off `current.json`                                                                  |
@@ -148,5 +149,10 @@ writer per file:
   directory: Floorp though its profile is in `~/.config/floorp`, and Zen
   (from the `zen-browser` flake input, not nixpkgs) though its profile is in
   `~/.zen` — confirmed for Zen 1.22.3b on 2026-09-27.
+- **Zen's window isn't CaelestiaFox's.** Zen ignores the extension theme API,
+  so CaelestiaFox recolours Firefox and Floorp but not Zen. caelestia-tab's
+  helper writes a Zen mod instead (see its handbook), and the `zen` package in
+  `home/apps/packages.nix` goes through `caelestia-tab.lib.wrapZen`, which
+  adds the autoconfig script that reloads the mod live.
 - **`palette.nix` holds no hex of its own.** A missing colour is a key to add
   to the scheme, not a constant to inline.

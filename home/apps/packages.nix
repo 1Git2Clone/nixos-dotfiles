@@ -9,10 +9,19 @@ let
   # scheme, off a native app it talks to; each browser's wrapper registers it.
   # Firefox and Zen sit beside Floorp so extensions like caelestia-tab can be
   # tried on each of them.
-  nativeMessagingHosts = [ (pkgs.callPackage ../../pkgs/caelestiafox.nix { }) ];
+  # caelestia-tab's helper is registered the same way, so it needs no
+  # `caelestia-tab install`.
+  nativeMessagingHosts = [
+    (pkgs.callPackage ../../pkgs/caelestiafox.nix { })
+    inputs.caelestia-tab.packages.${pkgs.system}.default
+  ];
   floorp = pkgs.floorp-bin.override { inherit nativeMessagingHosts; };
   firefox = pkgs.firefox.override { inherit nativeMessagingHosts; };
-  zen = inputs.zen-browser.packages.${pkgs.system}.beta.override { inherit nativeMessagingHosts; };
+  # Zen ignores the theme API, so caelestia-tab colours it through a Zen mod;
+  # wrapZen adds the script that reloads the mod live.
+  zen = inputs.caelestia-tab.lib.wrapZen (
+    inputs.zen-browser.packages.${pkgs.system}.beta.override { inherit nativeMessagingHosts; }
+  );
 
   # ktailctl names no QtQuick Controls style of its own, so Kirigami loads the
   # Basic one -- which has hardcoded light colours and never reads the

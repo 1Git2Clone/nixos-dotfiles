@@ -137,6 +137,27 @@
         "type": "github"
       }
     },
+    "caelestia-tab": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790504319,
+        "narHash": "sha256-H4YuQoj/PGLdOJB2jOTK7kXRJTn9TLWaikMsCdSWJek=",
+        "ref": "feat/prototype",
+        "rev": "5f84adc7e35c00d96459c873b68c4025e35a0b78",
+        "revCount": 17,
+        "type": "git",
+        "url": "https://git.hu-tao.dev/hutao/caelestia-tab"
+      },
+      "original": {
+        "ref": "feat/prototype",
+        "type": "git",
+        "url": "https://git.hu-tao.dev/hutao/caelestia-tab"
+      }
+    },
     "cli-utils": {
       "inputs": {
         "git-hooks": "git-hooks",
@@ -519,6 +540,7 @@
       "inputs": {
         "aagl": "aagl",
         "caelestia-shell": "caelestia-shell",
+        "caelestia-tab": "caelestia-tab",
         "cli-utils": "cli-utils",
         "codebase-memory-mcp": "codebase-memory-mcp",
         "deploy-rs": "deploy-rs",
