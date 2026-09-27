@@ -64,10 +64,12 @@
     };
 
     # The new tab and site themes that follow the caelestia scheme, and Zen's
-    # live colours (lib.wrapZen). Pinned to the prototype's branch until it
-    # merges; `nix flake update caelestia-tab` to pick up a push.
+    # live colours (lib.wrapZen). Locked to a revision of main:
+    # `nix flake update caelestia-tab` to pick up a push. A rebuild with
+    # --override-input doesn't write the lock, so a machine rebuilt only
+    # that way leaves every other one on the old revision.
     caelestia-tab = {
-      url = "git+https://git.hu-tao.dev/hutao/caelestia-tab?ref=feat/prototype";
+      url = "git+https://git.hu-tao.dev/hutao/caelestia-tab?ref=main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

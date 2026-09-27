@@ -144,16 +144,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1790504319,
-        "narHash": "sha256-H4YuQoj/PGLdOJB2jOTK7kXRJTn9TLWaikMsCdSWJek=",
-        "ref": "feat/prototype",
-        "rev": "5f84adc7e35c00d96459c873b68c4025e35a0b78",
-        "revCount": 17,
+        "lastModified": 1790542136,
+        "narHash": "sha256-L1FbE69QMzlk6GKYvXK1eN3wcz+1UkeLIvq318H2meY=",
+        "ref": "main",
+        "rev": "477213d879b7ef418c771463c1212bec232fff51",
+        "revCount": 41,
         "type": "git",
         "url": "https://git.hu-tao.dev/hutao/caelestia-tab"
       },
       "original": {
-        "ref": "feat/prototype",
+        "ref": "main",
         "type": "git",
         "url": "https://git.hu-tao.dev/hutao/caelestia-tab"
       }
