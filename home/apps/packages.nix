@@ -6,10 +6,13 @@ let
   openrouter-image-mcp = pkgs.callPackage ../../pkgs/openrouter-image-mcp.nix { };
 
   # CaelestiaFox (the extension, from AMO) recolours the browser with the
-  # scheme, off a native app it talks to; the wrapper registers it.
-  floorp = pkgs.floorp-bin.override {
-    nativeMessagingHosts = [ (pkgs.callPackage ../../pkgs/caelestiafox.nix { }) ];
-  };
+  # scheme, off a native app it talks to; each browser's wrapper registers it.
+  # Firefox and Zen sit beside Floorp so extensions like caelestia-tab can be
+  # tried on each of them.
+  nativeMessagingHosts = [ (pkgs.callPackage ../../pkgs/caelestiafox.nix { }) ];
+  floorp = pkgs.floorp-bin.override { inherit nativeMessagingHosts; };
+  firefox = pkgs.firefox.override { inherit nativeMessagingHosts; };
+  zen = inputs.zen-browser.packages.${pkgs.system}.beta.override { inherit nativeMessagingHosts; };
 
   # ktailctl names no QtQuick Controls style of its own, so Kirigami loads the
   # Basic one -- which has hardcoded light colours and never reads the
@@ -47,6 +50,8 @@ in
     kitty
     nautilus
     floorp
+    firefox
+    zen
 
     # launcher + session  (keybindings.lua: SUPER+Space, SUPER+M)
     wofi

@@ -20,7 +20,7 @@ flowchart TB
     hook --> repo
     repo -->|nixos-rebuild| palette
 
-    state --> l_apps["caelestia · neovim · tmux · Floorp<br/>gtk · qt (caelestia's own appliers)"]
+    state --> l_apps["caelestia · neovim · tmux · Floorp, Firefox, Zen<br/>gtk · qt (caelestia's own appliers)"]
     render --> t_apps["kitty · hypr · waybar · wofi · wlogout · swaylock<br/>mako · lazygit · vesktop · MangoHud · starship · ccstatusline · KDE apps"]
     palette --> b_apps["stylix: grub · plymouth · tty<br/>SDDM · the seeded scheme.json"]
 ```
@@ -50,7 +50,7 @@ flavour, which is why ours is `hu-tao/red/dark` and not `hu-tao/default/dark-red
 | at once                  | neovim                                                              | `utils/colors.lua` watches `scheme.json` and re-applies catppuccin, lualine                        |
 | at once                  | kitty, waybar, mako, tmux, Hyprland                                 | a template, then the hook's USR1, USR2, `makoctl reload`, `tmux-apply-colors.sh`, `hyprctl reload` |
 | at once                  | vesktop, starship, ccstatusline                                     | a template; the hook touches the theme links Vencord watches, the rest read per render             |
-| at once                  | Floorp                                                              | CaelestiaFox from AMO, fed by its native app (`pkgs/caelestiafox.nix`)                             |
+| at once                  | Floorp, Firefox, Zen                                                | CaelestiaFox from AMO, fed by its native app (`pkgs/caelestiafox.nix`)                             |
 | next time the app starts | GTK and Qt apps                                                     | caelestia's `enableGtk`, `enableQt`: `gtk.css`, `~/.config/qtengine`                               |
 | next time the app starts | lazygit, wofi, wlogout, swaylock, MangoHud, KDE apps (`kdeglobals`) | a template                                                                                         |
 | next rebuild             | grub, plymouth, the tty, SDDM                                       | `palette.nix`, off `current.json`                                                                  |
@@ -142,9 +142,11 @@ writer per file:
 - **CaelestiaFox is two halves, and only one is Nix's.** Install the
   extension by hand from
   [AMO](https://addons.mozilla.org/en-US/firefox/addon/caelestiafox).
-  Floorp's wrapper links the native app's manifest into
-  `~/.mozilla/native-messaging-hosts` when Floorp starts (Floorp reads it from
-  there, though its profile is in `~/.config/floorp`), so restart Floorp after
-  the first rebuild that brings it.
+  Each browser's wrapper (`home/apps/packages.nix`) links the native app's
+  manifest into `~/.mozilla/native-messaging-hosts` when the browser starts,
+  so restart it after the first rebuild that brings it. All three read that
+  directory: Floorp though its profile is in `~/.config/floorp`, and Zen
+  (from the `zen-browser` flake input, not nixpkgs) though its profile is in
+  `~/.zen` — confirmed for Zen 1.22.3b on 2026-09-27.
 - **`palette.nix` holds no hex of its own.** A missing colour is a key to add
   to the scheme, not a constant to inline.

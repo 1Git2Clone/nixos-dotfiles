@@ -63,6 +63,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Zen isn't in nixpkgs. Its packages are wrapFirefox builds, so they take
+    # nativeMessagingHosts the same way floorp-bin does.
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     # Local toolbox of language-agnostic CLI utilities. Forgejo is the source of
     # truth and GitHub is a push-only mirror; both hosts are credentialed by the
     # netrc that modules/sops.nix renders, so either URL works.
