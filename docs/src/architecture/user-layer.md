@@ -53,6 +53,9 @@ handled on purpose:
 - `~/.config/nvim` and `~/.claude` are **linked entry by entry**, not whole, so
   lazy.nvim and Claude Code get a real directory to write into. Link nvim whole
   and lazy.nvim's first write fails, aborting `init.lua` on every first boot.
+- **Spotify's `Apps`** is a writable copy in
+  `~/.local/share/spotify-spicetify`, and spicetify's `config-xpui.ini` is
+  edited rather than linked. See [Spotify and spicetify](#spotify-and-spicetify).
 - Everything else in `~/.config` is read-only. An app that saves settings there
   (fcitx5 does) cannot. To hack on the dotfiles in place, point `src` in
   `home/` at `mkOutOfStoreSymlink`.
@@ -86,6 +89,25 @@ shell inherits `QT_QPA_PLATFORM=offscreen`, finds no display, and exits,
 leaving no shell until one is started by hand. The eval uses `dofile`, not
 `require`, so it reads the new `programs.lua` rather than a module cached
 from before the switch.
+
+## Spotify and spicetify
+
+spicetify patches Spotify's `Apps` directory in place, and the store copy is
+read-only. `home/apps/spicetify.nix` wraps `spotify` with
+`--app-directory=~/.local/share/spotify-spicetify/Apps`, and spicetify's
+`spotify_path` is that directory: the writable `Apps` plus a link to the one
+store file spicetify reads, `v8_context_snapshot.bin`. The marketplace and
+caelestia's `user.css` are pinned fetches, linked into `~/.config/spicetify`.
+
+`home.activation.spicetify` re-copies `Apps` from the store, sets the config
+and runs `spicetify backup apply` only when an input changes (the store paths
+in `~/.local/share/spotify-spicetify/stamp`). It passes `-n`, so a running
+Spotify picks the change up on its next start. spicetify refuses to apply
+once prefs' `app.last-launched-version` stops matching the version the backup
+was taken at, so activation writes the store's version there first, and a
+mismatch makes it re-apply on the next rebuild.
+
+Marketplace installs live in Spotify's own storage, not in the repo.
 
 ## Not linted
 
