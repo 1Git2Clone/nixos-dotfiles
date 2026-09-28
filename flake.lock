@@ -144,11 +144,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790542136,
-        "narHash": "sha256-L1FbE69QMzlk6GKYvXK1eN3wcz+1UkeLIvq318H2meY=",
+        "lastModified": 1790580085,
+        "narHash": "sha256-psGTXdW3kMFUuGX58uCiDR1OXLNoPSt2vKogdmRo5jc=",
         "ref": "main",
-        "rev": "477213d879b7ef418c771463c1212bec232fff51",
-        "revCount": 41,
+        "rev": "28c190599b82823fb659d62ec92f1f07af5f45b2",
+        "revCount": 49,
         "type": "git",
         "url": "https://git.hu-tao.dev/hutao/caelestia-tab"
       },
