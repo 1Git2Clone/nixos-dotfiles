@@ -35,6 +35,10 @@ in
     # Merged over the vendored shell.json by the module.
     programs.caelestia.settings.appearance.font = {
       headline.family = ui.name;
+      # The lock screen draws the clock, weather and resources from
+      # headline.large (the clock at 7x) and narrows them with the wdth axis,
+      # which GoogleSansFlex has and a monospace does not; 32 overflows.
+      headline.large.size = 24;
       title.family = ui.name;
       body.family = ui.name;
       label.family = ui.name;
