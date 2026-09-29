@@ -146,6 +146,24 @@ in each profile's `~/.config/spotify/Users/*/prefs`, touching only those keys.
 storage rather than a prefs file, so `home/spicetify-settings.js`, a
 spicetify extension, turns it off on every launch.
 
+## Firefox and Floorp userChrome
+
+Both come from home-manager's `programs.firefox` and `programs.floorp` in
+`home/apps/packages.nix`, not `home.packages`, so one `userChrome` string
+styles both (today: it hides the sidebar's `#sidebar-panel-header`).
+home-manager then writes `profiles.ini`, `user.js` (which turns on
+`toolkit.legacyUserProfileCustomizations.stylesheets`) and
+`chrome/userChrome.css`. The first rebuild moves the old `profiles.ini` and
+any `user.js` aside as `*.hm-bak`. Restart the browser to pick up a change.
+
+- **The profile paths are the desktop's.** `iz7vhs3z.default` (Firefox) and
+  `wozr4wdp.default` (Floorp) are the directories each browser made on
+  hutao-desktop. On another machine, home-manager points `profiles.ini` at
+  an empty directory of that name, and the old profile is still there but
+  unused. Rename the old one to match, or set `path` per host.
+- **Floorp's `configPath` is set.** home-manager's default is `~/.floorp`,
+  but `floorp-bin` keeps its profiles in `~/.config/floorp`.
+
 ## Not linted
 
 `dotfiles/` is exempt from markdownlint, shellcheck and shfmt, because that
