@@ -44,8 +44,35 @@ let
     '';
   };
 
+  # Only the sidebar's header row goes; the panel itself stays.
+  userChrome = ''
+    #sidebar-panel-header {
+      display: none;
+    }
+  '';
 in
 {
+  # Declared through home-manager, not home.packages, for the userChrome.
+  # Each path is the profile the browser had already made, so none is lost.
+  programs.firefox = {
+    enable = true;
+    package = firefox;
+    profiles.default = {
+      path = "iz7vhs3z.default";
+      inherit userChrome;
+    };
+  };
+  programs.floorp = {
+    enable = true;
+    package = floorp;
+    # home-manager's default is ~/.floorp; floorp-bin keeps it under XDG.
+    configPath = ".config/floorp";
+    profiles.default = {
+      path = "wozr4wdp.default";
+      inherit userChrome;
+    };
+  };
+
   # ── Packages ─────────────────────────────────────────────────────────────
   # What the keybinds, scripts and dotfiles actually call. All of it
   # userspace, so a user profile rather than environment.systemPackages;
@@ -58,8 +85,6 @@ in
     # terminal / file manager  (the editor toolchain is modules/neovim.nix)
     kitty
     nautilus
-    floorp
-    firefox
     zen
 
     # launcher + session  (keybindings.lua: SUPER+Space, SUPER+M)
