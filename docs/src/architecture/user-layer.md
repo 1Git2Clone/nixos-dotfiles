@@ -68,6 +68,14 @@ there **and** to `nvim/lua/plugins/lspconfig.lua`'s `servers` table, or it never
 attaches and nothing says so. `home/nvim-nixos.lua` silences the warnings
 LazyVim's language extras raise for packages mason did not install.
 
+It also points markdown-preview.nvim (`<leader>cp`) at nixpkgs' build. The
+lang.markdown extra's own build downloads a prebuilt server that cannot run
+here either, and lazy.nvim's git checkout has no `node_modules` for the `node`
+fallback, so the preview died on `Cannot find module 'tslib'` (2026-09-29).
+nixpkgs ships the app with its modules built; it runs with the `node` from
+`home/apps/packages.nix`. The store path goes in when `home/apps/neovim.nix`
+copies the file, in place of `@markdownPreview@`.
+
 ## Hyprland reloads on rebuild
 
 `home.activation.hyprlandReload` runs `hyprctl reload` and `hyprctl setcursor`
