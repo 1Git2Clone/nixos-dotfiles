@@ -49,6 +49,11 @@ function M.reload()
   local s = read_scheme()
   local c = s or fallback
 
+  -- The whole scheme, for what wants more than the picks below; nil without
+  -- caelestia.
+  ---@type table<string, string>?
+  M.scheme = s
+
   ---@type { base: string, mantle: string, crust: string }
   M.catppuccin = { base = c.base, mantle = c.base, crust = c.base }
   ---@type string
