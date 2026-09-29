@@ -53,6 +53,7 @@ flavour, which is why ours is `hu-tao/red/dark` and not `hu-tao/default/dark-red
 | at once                  | Floorp, Firefox                                                     | CaelestiaFox from AMO, fed by its native app (`pkgs/caelestiafox.nix`)                             |
 | at once                  | Zen's window                                                        | caelestia-tab's Zen mod, reloaded live by the autoconfig `lib.wrapZen` adds                        |
 | at once                  | Spotify                                                             | caelestia's `enableSpicetify`, then the hook's `spicetify refresh`; `theme.js` re-links the CSS    |
+| preview reload           | markdown-preview.nvim                                               | `plugins/markdown-preview.lua` rewrites its CSS from the same watch, while Neovim runs             |
 | next time the app starts | GTK and Qt apps                                                     | caelestia's `enableGtk`, `enableQt`: `gtk.css`, `~/.config/qtengine`                               |
 | next time the app starts | lazygit, wofi, wlogout, swaylock, MangoHud, KDE apps (`kdeglobals`) | a template                                                                                         |
 | next rebuild             | grub, plymouth, the tty, SDDM                                       | `palette.nix`, off `current.json`                                                                  |

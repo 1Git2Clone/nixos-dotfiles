@@ -76,6 +76,11 @@ nixpkgs ships the app with its modules built; it runs with the `node` from
 `home/apps/packages.nix`. The store path goes in when `home/apps/neovim.nix`
 copies the file, in place of `@markdownPreview@`.
 
+The preview takes caelestia's colours: `nvim/lua/plugins/markdown-preview.lua`
+writes `~/.local/state/markdown-preview.nvim.css`, the plugin's stock
+`markdown.css` with its colour variables set from the scheme, at startup and
+on every switch. An open preview shows a switch on its next reload.
+
 ## Hyprland reloads on rebuild
 
 `home.activation.hyprlandReload` runs `hyprctl reload` and `hyprctl setcursor`
