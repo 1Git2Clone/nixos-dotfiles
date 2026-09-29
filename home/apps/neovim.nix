@@ -19,7 +19,8 @@ let
   nvimConfig = pkgs.runCommandLocal "nvim-config-nixos" { } ''
     cp -r ${nvimSrc} $out
     chmod -R u+w $out
-    cp ${../nvim-nixos.lua} $out/lua/plugins/nixos.lua
+    substitute ${../nvim-nixos.lua} $out/lua/plugins/nixos.lua \
+      --subst-var-by markdownPreview ${pkgs.vimPlugins.markdown-preview-nvim}
   '';
 
   # Written by lazy.nvim; seeded once, then left alone.

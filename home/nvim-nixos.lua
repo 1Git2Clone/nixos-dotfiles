@@ -24,4 +24,14 @@ return {
       end
     end,
   },
+  -- The lang.markdown extra's build downloads a prebuilt server, which cannot
+  -- exec here either, and a git checkout has no node_modules for the fallback:
+  -- <leader>cp dies on "Cannot find module 'tslib'". nixpkgs' copy ships them
+  -- built, and runs with the node on PATH. The store path is filled in by
+  -- home/apps/neovim.nix.
+  {
+    "iamcco/markdown-preview.nvim",
+    dir = "@markdownPreview@",
+    build = false,
+  },
 }
