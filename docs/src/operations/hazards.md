@@ -50,3 +50,13 @@ filtered out of this repo's history when they moved. That is why CI evaluates
 only the installer, and why the real machines need a Forgejo token to build.
 Keep it that way: this repo is public, so new art goes in that repo and is
 read from the input.
+
+## A credential section starts with an empty helper
+
+`dot-gitconfig`'s `[credential]` sets `helper = cache --timeout=3600` for every
+host, and git asks every helper in the list, that one first. A host section
+that adds its own helper (GCM for `git.hu-tao.dev`, `gh` for GitHub) has to
+start with an empty `helper =` to drop the cache, or the cache hands back an
+expired token: the first push fails, git erases it, and only the retry reaches
+the real helper. Learned 2026-09-30, from Forgejo pushes that always failed
+once.

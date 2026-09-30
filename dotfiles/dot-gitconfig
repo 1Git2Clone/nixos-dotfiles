@@ -33,6 +33,8 @@
 	helper =
 	helper = !/usr/bin/gh auth git-credential
 [credential "https://git.hu-tao.dev"]
+	# Empty first: the cache above would answer before GCM with a stale token.
+	helper =
 	helper = manager
 	provider = generic
 [commit]
