@@ -22,7 +22,7 @@ key. `modules/sops.nix` declares every key and is the one place to add one.
 | `tailscale_authkey`                     | reusable, pre-authorized, **not** ephemeral | `modules/tailscale.nix`                   |
 | `syncthing_gui_password`                | plaintext; syncthing-init bcrypts it        | `modules/syncthing.nix`                   |
 | `sunshine_password`                     | plaintext; `sunshine --creds` hashes it     | `hosts/hutao-desktop`                     |
-| `llm.openrouter`, `llm.opencode`        | provider API keys                           | rendered into one `llm.env`               |
+| `llm.*` (see `llmKeys`)                 | provider API keys                           | rendered into one `llm.env`               |
 | `nix.forgejo_token`, `nix.github_token` | read tokens for private flake inputs        | rendered into root's git credential store |
 
 **Every declared key must exist**, on every host, before anything builds.
