@@ -209,7 +209,8 @@ in
     # caelestia's launcher favourites reference both.
     vesktop
 
-    viber
+    # Has issues with missing files at times
+    # viber
 
     # The background service only: `stremio` itself was removed from nixpkgs
     # for depending on the outdated qt5 webengine, and the web app is what
