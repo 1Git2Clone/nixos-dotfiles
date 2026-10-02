@@ -500,11 +500,7 @@ in
         name = templateName p;
         value = {
           source = "${df}/${p}";
-          # Vencord treats ~/.config/vesktop/themes as its own: it rewrites
-          # the directory from under any symlink there on launch, so these
-          # render into the state dir only and reach Vesktop through
-          # themeLinks instead (vesktopThemeLinks, caelestia.nix).
-          target = if lib.hasPrefix "dot-config/vesktop/themes/" p then null else target p;
+          target = target p;
         };
       }) templated
     )

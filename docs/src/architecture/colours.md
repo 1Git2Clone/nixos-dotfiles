@@ -49,8 +49,7 @@ flavour, which is why ours is `hu-tao/red/dark` and not `hu-tao/default/dark-red
 | at once                  | caelestia                                                           | its own                                                                                            |
 | at once                  | neovim                                                              | `utils/colors.lua` watches `scheme.json` and re-applies catppuccin, lualine                        |
 | at once                  | kitty, waybar, mako, tmux, Hyprland                                 | a template, then the hook's USR1, USR2, `makoctl reload`, `tmux-apply-colors.sh`, `hyprctl reload` |
-| at once                  | vesktop                                                             | a template, rendered into state; Vencord reads it via `themeLinks`, not its themes folder          |
-| at once                  | starship, ccstatusline                                              | a template, read per render                                                                        |
+| at once                  | vesktop, starship, ccstatusline                                     | a template; the hook touches the theme links Vencord watches, the rest read per render             |
 | at once                  | Floorp, Firefox                                                     | CaelestiaFox from AMO, fed by its native app (`pkgs/caelestiafox.nix`)                             |
 | at once                  | Zen's window                                                        | caelestia-tab's Zen mod, reloaded live by the autoconfig `lib.wrapZen` adds                        |
 | at once                  | Spotify                                                             | caelestia's `enableSpicetify`, then the hook's `spicetify refresh`; `theme.js` re-links the CSS    |
