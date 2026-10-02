@@ -159,9 +159,6 @@ let
       fi
       # Only with a session: activation runs its own reload in hyprland.nix.
       if [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then hyprctl reload > /dev/null || true; fi
-      # Vencord re-reads its themes on any event in their directory, and the
-      # rewrite lands behind the symlinks, outside it.
-      touch -ch "${config.xdg.configHome}"/vesktop/themes/*.theme.css 2> /dev/null || true
       # color.ini into colors.css; spicetify.nix's theme.js picks it up. Only
       # once activation has applied, or spicetify goes looking for a Spotify.
       if [ -d "${config.xdg.dataHome}/spotify-spicetify/Apps/xpui" ]; then
@@ -353,6 +350,28 @@ in
       if [ ! -e "$state/scheme.json" ]; then
         run mkdir -p "$state"
         run install -m600 ${caelestiaScheme} "$state/scheme.json"
+      fi
+    '';
+
+    # Vesktop/Vencord owns ~/.config/vesktop/themes and wipes whatever is
+    # there on its own schedule, so a symlink placed inside it does not
+    # survive -- themeLinks is Vencord's own hook for a theme that lives
+    # outside that folder, so these point there instead. Settings.json is
+    # rewritten by Vesktop constantly, so this only ever adjusts the two
+    # keys it owns, every switch, rather than taking the file over.
+    home.activation.vesktopThemeLinks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      settings="${config.xdg.configHome}/vesktop/settings/settings.json"
+      if [ -f "$settings" ]; then
+        links=$(${pkgs.jq}/bin/jq -n \
+          --arg a "file://${stateHome}/caelestia/theme/vesktop-themes-caelestia.theme.css" \
+          --arg b "file://${stateHome}/caelestia/theme/vesktop-themes-BasicBackground.theme.css" \
+          '[$a, $b]')
+        tmp=$(mktemp)
+        ${pkgs.jq}/bin/jq --argjson links "$links" '
+          .themeLinks = ((.themeLinks // []) - $links + $links) |
+          .enabledThemes = ((.enabledThemes // []) - ["caelestia.theme.css", "BasicBackground.theme.css"])
+        ' "$settings" > "$tmp"
+        run mv "$tmp" "$settings"
       fi
     '';
   };
