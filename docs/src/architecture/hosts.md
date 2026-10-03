@@ -39,9 +39,10 @@ What only the desktop has, all in `hosts/hutao-desktop/default.nix`:
   [The laptop as a third monitor](third-monitor.md).
 - `teams-for-linux` and evolution with EWS, for work mail.
 
-What only the laptop has is one quirk: `amdgpu` loads after the LUKS unlock
-rather than in the initrd, because early KMS resets the console in the middle
-of the passphrase prompt. It also carries `moonlight-qt`.
+Both machines load `amdgpu` after the LUKS unlock rather than in the initrd,
+because early KMS resets the console in the middle of the passphrase prompt.
+(The desktop had it in the initrd until 2026-10-03 and dropped to emergency
+mode at boot.) The laptop also carries `moonlight-qt`.
 
 ## The installer
 

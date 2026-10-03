@@ -18,7 +18,11 @@ in
 
   networking.hostName = "hutao-desktop";
 
-  boot.initrd.kernelModules = [ "amdgpu" ];
+  # Not in the initrd: early KMS resets the console mid-passphrase-prompt
+  # without redrawing it, and the unlock dies into emergency mode. Stage 2
+  # loads it after the unlock instead, as on hutao-laptop.
+  hardware.amdgpu.initrd.enable = false;
+  boot.kernelModules = [ "amdgpu" ];
 
   # Left for removable NTFS media; the HDD itself is ext4 now.
   boot.supportedFilesystems.ntfs = true;
