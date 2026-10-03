@@ -96,6 +96,10 @@
           {
             "type": "command",
             "command": "workmux register-agent"
+          },
+          {
+            "type": "command",
+            "command": "tmux-claude-tag-pane.sh"
           }
         ]
       }

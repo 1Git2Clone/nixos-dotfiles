@@ -103,6 +103,35 @@ leaving no shell until one is started by hand. The eval uses `dofile`, not
 `require`, so it reads the new `programs.lua` rather than a module cached
 from before the switch.
 
+## tmux comes back after a restart
+
+`dot-tmux.conf` has resurrect save every session (continuum, every 15 minutes)
+and restore it when the tmux server starts. A pane comes back by retyping a
+command line, so two hooks keep the stateful ones honest, both scripts from
+cli-utils:
+
+- **Claude panes** reopen the exact conversation they held. Claude's
+  `SessionStart` hook (`dot-claude/settings.json`) runs
+  `tmux-claude-tag-pane.sh`, which tags the pane with the conversation ID as
+  the `@claude-session` pane option.
+  `tmux-resurrect-save-claude.sh`, the post-save hook, writes each tag under
+  the pane's position to `$XDG_STATE_HOME/tmux-claude-sessions`.
+  `tmux-resurrect-resume-claude.sh` restores the pane with
+  `claude --resume <id>`, or the picker when the pane has no entry.
+- **workmux's sidebar** is saved like any pane but comes back as an empty
+  shell beside the fresh sidebar workmux opens.
+  `tmux-resurrect-drop-sidebars.sh`, the post-restore hook, removes it.
+
+cli-utils tests all three end to end (`checks.<system>.tmux`), on a private
+tmux server. Its config copies this one's resurrect lines, so a change here
+belongs there too.
+
+Learned the hard way on 2026-10-03: `claude --continue` reopens the
+directory's newest conversation, not the pane's, so every Claude pane in one
+directory came back as the same unrelated conversation. The same day, the
+sidebar hook turned out to have never worked: it looked for resurrect's save
+under `$XDG_DATA_HOME`, while resurrect writes to `~/.tmux/resurrect`.
+
 ## Fonts
 
 `hutao.uiFont` in `home/apps/fonts.nix` is the one switch for every UI's
