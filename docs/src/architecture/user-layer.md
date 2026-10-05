@@ -195,7 +195,14 @@ any `user.js` aside as `*.hm-bak`. Restart the browser to pick up a change.
 
 ## Not linted
 
-`dotfiles/` is exempt from markdownlint, shellcheck and shfmt, because that
-tree's own linter configs stayed in the repo it came from. The whitespace
-fixers and gitleaks still cover it; see the closing note in
-`.pre-commit-config.yaml`.
+`dotfiles/` is exempt from markdownlint and shellcheck, because that tree's
+own linter configs stayed in the repo it came from. The whitespace fixers,
+gitleaks and shfmt still cover it; see the closing note in
+`.pre-commit-config.yaml`. shfmt also checks `dot-bashrc`, `dot-zshrc` and
+`dot-profile`, which have no `.sh` to match on, and skips the vendored
+opencode skills.
+
+Indentation is 2 spaces everywhere, set as the `.editorconfig` default;
+Rust and Java are the exceptions at 4. Editors and shfmt both read it, and
+conform.nvim runs shfmt on zsh files on save, so a shell dotfile that no
+section matches gets shfmt's default of tabs.

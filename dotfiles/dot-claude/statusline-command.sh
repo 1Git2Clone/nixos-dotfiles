@@ -19,7 +19,7 @@ fmt_tokens() {
     echo "?"
     return
   fi
-  if [ "$n" -ge 1000 ] 2> /dev/null; then
+  if [ "$n" -ge 1000 ] 2>/dev/null; then
     printf "%.1fk" "$(echo "scale=1; $n / 1000" | bc)"
   else
     echo "$n"

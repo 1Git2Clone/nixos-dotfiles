@@ -15,12 +15,12 @@ set -uo pipefail
 
 # If we can't parse input, fail OPEN rather than brick every tool call. The
 # Read-tool deny rules in settings.json still apply independently.
-command -v jq > /dev/null 2>&1 || exit 0
+command -v jq >/dev/null 2>&1 || exit 0
 
 input="$(cat)"
 [ -n "$input" ] || exit 0
 
-tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2> /dev/null)" || exit 0
+tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null)" || exit 0
 [ -n "$tool_name" ] || exit 0
 
 # Collect every string leaf in tool_input. Covers file_path (Read/Edit/Write),
@@ -29,12 +29,12 @@ tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2> /dev/null)" |
 case "$tool_name" in
   Write | Edit | MultiEdit | NotebookEdit)
     mapfile -t candidates < <(
-      printf '%s' "$input" | jq -r '[.tool_input.file_path, .tool_input.notebook_path] | map(select(. != null)) | .[]' 2> /dev/null
+      printf '%s' "$input" | jq -r '[.tool_input.file_path, .tool_input.notebook_path] | map(select(. != null)) | .[]' 2>/dev/null
     )
     ;;
   *)
     mapfile -t candidates < <(
-      printf '%s' "$input" | jq -r '[.tool_input | .. | strings] | .[]' 2> /dev/null
+      printf '%s' "$input" | jq -r '[.tool_input | .. | strings] | .[]' 2>/dev/null
     )
     ;;
 esac

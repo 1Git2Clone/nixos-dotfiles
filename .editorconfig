@@ -8,10 +8,12 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 charset = utf-8
-
-[*.sh]
 indent_style = space
 indent_size = 2
+
+# shfmt formats zsh too (conform.nvim runs it on save), and the dotfiles have
+# no .sh extension to match on, so they are named here.
+[{*.sh,*.bash,*.zsh,dot-bashrc,dot-zshrc,dot-profile}]
 # Keep `case` arms indented inside the case block; shfmt's default flattens
 # them against the left margin, which reads badly in install-test.sh.
 switch_case_indent = true
@@ -19,13 +21,8 @@ switch_case_indent = true
 # `2> /dev/null`, which is not how anyone writes shell.
 space_redirects = false
 
-[*.nix]
-indent_style = space
-indent_size = 2
-
-[*.{yaml,yml}]
-indent_style = space
-indent_size = 2
+[*.{rs,java}]
+indent_size = 4
 
 [Makefile]
 indent_style = tab

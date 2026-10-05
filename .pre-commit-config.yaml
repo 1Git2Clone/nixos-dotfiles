@@ -63,12 +63,13 @@ repos:
         language: system
         files: \.sh$
 
+      # The opencode skills' scripts are vendored and keep upstream's layout.
       - id: shfmt
-        exclude: ^dotfiles/
+        exclude: ^dotfiles/dot-config/opencode/skills/
         name: shfmt
         entry: nix develop .#ci -c shfmt --diff
         language: system
-        files: \.sh$
+        files: (\.sh|/dot-(bashrc|zshrc|profile))$
 
       - id: markdownlint
         exclude: ^dotfiles/
@@ -100,6 +101,7 @@ repos:
         pass_filenames: false
         always_run: true
 
-# dotfiles/ is unlinted by markdownlint, shellcheck and shfmt: its own
-# configs for them stayed behind in the repo it came from. Either bring those
-# back scoped to dotfiles/, or fold the tree in and take the reformat.
+# dotfiles/ is unlinted by markdownlint and shellcheck: its own configs for
+# them stayed behind in the repo it came from. Either bring those back scoped
+# to dotfiles/, or fold the tree in and take the fixes. shfmt took its
+# reformat on 2026-10-05.
