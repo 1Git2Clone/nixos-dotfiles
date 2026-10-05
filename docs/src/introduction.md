@@ -4,9 +4,11 @@ This is the flake behind two workstations: a laptop and a desktop running the
 same NixOS on `nixos-unstable`, with LVM-on-LUKS disks, immutable users whose
 passwords come from sops, Hyprland with the caelestia shell, and Limine.
 
-The user layer lives here too. `dotfiles/` and `nvim/` are symlinked into
-`$HOME` by home-manager, so there is no stow and no second repo to bump: a
-config change and the system change it needs are one commit.
+The user layer lives here too. `dotfiles/` is symlinked into `$HOME` by
+home-manager, so there is no stow: a config change and the system change it
+needs are one commit. The neovim config is the exception, a flake input from
+[nvim-config](https://git.hu-tao.dev/hutao/nvim-config) so it can be used
+without this repo.
 
 ## The machines
 

@@ -8,6 +8,7 @@
 {
   imports = [
     inputs.caelestia-shell.homeManagerModules.default
+    inputs.nvim-config.homeModules.default
   ]
   ++ import ../lib/auto.nix { inherit lib; } ./apps;
 

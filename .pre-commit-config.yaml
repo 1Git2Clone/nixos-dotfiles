@@ -10,12 +10,11 @@ repos:
     rev: v6.0.0
     hooks:
       # assets/sddm-hu-tao/ is vendored upstream and stays byte-identical;
-      # ORIGIN.md is ours. lazy.nvim rewrites its two json files without a
-      # trailing newline, so a fixer there dirties the tree on every sync.
+      # ORIGIN.md is ours.
       - id: trailing-whitespace
-        exclude: ^(assets/sddm-hu-tao/(?!ORIGIN\.md)|nvim/(lazy-lock|lazyvim)\.json$)
+        exclude: ^assets/sddm-hu-tao/(?!ORIGIN\.md)
       - id: end-of-file-fixer
-        exclude: ^(assets/sddm-hu-tao/(?!ORIGIN\.md)|nvim/(lazy-lock|lazyvim)\.json$)
+        exclude: ^assets/sddm-hu-tao/(?!ORIGIN\.md)
       - id: check-merge-conflict
       - id: check-yaml
         # Nothing here acts on sops output. The *.example.yaml files are

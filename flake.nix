@@ -98,6 +98,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # The Neovim config and the home-manager module that installs it, with
+    # Forgejo as the source and GitHub as a mirror, failed over to like
+    # cli-utils:
+    #
+    #   --override-input nvim-config git+https://github.com/1Git2Clone/nvim-config?ref=main
+    #
+    # Locked to a revision: a push there needs `nix flake update nvim-config`.
+    nvim-config.url = "git+https://git.hu-tao.dev/hutao/nvim-config?ref=main";
+
     # Artwork that is not ours to publish, so it lives in its own private repo:
     # a clone of THIS repo must not carry it, and neither must any copy of it.
     # Per-pack terms are in that repo's README.

@@ -82,7 +82,7 @@ in
   # come from programs.gamemode.enable, programs.ydotool.enable and
   # hardware.bluetooth.enable, each of which installs its own package.
   home.packages = with pkgs; [
-    # terminal / file manager  (the editor toolchain is modules/neovim.nix)
+    # terminal / file manager  (the editor toolchain is nvim-config's module)
     kitty
     nautilus
     zen

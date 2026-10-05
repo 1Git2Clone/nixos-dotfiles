@@ -14,9 +14,10 @@
 NixOS config on `nixos-unstable` for a laptop and a desktop: LVM-on-LUKS,
 immutable users from sops, Hyprland + caelestia, Limine.
 
-The user layer is `dotfiles/` and the neovim config is `nvim/`, both in this
-repo, symlinked into `$HOME` by home-manager. No stow, and no flake input to
-bump: a config change and the system change that needs it are one commit.
+The user layer is `dotfiles/`, symlinked into `$HOME` by home-manager, with no
+stow. The neovim config is its own repo,
+[nvim-config](https://git.hu-tao.dev/hutao/nvim-config), whose flake exports
+the home-manager module that installs it.
 
 ```text
 .
@@ -33,7 +34,7 @@ bump: a config change and the system change that needs it are one commit.
 │   ├── disk-layout.nix    # disko: ESP + LUKS → LVM
 │   └── firewall.nix tailscale.nix syncthing.nix users.nix system.nix flatpak.nix
 ├── home/                  # home-manager: the dotfiles walk, one file per app
-├── dotfiles/  nvim/       # the user layer itself
+├── dotfiles/              # the user layer itself
 ├── palette.nix            # the picked caelestia scheme, for what needs a rebuild
 ├── pkgs/                  # greeter, cursors, folder icons, app icons, CaelestiaFox
 ├── secrets/               # sops-encrypted values + a plaintext example

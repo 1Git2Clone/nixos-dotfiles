@@ -1,5 +1,5 @@
 # The desktop layer under QEMU. Fast path for anything in modules/desktop
-# or home/apps/neovim.nix — no install, no LUKS, no sops.
+# or the nvim-config module — no install, no LUKS, no sops.
 #
 #   nix run .#vm     then log in as hutao / vm
 {

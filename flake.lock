@@ -515,6 +515,22 @@
         "type": "github"
       }
     },
+    "nvim-config": {
+      "locked": {
+        "lastModified": 1791222717,
+        "narHash": "sha256-wdM1nQAPn487MPjK4PW760o0VtzaGTbJq5rvuVPwVPk=",
+        "ref": "main",
+        "rev": "af6ea675230aa7473f99ac26fb35650f595eb318",
+        "revCount": 68,
+        "type": "git",
+        "url": "https://git.hu-tao.dev/hutao/nvim-config"
+      },
+      "original": {
+        "ref": "main",
+        "type": "git",
+        "url": "https://git.hu-tao.dev/hutao/nvim-config"
+      }
+    },
     "quickshell": {
       "inputs": {
         "nixpkgs": [
@@ -549,6 +565,7 @@
         "nix-flatpak": "nix-flatpak",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
+        "nvim-config": "nvim-config",
         "sops-nix": "sops-nix",
         "stylix": "stylix",
         "third-party-assets": "third-party-assets",

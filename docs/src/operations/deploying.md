@@ -73,6 +73,7 @@ chapter.
 ```bash
 nix flake update                       # everything
 nix flake update third-party-assets    # just the private art repo
+nix flake update nvim-config           # a pushed neovim config change
 ```
 
 The cursor and folder-icon packs come from the private `third-party-assets`

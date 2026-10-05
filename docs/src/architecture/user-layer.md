@@ -62,10 +62,17 @@ handled on purpose:
 
 ## Neovim
 
+The config and the module that installs it live in
+[nvim-config](https://git.hu-tao.dev/hutao/nvim-config), imported in
+`home/default.nix` as `inputs.nvim-config.homeModules.default`. The paths
+below are in that repo. A change there needs a push and
+`nix flake update nvim-config` before a rebuild sees it; to try one first,
+rebuild with `--override-input nvim-config git+file:///home/hutao/Projects/nvim-config`.
+
 mason is disabled: its prebuilt binaries cannot run on NixOS, so
-`home/apps/neovim.nix` provides the language servers instead. Add a server
+`nix/home.nix` provides the language servers instead. Add a server
 there **and** to `nvim/lua/plugins/lspconfig.lua`'s `servers` table, or it never
-attaches and nothing says so. `home/nvim-nixos.lua` silences the warnings
+attaches and nothing says so. `nix/nixos.lua` silences the warnings
 LazyVim's language extras raise for packages mason did not install.
 
 It also points markdown-preview.nvim (`<leader>cp`) at nixpkgs' build. The
@@ -73,7 +80,7 @@ lang.markdown extra's own build downloads a prebuilt server that cannot run
 here either, and lazy.nvim's git checkout has no `node_modules` for the `node`
 fallback, so the preview died on `Cannot find module 'tslib'` (2026-09-29).
 nixpkgs ships the app with its modules built; it runs with the `node` from
-`home/apps/packages.nix`. The store path goes in when `home/apps/neovim.nix`
+`home/apps/packages.nix`. The store path goes in when `nix/home.nix`
 copies the file, in place of `@markdownPreview@`.
 
 The preview takes caelestia's colours: `nvim/lua/plugins/markdown-preview.lua`
