@@ -12,7 +12,7 @@ let
   # caelestia-tab's helper is registered the same way, so it needs no
   # `caelestia-tab install`.
   nativeMessagingHosts = [
-    (pkgs.callPackage ../../pkgs/caelestiafox.nix { })
+    (pkgs.callPackage ../../pkgs/caelestia-firefox-theme.nix { })
     inputs.caelestia-tab.packages.${pkgs.system}.default
   ];
   floorp = pkgs.floorp-bin.override { inherit nativeMessagingHosts; };
