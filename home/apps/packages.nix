@@ -72,6 +72,10 @@ in
       inherit userChrome;
     };
   };
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
 
   # ── Packages ─────────────────────────────────────────────────────────────
   # What the keybinds, scripts and dotfiles actually call. All of it
