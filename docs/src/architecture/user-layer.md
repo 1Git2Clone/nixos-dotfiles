@@ -200,6 +200,40 @@ any `user.js` aside as `*.hm-bak`. Restart the browser to pick up a change.
 - **Floorp's `configPath` is set.** home-manager's default is `~/.floorp`,
   but `floorp-bin` keeps its profiles in `~/.config/floorp`.
 
+## Wallpaper Engine
+
+`home/apps/wallpaper-engine.nix` plays Steam Workshop wallpapers with
+nixpkgs' `linux-wallpaperengine`. The GUI is AzPepoze's
+`linux-wallpaperengine-gui`, packaged in `pkgs/linux-wallpaperengine-gui.nix`
+from its release AppImage, since upstream ships no other Linux build. Both
+read their assets from the Steam install, so Wallpaper Engine (app 431960)
+has to be owned and installed through Steam.
+
+- **caelestia's wallpaper is the fallback.** caelestia draws it on the
+  layer-shell Background layer, and the GUI starts the engine on Bottom (its
+  `layer` setting, default `bottom`), which stacks above. A monitor with an
+  engine wallpaper shows that one, and any other keeps caelestia's. Setting
+  the GUI's layer to `background` would put the two on one layer, so leave it
+  at `bottom`.
+- **The colours still come from the static pick.** `caelestia wallpaper` and
+  `current.json` drive the scheme, stylix, Limine and SDDM exactly as in
+  [Colours](colours.md). The animated wallpaper feeds none of them.
+- **A user service starts it at login.** It is bound to
+  `graphical-session.target` and runs `linux-wallpaperengine-gui --minimized`:
+  the Go backend sits in the tray and replays the last wallpaper, and opens
+  the Electron window only on demand. The GUI's own autostart toggle writes
+  an XDG autostart entry, which nothing here runs, so leave it off. The unit
+  sets `XDG_SESSION_TYPE=wayland` itself: `autostart.lua` imports only
+  `WAYLAND_DISPLAY`, `XDG_CURRENT_DESKTOP` and `HYPRLAND_INSTANCE_SIGNATURE`
+  into systemd, and without it every engine start exited with "Cannot read
+  environment variable XDG_SESSION_TYPE" (2026-10-06).
+- **The package runs the backend, not the AppImage's entry.** That entry is
+  Electron, which starts the backend and exits, and the FHS env takes the
+  backend down with it.
+- **What the backend shells out to is inside its FHS env:** the engine,
+  `xrandr` for the screens (Xwayland's names match Hyprland's), `killall`,
+  `xprop`, `zenity` for the folder picker and `notify-send`.
+
 ## Not linted
 
 `dotfiles/` is exempt from markdownlint and shellcheck, because that tree's
