@@ -72,6 +72,11 @@ in
       inherit userChrome;
     };
   };
+  # Floorp's and Zen's wrappers `ln -sf` the same manifests into here on every
+  # launch, straight at the packages, so after a rebuild that changes one the
+  # links are no longer home-manager's and activation refuses to replace them.
+  # The two only ever disagree on which store path, so ours wins.
+  home.file.".mozilla/native-messaging-hosts".force = true;
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;

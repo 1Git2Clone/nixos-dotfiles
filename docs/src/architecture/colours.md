@@ -150,7 +150,12 @@ writer per file:
   so restart it after the first rebuild that brings it. All three read that
   directory: Floorp though its profile is in `~/.config/floorp`, and Zen
   (from the `zen-browser` flake input, not nixpkgs) though its profile is in
-  `~/.zen` — confirmed for Zen 1.22.3b on 2026-09-27.
+  `~/.zen` — confirmed for Zen 1.22.3b on 2026-09-27. home-manager
+  links the same directory, and the two fight. The wrappers point their
+  links straight at the packages, so after a rebuild that changes one,
+  activation failed once on "would be clobbered" and passed on a rerun
+  (2026-10-06). The directory is `force = true` in home-manager, so its
+  links win.
 - **Zen's window isn't CaelestiaFox's.** Zen ignores the extension theme API,
   so CaelestiaFox recolours Firefox and Floorp but not Zen. caelestia-tab's
   helper writes a Zen mod instead (see its handbook), and the `zen` package in
