@@ -233,6 +233,22 @@ has to be owned and installed through Steam.
 - **What the backend shells out to is inside its FHS env:** the engine,
   `xrandr` for the screens (Xwayland's names match Hyprland's), `killall`,
   `xprop`, `zenity` for the folder picker and `notify-send`.
+- **The wallpapers and some settings are Nix's.**
+  `home.activation.wallpaperEngineSettings` merges them into
+  `~/.config/linux-wallpaperengine-gui/config.json` on every rebuild:
+  `screens`, a Workshop ID per output for both machines (`eDP-1`, the
+  laptop's panel, shares `LAPTOP`'s), `steamPaths` (the GUI's defaults plus
+  `/mnt/hdd/SteamLibrary`), `scaling = "fill"`, `fullscreenPauseOnlyActive`
+  and `autostart = false`. The GUI only starts the screens that are
+  connected, so one list serves both. `screens` is replaced whole, so a
+  wallpaper picked in the GUI lasts until the next rebuild; change the IDs in
+  `home/apps/wallpaper-engine.nix` to keep it. Filters, properties and the UI
+  stay the GUI's. It rereads the file on every apply.
+- **A fullscreen window freezes it.** The engine pauses while any window is
+  fullscreen, on any workspace of any monitor, after drawing one frame: a
+  scene stops still and a video stays black. `fullscreenPauseOnlyActive`
+  narrows that to a focused fullscreen window, which is still a pause.
+  Learned 2026-10-06 from a fullscreen Sober.
 
 ## Not linted
 
