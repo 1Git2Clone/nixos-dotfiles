@@ -67,6 +67,16 @@ hl.window_rule({
 })
 
 hl.window_rule({
+  name = "showmethekey-overlay",
+  -- A plain GTK window, not a layer surface, so it overlays only by rule.
+  match = { class = [[^(one\.alynx\.showmethekey)$]], title = "^(Floating Window - Show Me The Key)$" },
+  float = true,
+  pin = true,
+  no_initial_focus = true,
+  move = { "1500", "20" },
+})
+
+hl.window_rule({
   name = "terminal",
   match = { class = "^[Kk]itty$" },
   opacity = "0.98",

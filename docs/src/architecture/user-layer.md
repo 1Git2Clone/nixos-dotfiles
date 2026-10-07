@@ -250,6 +250,36 @@ has to be owned and installed through Steam.
   narrows that to a focused fullscreen window, which is still a pause.
   Learned 2026-10-06 from a fullscreen Sober.
 
+## Show Me The Key
+
+`showmethekey` puts the keys you press on screen, the Wayland stand-in for
+screenkey. Wayland gives no client the keys typed into another, so its GUI
+starts a helper through `pkexec` that reads `/dev/input` as root.
+
+- **It is a system package.** It is in `modules/desktop/packages.nix`, not
+  `home/apps/packages.nix`, because polkit loads its action file only from
+  the system profile. From a user profile, `pkexec` would use its generic
+  action and ask for the password on every start, not once in a while.
+- **The overlay is a window rule.** The key display is a normal GTK4 window,
+  not a layer-shell surface. `showmethekey-overlay` in
+  `hypr/modules/window_rules.lua` floats it, pins it to every workspace,
+  keeps it from taking focus when it opens, and moves it to `1500, 20`, the
+  top-right corner of a 1920-wide monitor at the app's 400px width. The rule
+  matches the English title `Floating Window - Show Me The Key`, so it stops
+  matching under another locale.
+- **It is non-interactive by toggle, not by rule.** Double-tap Ctrl anywhere
+  to flip "Clickable" (off passes clicks through) and Alt to flip "Pause".
+  The helper reads every key, so neither needs the window focused.
+- **Its settings are Nix's.** `home/apps/showmethekey.nix` writes the ones
+  that differ from the defaults (compact mode, Shift folded into the combo,
+  a 400×100 window, margin ratio 0.32) to dconf on every rebuild, so a change
+  made in the GUI lasts until the next one. The schema stores the sizes as
+  doubles, so they are float literals: an integer would be written as an
+  int32 and ignored. The on, Clickable and Pause switches are runtime state
+  and left out.
+- **It sees passwords too.** Turn it off before typing a secret on a
+  recording.
+
 ## Not linted
 
 `dotfiles/` is exempt from markdownlint and shellcheck, because that tree's

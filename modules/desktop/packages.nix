@@ -16,5 +16,10 @@
     # so a user profile is the wrong place for them.
     gptfdisk
     parted
+
+    # Its key reader runs as root through pkexec, and polkit loads actions
+    # only from the system profile. From a user profile pkexec falls back to
+    # its generic action, which asks for the password on every start.
+    showmethekey
   ];
 }
