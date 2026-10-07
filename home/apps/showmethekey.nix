@@ -5,9 +5,12 @@
   dconf.settings."one/alynx/showmethekey" = {
     show-shift = false;
     mode = "compact";
+    # Bordered keys sit on the bottom of their glyph, which drops ' to the floor.
+    draw-border = false;
     # Doubles in the schema: an int literal is written as one and ignored.
     width = 400.0;
-    height = 100.0;
+    height = 66.6;
     margin-ratio = 0.32;
+    timeout = 2000.0;
   };
 }

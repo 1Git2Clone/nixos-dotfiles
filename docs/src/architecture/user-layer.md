@@ -272,11 +272,19 @@ starts a helper through `pkexec` that reads `/dev/input` as root.
   The helper reads every key, so neither needs the window focused.
 - **Its settings are Nix's.** `home/apps/showmethekey.nix` writes the ones
   that differ from the defaults (compact mode, Shift folded into the combo,
-  a 400×100 window, margin ratio 0.32) to dconf on every rebuild, so a change
-  made in the GUI lasts until the next one. The schema stores the sizes as
+  no key borders, a 400×66.6 window, margin ratio 0.32, keys cleared after
+  2000 ms idle) to dconf on every rebuild, so a change made in the GUI lasts
+  until the next one. The schema stores the sizes and the timeout as
   doubles, so they are float literals: an integer would be written as an
   int32 and ignored. The on, Clickable and Pause switches are runtime state
-  and left out.
+  and left out. The text is 72% of the key area's height; there is no font
+  size setting.
+- **Borders are off for the punctuation.** A bordered key is drawn by its
+  glyph's ink box, aligned to the bottom, so `'` sits where a comma would.
+  Without borders the text sits on its baseline.
+- **A new size needs the key window reopened.** The key window takes its
+  width and height when it is created, so after a rebuild that changes them,
+  flip the GUI's main switch off and on (2026-10-07).
 - **It sees passwords too.** Turn it off before typing a secret on a
   recording.
 
