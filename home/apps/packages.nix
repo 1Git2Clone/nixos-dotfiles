@@ -227,6 +227,8 @@ in
 
     ente-auth
 
+    kdePackages.kdenlive
+
     # Tray GUI for tailscaled, kept for its exit-node menu (Mullvad nodes get
     # their own per-country submenu). Exit nodes are stored prefs, so picking
     # one here is runtime state and never wants a rebuild. Let-bound above for
