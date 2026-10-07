@@ -146,7 +146,6 @@ in
     gnome-keyring
     polkit_gnome
     gammastep
-    espanso-wayland # the plain espanso build cannot see a Wayland session
     trash-cli # trash-empty
     glib # gsettings
 

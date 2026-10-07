@@ -36,7 +36,6 @@ function M.setup(programs)
     hl.exec_cmd(programs.shell)
 
     hl.exec_cmd("fcitx5")
-    hl.exec_cmd("espanso start")
 
     hl.exec_cmd("usb-device-connect.sh")
   end)
