@@ -256,6 +256,13 @@ has to be owned and installed through Steam.
 screenkey. Wayland gives no client the keys typed into another, so its GUI
 starts a helper through `pkexec` that reads `/dev/input` as root.
 
+- **`hutao` is not in `input`, on purpose.** That group can read every input
+  device, so any process running as the user could log every keystroke,
+  passwords included, with no root at all. It was in `modules/users.nix`
+  until 2026-10-07. Show Me The Key is why it matters: in `input` it skips
+  `pkexec` and runs the helper as the user (`smtk-keys-emitter.c`), so the
+  password prompt at start is the sign the group is gone.
+
 - **It is a system package.** It is in `modules/desktop/packages.nix`, not
   `home/apps/packages.nix`, because polkit loads its action file only from
   the system profile. From a user profile, `pkexec` would use its generic

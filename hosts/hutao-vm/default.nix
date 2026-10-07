@@ -31,7 +31,6 @@
       "networkmanager"
       "video"
       "audio"
-      "input"
     ];
     password = "vm";
     shell = pkgs.zsh;

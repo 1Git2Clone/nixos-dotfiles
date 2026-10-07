@@ -7,12 +7,12 @@
   users.users.hutao = {
     isNormalUser = true;
     description = "hutao";
+    # Not "input": it reads every keystroke on the system without root.
     extraGroups = [
       "wheel"
       "networkmanager"
       "video"
       "audio"
-      "input"
     ];
     hashedPasswordFile = config.sops.secrets.user_password.path;
     shell = pkgs.zsh;
