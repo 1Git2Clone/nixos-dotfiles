@@ -517,11 +517,11 @@
     },
     "nvim-config": {
       "locked": {
-        "lastModified": 1791222717,
-        "narHash": "sha256-wdM1nQAPn487MPjK4PW760o0VtzaGTbJq5rvuVPwVPk=",
+        "lastModified": 1791384228,
+        "narHash": "sha256-qtd0yQSLia6ueHwldQMmrHVyNvGboUaBTiBOjvd5GOY=",
         "ref": "main",
-        "rev": "af6ea675230aa7473f99ac26fb35650f595eb318",
-        "revCount": 68,
+        "rev": "3e6e53a4bb3050e844028f6e578517cb34550f7e",
+        "revCount": 70,
         "type": "git",
         "url": "https://git.hu-tao.dev/hutao/nvim-config"
       },
