@@ -36,7 +36,7 @@ the home-manager module that installs it.
 ├── home/                  # home-manager: the dotfiles walk, one file per app
 ├── dotfiles/              # the user layer itself
 ├── palette.nix            # the picked caelestia scheme, for what needs a rebuild
-├── pkgs/                  # greeter, cursors, folder icons, app icons, CaelestiaFox
+├── pkgs/                  # greeter, cursors, folder icons, app icons, CaelestiaFox, Claude Code
 ├── secrets/               # sops-encrypted values + a plaintext example
 ├── install.sh             # partition, encrypt, install, from the ISO
 ├── vm/                    # the install rehearsal

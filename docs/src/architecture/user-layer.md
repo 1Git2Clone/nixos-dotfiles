@@ -250,6 +250,20 @@ has to be owned and installed through Steam.
   narrows that to a focused fullscreen window, which is still a pause.
   Learned 2026-10-06 from a fullscreen Sober.
 
+## Claude Code ahead of nixpkgs
+
+`pkgs/claude-code.nix` is nixpkgs' `claude-code` with only its release manifest
+swapped (`.override { manifest = ...; }`), so the wrapper, patching and sandbox
+deps stay nixpkgs'. It exists because the client only offers models in its own
+catalog, so a model newer than nixpkgs' release is refused by `/model` until
+nixpkgs bumps the package.
+
+- **Bumping** is copying `version` and the per-platform `checksum`s from
+  `https://downloads.claude.ai/claude-code-releases/<version>/manifest.zst.json`;
+  `.../latest` names the newest version.
+- **Delete it** once nixpkgs reaches the pinned version, and
+  `home/apps/packages.nix` falls back to nixpkgs' package.
+
 ## Show Me The Key
 
 `showmethekey` puts the keys you press on screen, the Wayland stand-in for
