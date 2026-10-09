@@ -2,11 +2,16 @@
 # binary that links only libc; the windowing and GPU libraries are dlopen'd at
 # runtime (winit, wgpu), so autoPatchelf can't see them and they go on the
 # rpath through runtimeDependencies instead.
+#
+# File > Open falls back to a bare `zenity` when the portal doesn't answer, and
+# on this desktop it does nothing without one, so zenity goes on PATH.
 {
   lib,
   stdenvNoCC,
   fetchurl,
   autoPatchelfHook,
+  makeWrapper,
+  zenity,
   stdenv,
   wayland,
   libxkbcommon,
@@ -26,7 +31,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     hash = "sha256-4EQQGy2lUiiW4dgza4EIfL7L9reLdoUxX1jdTz36TOA=";
   };
 
-  nativeBuildInputs = [ autoPatchelfHook ];
+  nativeBuildInputs = [
+    autoPatchelfHook
+    makeWrapper
+  ];
   buildInputs = [ stdenv.cc.cc.lib ];
   runtimeDependencies = [
     wayland
@@ -43,6 +51,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook preInstall
     mkdir -p $out
     cp -r bin share $out/
+    wrapProgram $out/bin/photocraft --prefix PATH : ${lib.makeBinPath [ zenity ]}
     runHook postInstall
   '';
 

@@ -272,10 +272,14 @@ wgpu `dlopen` Wayland, xkbcommon, GL and Vulkan at runtime, so they sit on the
 rpath via `runtimeDependencies` rather than `buildInputs`. It is in
 `home/apps/packages.nix`.
 
+- **`zenity` is on its `PATH`.** File > Open fell back to a bare `zenity` and
+  did nothing without one, though the portals were running. Learned
+  2026-10-09. The "could not find these libraries" warning at start is its own
+  FHS check and is harmless: the libraries are on the rpath.
 - **Bumping** is the new `version` plus the tarball's hash; `SHA256SUMS.txt`
   on the release lists it.
-- **Not verified on the desktop**: it builds and the rpath is set, but the
-  window has not been opened yet.
+- **Drag-and-drop from other windows is unavailable on Wayland** (upstream);
+  `WAYLAND_DISPLAY= photocraft` runs it under XWayland to get it.
 
 ## Show Me The Key
 
