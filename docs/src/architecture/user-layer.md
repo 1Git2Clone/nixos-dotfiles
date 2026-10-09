@@ -264,6 +264,19 @@ nixpkgs bumps the package.
 - **Delete it** once nixpkgs reaches the pinned version, and
   `home/apps/packages.nix` falls back to nixpkgs' package.
 
+## PhotoCraft
+
+`pkgs/photocraft.nix` wraps upstream's x86_64 Linux release tarball (a Rust
+Photoshop clone, no nixpkgs package). The binary links only libc; winit and
+wgpu `dlopen` Wayland, xkbcommon, GL and Vulkan at runtime, so they sit on the
+rpath via `runtimeDependencies` rather than `buildInputs`. It is in
+`home/apps/packages.nix`.
+
+- **Bumping** is the new `version` plus the tarball's hash; `SHA256SUMS.txt`
+  on the release lists it.
+- **Not verified on the desktop**: it builds and the rpath is set, but the
+  window has not been opened yet.
+
 ## Show Me The Key
 
 `showmethekey` puts the keys you press on screen, the Wayland stand-in for

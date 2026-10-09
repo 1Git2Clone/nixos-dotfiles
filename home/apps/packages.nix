@@ -5,6 +5,7 @@ let
   app-icons = pkgs.callPackage ../../pkgs/app-icons.nix { };
   openrouter-image-mcp = pkgs.callPackage ../../pkgs/openrouter-image-mcp.nix { };
   claude-code = pkgs.callPackage ../../pkgs/claude-code.nix { };
+  photocraft = pkgs.callPackage ../../pkgs/photocraft.nix { };
 
   # CaelestiaFox (the extension, from AMO) recolours the browser with the
   # scheme, off a native app it talks to; each browser's wrapper registers it.
@@ -134,6 +135,9 @@ in
 
     # Libreoffice
     libreoffice-fresh
+
+    # image editing
+    photocraft # pkgs/photocraft.nix
 
     # Google
     google-chrome
