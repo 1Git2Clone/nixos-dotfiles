@@ -14,16 +14,16 @@ key. `modules/sops.nix` declares every key and is the one place to add one.
 
 ## The keys
 
-| Key                                     | What                                        | Consumer                                  |
-| --------------------------------------- | ------------------------------------------- | ----------------------------------------- |
-| `root_password`                         | crypt(3) hash, `mkpasswd -m yescrypt`       | `modules/users.nix`                       |
-| `user_password`                         | crypt(3) hash, `mkpasswd -m yescrypt`       | `modules/users.nix`                       |
-| `luks_passphrase`                       | the passphrase itself, in the clear         | `install.sh` only, never declared         |
-| `tailscale_authkey`                     | reusable, pre-authorized, **not** ephemeral | `modules/tailscale.nix`                   |
-| `syncthing_gui_password`                | plaintext; syncthing-init bcrypts it        | `modules/syncthing.nix`                   |
-| `sunshine_password`                     | plaintext; `sunshine --creds` hashes it     | `hosts/hutao-desktop`                     |
-| `llm.*` (see `llmKeys`)                 | provider API keys                           | rendered into one `llm.env`               |
-| `nix.forgejo_token`, `nix.github_token` | read tokens for private flake inputs        | rendered into root's git credential store |
+| Key                                     | What                                                              | Consumer                                  |
+| --------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------- |
+| `root_password`                         | crypt(3) hash, `mkpasswd -m yescrypt`                             | `modules/users.nix`                       |
+| `user_password`                         | crypt(3) hash, `mkpasswd -m yescrypt`                             | `modules/users.nix`                       |
+| `luks_passphrase`                       | the passphrase itself, in the clear                               | `install.sh` only, never declared         |
+| `tailscale_authkey`                     | reusable, pre-authorized, **not** ephemeral                       | `modules/tailscale.nix`                   |
+| `syncthing_gui_password`                | plaintext; syncthing-init bcrypts it                              | `modules/syncthing.nix`                   |
+| `sunshine_password`                     | plaintext; `sunshine --creds` hashes it                           | `hosts/hutao-desktop`                     |
+| `llm.*` (see `llmKeys`)                 | provider API keys (openrouter, opencode, vercel, minimax)         | rendered into one `llm.env`               |
+| `nix.forgejo_token`, `nix.github_token` | read tokens for private flake inputs                              | rendered into root's git credential store |
 
 **Every declared key must exist**, on every host, before anything builds.
 sops-nix checks the manifest at build time, and a missing key is a failed

@@ -14,6 +14,7 @@ let
     openrouter = "OPENROUTER_API_KEY";
     opencode = "OPENCODE_API_KEY";
     vercel = "AI_GATEWAY_API_KEY";
+    minimax = "MINIMAX_API_KEY";
   };
 
   # Private-flake tokens, by host. Forgejo is the source of truth and GitHub the

@@ -6,7 +6,6 @@
     "@knikolov/opencode-plugin-simple-memory",
     "opencode-pty",
     "opencode-morph-fast-apply",
-    "opencode-notificator",
     "~/.config/opencode/ponytail.mjs",
     "@csuwl/opencode-memory-plugin",
     "@fpytloun/opencode-mnemory",
@@ -78,6 +77,34 @@
       "command": ["openrouter-image-mcp"],
       "environment": {
         "OPENROUTER_API_KEY": "{env:OPENROUTER_API_KEY}"
+      }
+    }
+  },
+  "provider": {
+    "minimax": {
+      "api": "openai-compatible",
+      "options": {
+        "baseURL": "https://api.minimax.chat/v1",
+        "apiKey": "{env:MINIMAX_API_KEY}"
+      },
+      "models": {
+        "minimax-m3": {
+          "id": "MiniMax-M3",
+          "name": "MiniMax M3",
+          "tool_call": true,
+          "reasoning": true,
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "cost": {
+            "input": 0.3,
+            "output": 1.2
+          },
+          "modalities": {
+            "input": ["text", "image"]
+          }
+        }
       }
     }
   },

@@ -1,38 +1,38 @@
 {
-  "preset": "deepseek",
+  "preset": "minimax",
   "presets": {
-    "deepseek": {
+    "minimax": {
       "orchestrator": {
-        "model": "openrouter/deepseek/deepseek-v4-flash",
+        "model": "minimax/minimax-m3",
         "skills": ["*"],
         "mcps": ["*"]
       },
       "oracle": {
-        "model": "openrouter/deepseek/deepseek-v4-flash",
+        "model": "minimax/minimax-m3",
         "variant": "high",
         "skills": ["simplify"],
         "mcps": []
       },
       "librarian": {
-        "model": "openrouter/deepseek/deepseek-v4-flash",
+        "model": "minimax/minimax-m3",
         "variant": "low",
         "skills": [],
         "mcps": ["websearch", "context7", "grep_app"]
       },
       "explorer": {
-        "model": "openrouter/deepseek/deepseek-v4-flash",
+        "model": "minimax/minimax-m3",
         "variant": "low",
         "skills": [],
         "mcps": []
       },
       "designer": {
-        "model": "openrouter/deepseek/deepseek-v4-flash",
+        "model": "minimax/minimax-m3",
         "variant": "medium",
         "skills": ["agent-browser"],
         "mcps": []
       },
       "fixer": {
-        "model": "openrouter/deepseek/deepseek-v4-flash",
+        "model": "minimax/minimax-m3",
         "variant": "low",
         "skills": [],
         "mcps": []
