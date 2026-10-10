@@ -103,6 +103,8 @@ in
       settings = {
         capture = "wlr";
         output_name = "LAPTOP";
+        # VAAPI/VCN hung the whole GPU after ~1h of streaming (2026-10-10).
+        encoder = "software";
         # A monitor, not a game: the desktop keeps its own sound.
         stream_audio = "disabled";
       };

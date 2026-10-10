@@ -66,6 +66,10 @@ they are not declared here. (2026-09-25)
   is turned back off: mDNS never crosses the tailnet, so Moonlight adds the
   host by name.
 - **Audio stays on the desktop** (`stream_audio = disabled`).
+- **Software encoding** (`encoder = "software"`). With the default VAAPI, the
+  Navi 10's VCN encoder ring timed out after about an hour of streaming, the
+  ring reset failed, and the GPU reset took the whole machine down.
+  (2026-10-10)
 - **The login is seeded from sops** on every start. `sunshine --creds` merges
   into `sunshine_state.json`, so paired clients survive the re-seed.
 
