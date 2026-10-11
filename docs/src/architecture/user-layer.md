@@ -281,6 +281,20 @@ rpath via `runtimeDependencies` rather than `buildInputs`. It is in
 - **Drag-and-drop from other windows is unavailable on Wayland** (upstream);
   `WAYLAND_DISPLAY= photocraft` runs it under XWayland to get it.
 
+## WordCraft, GridCraft, DeckCraft, CADCraft
+
+`pkgs/wordcraft.nix`, `gridcraft.nix`, `deckcraft.nix` and `cadcraft.nix` are
+`photocraft.nix`'s siblings (a Word, Excel, PowerPoint and AutoCAD stand-in):
+the same upstream, tarball layout and rpath treatment, none in nixpkgs. All
+four are in `home/apps/packages.nix`. Each tarball also ships a `<name>-cli`,
+which gets no wrapper. `deckcraft` additionally links `libasound`, so
+`alsa-lib` is in its `buildInputs`.
+
+- **Bumping** is the new `version` plus the tarball's hash, from the release's
+  `SHA256SUMS.txt`.
+- **Not verified on the desktop**: they build and the rpath is set, but the
+  windows have not been opened yet.
+
 ## Show Me The Key
 
 `showmethekey` puts the keys you press on screen, the Wayland stand-in for

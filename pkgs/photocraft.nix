@@ -24,11 +24,11 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "photocraft";
-  version = "0.5.0";
+  version = "0.7.0";
 
   src = fetchurl {
     url = "https://github.com/storytold/photocraft/releases/download/v${finalAttrs.version}/photocraft-${finalAttrs.version}-linux-x86_64.tar.gz";
-    hash = "sha256-4EQQGy2lUiiW4dgza4EIfL7L9reLdoUxX1jdTz36TOA=";
+    hash = "sha256-ZB+DElL9MbQ+4aEuVy10QuVlLC5b9iPeCFdBw3DwyR0=";
   };
 
   nativeBuildInputs = [

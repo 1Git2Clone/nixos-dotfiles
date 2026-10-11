@@ -6,6 +6,10 @@ let
   openrouter-image-mcp = pkgs.callPackage ../../pkgs/openrouter-image-mcp.nix { };
   claude-code = pkgs.callPackage ../../pkgs/claude-code.nix { };
   photocraft = pkgs.callPackage ../../pkgs/photocraft.nix { };
+  gridcraft = pkgs.callPackage ../../pkgs/gridcraft.nix { };
+  wordcraft = pkgs.callPackage ../../pkgs/wordcraft.nix { };
+  cadcraft = pkgs.callPackage ../../pkgs/cadcraft.nix { };
+  deckcraft = pkgs.callPackage ../../pkgs/deckcraft.nix { };
 
   # CaelestiaFox (the extension, from AMO) recolours the browser with the
   # scheme, off a native app it talks to; each browser's wrapper registers it.
@@ -138,6 +142,12 @@ in
 
     # image editing
     photocraft # pkgs/photocraft.nix
+
+    # office suite
+    wordcraft # pkgs/wordcraft.nix
+    gridcraft # pkgs/gridcraft.nix
+    deckcraft # pkgs/deckcraft.nix
+    cadcraft # pkgs/cadcraft.nix
 
     # Google
     google-chrome
