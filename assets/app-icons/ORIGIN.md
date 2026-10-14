@@ -13,3 +13,7 @@ To change an icon, replace the file — same name, `.svg` or `.png` — and rebu
 
 Seeded from papirus-icon-theme's `applications-games` (GPL-3.0), which is a
 sensible generic default until you drop in real artwork.
+
+`claude-symbolic.svg` is the Claude logo from simple-icons 13.21.0 (CC0-1.0),
+used by `dotfiles/dot-claude/hooks/notify.sh`. The `-symbolic` name makes
+caelestia tint it to the theme instead of drawing it black.

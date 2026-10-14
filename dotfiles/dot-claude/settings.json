@@ -37,6 +37,15 @@
             "command": "workmux set-window-status waiting"
           }
         ]
+      },
+      {
+        "matcher": "permission_prompt|elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notify.sh ask"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -88,6 +97,15 @@
             "command": "atuin hook claude-code"
           }
         ]
+      },
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notify.sh ask"
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -123,6 +141,14 @@
             "command": "workmux set-window-status done"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notify.sh done"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -141,6 +167,14 @@
           {
             "type": "command",
             "command": "workmux set-window-status working"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notify.sh start"
           }
         ]
       }
