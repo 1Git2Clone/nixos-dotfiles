@@ -264,6 +264,34 @@ nixpkgs bumps the package.
 - **Delete it** once nixpkgs reaches the pinned version, and
   `home/apps/packages.nix` falls back to nixpkgs' package.
 
+## Notifications for long commands and Claude
+
+`pkgs/shell-notify.nix` packages `shell-notify`, which has two jobs:
+
+- **`shell-notify send`**: `.zshrc` calls it after any command that ran
+  `SHELL_NOTIFY_MIN` (30) seconds or more, unless its first word, after an
+  optional `sudo`, is in `SHELL_NOTIFY_SKIP` (nvim, ssh, less, man, htop, tmux
+  and the like). The title is `Shell <session>:<pane>`, or just `Shell` outside
+  tmux. The body is the exit code, then one line from
+  `deepseek/deepseek-v4.1-flash` on OpenRouter (`--model` or
+  `SHELL_NOTIFY_MODEL` to change it), such as "[1] | System rebuild failed:
+  unknown option programs.zsh.initExtraa". The model gets the command
+  line, its exit code, and the first 20 and last 40 lines of its output, read
+  back from the tmux pane. Outside tmux it gets no output. With no
+  `OPENROUTER_API_KEY`, or no answer within 15 s, the body falls back to
+  "Finished running <command>" or "Failed: <command>".
+- **`shell-notify visible`**: exits 0 when the caller's terminal is on screen,
+  meaning its tmux pane is the active one in an attached session and that
+  client's window has Hyprland's focus. `send` skips the notification then, and
+  so does Claude's `dot-claude/hooks/notify.sh`.
+
+- **The terminal icon is copied into hicolor** by `pkgs/app-icons.nix`, like
+  the others there. caelestia drew the Papirus name as the missing-icon
+  squares. Learned 2026-10-15.
+- **Reasoning is off in the request.** DeepSeek V4.1 Flash otherwise spends
+  the whole 60-token budget thinking and returns an empty answer. Learned
+  2026-10-15.
+
 ## PhotoCraft
 
 `pkgs/photocraft.nix` wraps upstream's x86_64 Linux release tarball (a Rust

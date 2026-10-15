@@ -17,6 +17,7 @@ let
     "application-x-executable"
     "applications-system-symbolic"
     "mark-location-symbolic"
+    "utilities-terminal-symbolic" # shell-notify
   ];
 in
 runCommandLocal "hutao-app-icons"

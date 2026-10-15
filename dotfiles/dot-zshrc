@@ -64,3 +64,37 @@ function zvm_after_init() {
   bindkey -M viins '^R' atuin-search-viins
   bindkey -M viins '^S' atuin-search-viins
 }
+
+###############################################################################
+# Notify when a command ran long and its pane isn't on screen (shell-notify).
+###############################################################################
+SHELL_NOTIFY_MIN=30 # seconds
+# Interactive by nature: they run long because you're using them.
+SHELL_NOTIFY_SKIP=(nvim vim vi ssh mosh less more man htop btop top tmux watch
+  claude opencode yazi lazygit)
+
+zmodload zsh/datetime
+autoload -Uz add-zsh-hook
+
+_shell_notify_preexec() {
+  _shell_notify_cmd=$1 _shell_notify_start=$EPOCHSECONDS _shell_notify_line=
+  # Where its output starts, so shell-notify can read it back from the pane.
+  [[ -n $TMUX_PANE ]] &&
+    _shell_notify_line=$(tmux display -p -t "$TMUX_PANE" '#{e|+:#{history_size},#{cursor_y}}')
+}
+
+_shell_notify_precmd() {
+  local st=$? words
+  [[ -n $_shell_notify_start ]] || return
+  local secs=$((EPOCHSECONDS - _shell_notify_start))
+  _shell_notify_start=
+  ((secs >= SHELL_NOTIFY_MIN)) || return
+  words=(${(z)_shell_notify_cmd})
+  [[ $words[1] == sudo ]] && shift words
+  [[ " ${SHELL_NOTIFY_SKIP[*]} " == *" ${words[1]:t} "* ]] && return
+  # In a subshell, so job control neither prints [1] nor waits on it.
+  (shell-notify send "$st" "$secs" "$_shell_notify_line" "$_shell_notify_cmd" &>/dev/null &)
+}
+
+add-zsh-hook preexec _shell_notify_preexec
+add-zsh-hook precmd _shell_notify_precmd

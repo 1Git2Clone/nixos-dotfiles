@@ -10,6 +10,7 @@ let
   wordcraft = pkgs.callPackage ../../pkgs/wordcraft.nix { };
   cadcraft = pkgs.callPackage ../../pkgs/cadcraft.nix { };
   deckcraft = pkgs.callPackage ../../pkgs/deckcraft.nix { };
+  shell-notify = pkgs.callPackage ../../pkgs/shell-notify.nix { };
 
   # CaelestiaFox (the extension, from AMO) recolours the browser with the
   # scheme, off a native app it talks to; each browser's wrapper registers it.
@@ -258,6 +259,7 @@ in
 
     # let-bound above; a `let` binding shadows `with pkgs`.
     app-icons
+    shell-notify
   ];
 
   # Outside the profile there is no collision, and these paths stay put while
