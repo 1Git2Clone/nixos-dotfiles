@@ -1,9 +1,16 @@
 # Desktop notifications for things that finish in a terminal you're not watching.
 #
-#   shell-notify visible
-#       Exit 0 when the caller's terminal is on screen: its tmux pane is the
+#   shell-notify visible [pane]
+#       Exit 0 when the pane (default: the caller's) is on screen: it is the
 #       active one in an attached session and that client's window has
 #       Hyprland's focus. notify.sh (Claude's hook) uses this too.
+#   shell-notify notify <notify-send args>
+#       notify-send that remembers the notification under the caller's pane,
+#       so `dismiss` can close it.
+#   shell-notify dismiss <pane>
+#       Close the pane's remembered notifications if it is on screen. tmux's
+#       pane-focus-in hook calls it, which fires on pane and session switches
+#       and when the terminal window itself gains focus.
 #   shell-notify send [--model M] <exit> <seconds> <start-line> <command>
 #       Called by .zshrc for commands that ran long. Summarises the command
 #       and its output into one line through OpenRouter, falling back to plain
@@ -14,6 +21,8 @@ head_lines=20 # first and last lines of output sent to the model
 tail_lines=40
 api_timeout=15 # seconds before giving up on the summary
 sticky=3600000 # caelestia reads -t 0 as its 5s default; see notify.sh
+# One file of notification IDs per pane, named by its number (%27 -> 27).
+ids="${XDG_RUNTIME_DIR:-/tmp}/shell-notify"
 
 # True when pid $1 is $2 or runs somewhere under it.
 descends_from() {
@@ -26,19 +35,19 @@ descends_from() {
 }
 
 visible() {
-  local focused client
+  local pane=${1:-${TMUX_PANE:-}} focused client
   focused=$(hyprctl activewindow -j 2>/dev/null | jq -r '.pid // empty')
   [[ -n $focused ]] || return 1
 
-  if [[ -z ${TMUX_PANE:-} ]]; then
+  if [[ -z $pane ]]; then
     descends_from "$PPID" "$focused"
     return
   fi
 
-  [[ $(tmux display -p -t "$TMUX_PANE" \
+  [[ $(tmux display -p -t "$pane" \
     '#{&&:#{pane_active},#{&&:#{window_active},#{session_attached}}}') == 1 ]] || return 1
   # The terminal window is the ancestor of the tmux client, not of this pane.
-  for client in $(tmux list-clients -t "$(tmux display -p -t "$TMUX_PANE" '#S')" -F '#{client_pid}'); do
+  for client in $(tmux list-clients -t "$(tmux display -p -t "$pane" '#S')" -F '#{client_pid}'); do
     descends_from "$client" "$focused" && return 0
   done
   return 1
@@ -101,17 +110,44 @@ send() {
       body="Failed: $cmd"
     fi
   fi
-  notify-send -u normal -t "$sticky" -a Shell -i utilities-terminal-symbolic "$title" "[$status] | $body"
+  notify -u normal -t "$sticky" -a Shell -i utilities-terminal-symbolic "$title" "[$status] | $body"
+}
+
+notify() {
+  local id
+  id=$(notify-send -p "$@")
+  [[ -n ${TMUX_PANE:-} ]] || return 0
+  mkdir -p "$ids"
+  echo "$id" >>"$ids/${TMUX_PANE#%}"
+}
+
+dismiss() {
+  local pane=$1 file id
+  file="$ids/${pane#%}"
+  [[ -f $file ]] && visible "$pane" || return 0
+  # Pane and notification numbers restart with tmux and caelestia, so a file
+  # kept across either could name someone else's notification; both live in
+  # XDG_RUNTIME_DIR, which logout clears.
+  while read -r id; do
+    busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications \
+      org.freedesktop.Notifications CloseNotification u "$id" || true
+  done <"$file"
+  rm -f "$file"
 }
 
 case "${1:-}" in
-  visible) visible ;;
+  visible) visible "${2:-}" ;;
+  notify)
+    shift
+    notify "$@"
+    ;;
+  dismiss) dismiss "${2:?usage: shell-notify dismiss <pane>}" ;;
   send)
     shift
     send "$@"
     ;;
   *)
-    echo "usage: shell-notify visible | send [--model M] <exit> <seconds> <start-line> <command>" >&2
+    echo "usage: shell-notify visible [pane] | notify <args> | dismiss <pane> | send [--model M] <exit> <seconds> <start-line> <command>" >&2
     exit 2
     ;;
 esac

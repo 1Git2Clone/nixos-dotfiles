@@ -266,7 +266,7 @@ nixpkgs bumps the package.
 
 ## Notifications for long commands and Claude
 
-`pkgs/shell-notify.nix` packages `shell-notify`, which has two jobs:
+`pkgs/shell-notify.nix` packages `shell-notify`, which has three jobs:
 
 - **`shell-notify send`**: `.zshrc` calls it after any command that ran
   `SHELL_NOTIFY_MIN` (30) seconds or more, unless its first word, after an
@@ -284,6 +284,14 @@ nixpkgs bumps the package.
   meaning its tmux pane is the active one in an attached session and that
   client's window has Hyprland's focus. `send` skips the notification then, and
   so does Claude's `dot-claude/hooks/notify.sh`.
+- **`shell-notify dismiss <pane>`**: closes the notifications sent from that
+  pane once it is on screen by the same rule. Both `send` and Claude's hook
+  send through `shell-notify notify`, which records each notification ID in
+  `$XDG_RUNTIME_DIR/shell-notify/<pane number>`. tmux's `pane-focus-in` hook
+  (`dot-tmux.conf`, slot 50) calls it, and that hook fires on pane and session
+  switches and when the terminal window itself gains focus, so no Hyprland
+  listener is needed. A running tmux server picks the hook up on
+  `tmux source-file ~/.tmux.conf`.
 
 - **The terminal icon is copied into hicolor** by `pkgs/app-icons.nix`, like
   the others there. caelestia drew the Papirus name as the missing-icon

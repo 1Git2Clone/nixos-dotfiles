@@ -31,11 +31,11 @@ case "$1" in
   done)
     [[ -f $stamp ]] || exit 0
     (($(date +%s) - $(<"$stamp") >= LONG)) || exit 0
-    notify-send -u normal -t "$STICKY" -a "Claude Code" -i "$icon" "Done" "${PWD##*/}"
+    shell-notify notify -u normal -t "$STICKY" -a "Claude Code" -i "$icon" "Done" "${PWD##*/}"
     ;;
   ask)
     msg="$(jq -r '.message // "Waiting for your answer"' <<<"$input")"
-    notify-send -u normal -t "$STICKY" -a "Claude Code" -i "$icon" "Needs you: ${PWD##*/}" "$msg"
+    shell-notify notify -u normal -t "$STICKY" -a "Claude Code" -i "$icon" "Needs you: ${PWD##*/}" "$msg"
     ;;
 esac
 exit 0
