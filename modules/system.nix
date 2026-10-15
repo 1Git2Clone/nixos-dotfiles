@@ -14,10 +14,15 @@
     max-jobs = 4;
   };
 
+  # 30d with near-daily rebuilds never retired a generation: all 64 were
+  # younger than the cutoff, every one of them kept its closure alive, and
+  # /nix/store reached 79G. Twice a week at 3d holds at most ~6 days of
+  # generations; persistent (the module default) catches a run missed while
+  # the machine was off.
   nix.gc = {
     automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 30d";
+    dates = "Mon,Thu";
+    options = "--delete-older-than 3d";
   };
 
   # /tmp is swept by systemd's own tmpfiles cleaner rather than by a unit of
