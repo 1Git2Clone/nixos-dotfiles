@@ -23,10 +23,12 @@
     # RustDesk is here rather than in home.packages because nixpkgs' build is
     # not on cache.nixos.org for the nixpkgs this flake pins -- installing it
     # that way means compiling rustdesk and gtk bindings locally on every
-    # bump. Flathub ships a binary.
+    # bump. Flathub ships a binary. Modrinth likewise: unfree, so Hydra never
+    # builds it, and compiling its Tauri app on every bump swamped the desktop.
     packages = [
       "org.vinegarhq.Sober"
       "com.rustdesk.RustDesk"
+      "com.modrinth.ModrinthApp"
     ];
 
     # Left false: it would remove anything installed by hand, and a Flatpak
