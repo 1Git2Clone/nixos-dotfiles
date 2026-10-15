@@ -18,22 +18,24 @@ stamp="${XDG_RUNTIME_DIR:-/tmp}/claude-turn-$sid"
 icon=claude-symbolic
 hex="$(jq -r '.colours.secondary // empty' "${XDG_STATE_HOME:-$HOME/.local/state}/caelestia/scheme.json" 2>/dev/null)"
 if [[ $hex =~ ^[0-9a-fA-F]{6}$ ]]; then
-	# Named by colour: caelestia caches icons by path.
-	icon="${XDG_RUNTIME_DIR:-/tmp}/claude-icon-$hex.svg"
-	[[ -f $icon ]] || sed "s/fill=\"#444444\"/fill=\"#$hex\"/" \
-		"/etc/profiles/per-user/$USER/share/icons/hicolor/scalable/apps/claude-symbolic.svg" >"$icon"
+  # Named by colour: caelestia caches icons by path.
+  icon="${XDG_RUNTIME_DIR:-/tmp}/claude-icon-$hex.svg"
+  [[ -f $icon ]] || sed "s/fill=\"#444444\"/fill=\"#$hex\"/" \
+    "/etc/profiles/per-user/$USER/share/icons/hicolor/scalable/apps/claude-symbolic.svg" >"$icon"
 fi
 
 case "$1" in
-start) date +%s >"$stamp" ;;
-done)
-	[[ -f $stamp ]] || exit 0
-	(($(date +%s) - $(<"$stamp") >= LONG)) || exit 0
-	notify-send -u normal -t "$STICKY" -a "Claude Code" -i "$icon" "Done" "${PWD##*/}"
-	;;
-ask)
-	msg="$(jq -r '.message // "Waiting for your answer"' <<<"$input")"
-	notify-send -u normal -t "$STICKY" -a "Claude Code" -i "$icon" "Needs you: ${PWD##*/}" "$msg"
-	;;
+  start) date +%s >"$stamp" ;;
+  # Nothing to say when this pane is already on screen.
+  done | ask) shell-notify visible && exit 0 ;;&
+  done)
+    [[ -f $stamp ]] || exit 0
+    (($(date +%s) - $(<"$stamp") >= LONG)) || exit 0
+    notify-send -u normal -t "$STICKY" -a "Claude Code" -i "$icon" "Done" "${PWD##*/}"
+    ;;
+  ask)
+    msg="$(jq -r '.message // "Waiting for your answer"' <<<"$input")"
+    notify-send -u normal -t "$STICKY" -a "Claude Code" -i "$icon" "Needs you: ${PWD##*/}" "$msg"
+    ;;
 esac
 exit 0
