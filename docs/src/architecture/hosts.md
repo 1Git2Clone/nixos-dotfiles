@@ -21,11 +21,11 @@ one host is usually a package the other is missing.
 
 ## The machines
 
-| Host            | Hardware                                                        |
-| --------------- | --------------------------------------------------------------- |
-| `hutao-laptop`  | Lenovo IdeaPad 1 15AMN7: Ryzen 3 7320U, Radeon 610M, 8 GB, NVMe |
-| `hutao-desktop` | Ryzen 5 3600X, RX 5600 XT, 16 GB, NVMe + a 2 TB HDD             |
-| `hutao-vm`      | the desktop layer under QEMU; see [The VM](../operations/vm.md) |
+| Host            | Hardware                                                         |
+| --------------- | ---------------------------------------------------------------- |
+| `hutao-laptop`  | Lenovo IdeaPad 1 15AMN7: Ryzen 3 7320U, Radeon 610M, 16 GB, NVMe |
+| `hutao-desktop` | Ryzen 5 3600X, RX 5600 XT, 16 GB, NVMe + a 2 TB HDD              |
+| `hutao-vm`      | the desktop layer under QEMU; see [The VM](../operations/vm.md)  |
 
 What only the desktop has, all in `hosts/hutao-desktop/default.nix`:
 

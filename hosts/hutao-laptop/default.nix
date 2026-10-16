@@ -1,4 +1,4 @@
-# Lenovo IdeaPad 1 15AMN7 — Ryzen 3 7320U, Radeon 610M, 8GB, NVMe.
+# Lenovo IdeaPad 1 15AMN7 — Ryzen 3 7320U, Radeon 610M, 16GB, NVMe.
 { pkgs, ... }:
 {
   imports = [

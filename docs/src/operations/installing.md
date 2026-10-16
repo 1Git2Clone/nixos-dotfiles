@@ -78,7 +78,7 @@ survive a reinstall. There is one LUKS keyslot and no recovery key; see
 ## Why not disko-install or nixos-anywhere
 
 `disko-install` would collapse steps 4 and 7 and the key seeding into one
-command. But it runs disko with `DISKO_SKIP_SWAP=1`, and on the 8 GB laptop
+command. But it runs disko with `DISKO_SKIP_SWAP=1`, and on the laptop
 `nixos-install` needs the swap LV that plain disko activates. Without it the
 build runs out of memory deep into the install.
 
