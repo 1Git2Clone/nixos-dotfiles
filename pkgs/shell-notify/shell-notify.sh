@@ -9,8 +9,7 @@
 #       so `dismiss` can close it.
 #   shell-notify dismiss <pane>
 #       Close the pane's remembered notifications if it is on screen. tmux's
-#       pane-focus-in hook calls it, which fires on pane and session switches
-#       and when the terminal window itself gains focus.
+#       hooks call it on terminal focus and session, window and pane switches.
 #   shell-notify send [--model M] <exit> <seconds> <start-line> <command>
 #       Called by .zshrc for commands that ran long. Summarises the command
 #       and its output into one line through OpenRouter, falling back to plain

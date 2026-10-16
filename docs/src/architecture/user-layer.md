@@ -287,11 +287,14 @@ nixpkgs bumps the package.
 - **`shell-notify dismiss <pane>`**: closes the notifications sent from that
   pane once it is on screen by the same rule. Both `send` and Claude's hook
   send through `shell-notify notify`, which records each notification ID in
-  `$XDG_RUNTIME_DIR/shell-notify/<pane number>`. tmux's `pane-focus-in` hook
-  (`dot-tmux.conf`, slot 50) calls it, and that hook fires on pane and session
-  switches and when the terminal window itself gains focus, so no Hyprland
-  listener is needed. A running tmux server picks the hook up on
+  `$XDG_RUNTIME_DIR/shell-notify/<pane number>`. tmux hooks in
+  `dot-tmux.conf` (slot 50) call it when the terminal window gains focus
+  (`client-focus-in`) and on session, window and pane switches, so no Hyprland
+  listener is needed. A running tmux server picks them up on
   `tmux source-file ~/.tmux.conf`.
+- **Not `pane-focus-in`**: workmux sets its own `pane-focus-in` on each agent
+  pane, and tmux runs the pane's hook instead of the global one, so Claude
+  panes never dismissed. Learned 2026-10-16.
 
 - **The terminal icon is copied into hicolor** by `pkgs/app-icons.nix`, like
   the others there. caelestia drew the Papirus name as the missing-icon
