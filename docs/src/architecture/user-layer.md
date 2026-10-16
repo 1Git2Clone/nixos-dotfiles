@@ -139,6 +139,12 @@ directory came back as the same unrelated conversation. The same day, the
 sidebar hook turned out to have never worked: it looked for resurrect's save
 under `$XDG_DATA_HOME`, while resurrect writes to `~/.tmux/resurrect`.
 
+`terminal-features` replaces tmux's defaults rather than adding to them, so
+every feature the outer terminal should get is named there, `hyperlinks`
+included. Without it tmux strips the OSC 8 links Claude Code prints. With
+`mouse on`, Shift+click hands the click to kitty, which opens the link. A
+change takes effect when a client attaches. Learned 2026-10-16.
+
 ## Fonts
 
 `hutao.uiFont` in `home/apps/fonts.nix` is the one switch for every UI's
