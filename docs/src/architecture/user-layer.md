@@ -288,8 +288,9 @@ nixpkgs bumps the package.
   "Finished running <command>" or "Failed: <command>".
 - **`shell-notify visible`**: exits 0 when the caller's terminal is on screen,
   meaning its tmux pane is the active one in an attached session and that
-  client's window has Hyprland's focus. `send` skips the notification then, and
-  so does Claude's `dot-claude/hooks/notify.sh`.
+  client's window has Hyprland's focus. It exits 1 when it is not, and 2 when
+  that cannot be told (Hyprland or the pane unreachable), and both `send` and
+  Claude's `dot-claude/hooks/notify.sh` notify on anything but 0.
 - **`shell-notify dismiss <pane>`**: closes the notifications sent from that
   pane once it is on screen by the same rule. Both `send` and Claude's hook
   send through `shell-notify notify`, which records each notification ID in
@@ -301,6 +302,11 @@ nixpkgs bumps the package.
 - **Not `pane-focus-in`**: workmux sets its own `pane-focus-in` on each agent
   pane, and tmux runs the pane's hook instead of the global one, so Claude
   panes never dismissed. Learned 2026-10-16.
+- **Failures are logged, not swallowed**: `journalctl --user -t shell-notify`.
+  The hooks' stderr goes nowhere. Closing an ID caelestia no longer has
+  succeeds, so a failed close is the daemon itself, and the ID is kept to
+  retry. `tmux display` answers a pane that no longer exists with exit 0 and
+  blank fields, so its answers are checked, not its exit code.
 
 - **The terminal icon is copied into hicolor** by `pkgs/app-icons.nix`, like
   the others there. caelestia drew the Papirus name as the missing-icon

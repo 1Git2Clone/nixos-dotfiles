@@ -3,7 +3,9 @@
 #   shell-notify visible [pane]
 #       Exit 0 when the pane (default: the caller's) is on screen: it is the
 #       active one in an attached session and that client's window has
-#       Hyprland's focus. notify.sh (Claude's hook) uses this too.
+#       Hyprland's focus. Exit 1 when it is not, and 2 when that cannot be
+#       told, so callers notify rather than stay quiet. notify.sh (Claude's
+#       hook) uses this too.
 #   shell-notify notify <notify-send args>
 #       notify-send that remembers the notification under the caller's pane,
 #       so `dismiss` can close it.
@@ -14,6 +16,9 @@
 #       Called by .zshrc for commands that ran long. Summarises the command
 #       and its output into one line through OpenRouter, falling back to plain
 #       text when there is no key, no network or no answer.
+#
+# Failures are logged, never swallowed: stderr goes nowhere from a tmux hook,
+# so they also go to the journal (journalctl --user -t shell-notify).
 
 model="${SHELL_NOTIFY_MODEL:-deepseek/deepseek-v4.1-flash}"
 head_lines=20 # first and last lines of output sent to the model
@@ -23,7 +28,15 @@ sticky=3600000 # caelestia reads -t 0 as its 5s default; see notify.sh
 # One file of notification IDs per pane, named by its number (%27 -> 27).
 ids="${XDG_RUNTIME_DIR:-/tmp}/shell-notify"
 
-# True when pid $1 is $2 or runs somewhere under it.
+log() {
+  echo "shell-notify: $*" >&2
+  # Under systemd stderr is already the journal; elsewhere it is not.
+  [[ -n ${JOURNAL_STREAM:-} ]] || logger -t shell-notify -- "$*" ||
+    echo "shell-notify: logger failed too; the line above is the only record" >&2
+}
+
+# True when pid $1 is $2 or runs somewhere under it. A process that has
+# exited runs under nothing, so false is the right answer for it too.
 descends_from() {
   local pid=$1
   while ((pid > 1)); do
@@ -33,47 +46,102 @@ descends_from() {
   return 1
 }
 
+# The pid of the window with Hyprland's focus, or a logged failure.
+focused_pid() {
+  local out pid
+  if ! out=$(hyprctl activewindow -j 2>&1); then
+    log "hyprctl activewindow failed: $out"
+    return 1
+  fi
+  pid=$(jq -r '.pid // empty' <<<"$out" 2>/dev/null) || pid=
+  if [[ ! $pid =~ ^[0-9]+$ ]]; then
+    # No window focused (an empty workspace) answers {} and is not an error.
+    [[ $out == "{}" || $out == "Invalid" ]] && return 2
+    log "hyprctl activewindow gave no pid: ${out:0:200}"
+    return 1
+  fi
+  echo "$pid"
+}
+
 visible() {
-  local pane=${1:-${TMUX_PANE:-}} focused client
-  focused=$(hyprctl activewindow -j 2>/dev/null | jq -r '.pid // empty')
-  [[ -n $focused ]] || return 1
+  local pane=${1:-${TMUX_PANE:-}} focused state session clients client rc=0
+  focused=$(focused_pid) || rc=$?
+  case $rc in
+    0) ;;
+    2) return 1 ;; # nothing has focus, so nothing is on screen
+    *) return 2 ;;
+  esac
 
   if [[ -z $pane ]]; then
-    descends_from "$PPID" "$focused"
-    return
+    descends_from "$PPID" "$focused" && return 0
+    return 1
   fi
 
-  [[ $(tmux display -p -t "$pane" \
-    '#{&&:#{pane_active},#{&&:#{window_active},#{session_attached}}}') == 1 ]] || return 1
+  if ! state=$(tmux display -p -t "$pane" \
+    '#{&&:#{pane_active},#{&&:#{window_active},#{session_attached}}} #S' 2>&1); then
+    log "tmux display for pane $pane failed: $state"
+    return 2
+  fi
+  # tmux answers a pane that no longer exists with exit 0 and blank fields.
+  if [[ ! $state =~ ^([01])\ (.+)$ ]]; then
+    log "tmux has no pane $pane (got '$state')"
+    return 2
+  fi
+  [[ ${BASH_REMATCH[1]} == 1 ]] || return 1
+  session=${BASH_REMATCH[2]}
   # The terminal window is the ancestor of the tmux client, not of this pane.
-  for client in $(tmux list-clients -t "$(tmux display -p -t "$pane" '#S')" -F '#{client_pid}'); do
+  if ! clients=$(tmux list-clients -t "$session" -F '#{client_pid}' 2>&1); then
+    log "tmux list-clients for session $session failed: $clients"
+    return 2
+  fi
+  for client in $clients; do
+    if [[ ! $client =~ ^[0-9]+$ ]]; then
+      log "tmux list-clients for session $session gave a non-pid '$client'"
+      return 2
+    fi
     descends_from "$client" "$focused" && return 0
   done
   return 1
 }
 
 # The command's output: lines from <start-line> (absolute, history included,
-# as preexec recorded it) to the cursor, trimmed to head + tail.
+# as preexec recorded it) to the cursor, trimmed to head + tail. Outside tmux,
+# or without a start line, there is no output to read back, and the summary
+# goes on from the command line alone.
 output() {
-  local start=$1 now cursor total
+  local start=$1 pos now cursor total
   [[ -n ${TMUX_PANE:-} && $start =~ ^[0-9]+$ ]] || return 0
-  read -r now cursor < <(tmux display -p -t "$TMUX_PANE" '#{history_size} #{cursor_y}')
-  tmux capture-pane -p -J -t "$TMUX_PANE" -S $((start - now)) -E $((cursor - 1)) |
-    cut -c1-300 >"$tmp"
-  total=$(wc -l <"$tmp")
+  if ! pos=$(tmux display -p -t "$TMUX_PANE" '#{history_size} #{cursor_y}' 2>&1); then
+    log "tmux display for $TMUX_PANE failed, summarising without output: $pos"
+    return 0
+  fi
+  if [[ ! $pos =~ ^[0-9]+\ [0-9]+$ ]]; then
+    log "tmux has no pane $TMUX_PANE (got '$pos'), summarising without output"
+    return 0
+  fi
+  read -r now cursor <<<"$pos"
+  if ! tmux capture-pane -p -J -t "$TMUX_PANE" -S $((start - now)) -E $((cursor - 1)) >"$tmp" 2>"$tmp.err"; then
+    log "tmux capture-pane for $TMUX_PANE failed, summarising without output: $(<"$tmp.err")"
+    return 0
+  fi
+  cut -c1-300 "$tmp" >"$tmp.cut"
+  total=$(wc -l <"$tmp.cut")
   if ((total > head_lines + tail_lines)); then
-    head -n "$head_lines" "$tmp"
+    head -n "$head_lines" "$tmp.cut"
     echo "[... $((total - head_lines - tail_lines)) lines omitted ...]"
-    tail -n "$tail_lines" "$tmp"
+    tail -n "$tail_lines" "$tmp.cut"
   else
-    cat "$tmp"
+    cat "$tmp.cut"
   fi
 }
 
 summarise() {
-  local status=$1 seconds=$2 cmd=$3 out=$4
-  [[ -n ${OPENROUTER_API_KEY:-} ]] || return 1
-  jq -n --arg model "$model" --arg cmd "$cmd" --arg status "$status" \
+  local status=$1 seconds=$2 cmd=$3 out=$4 resp answer
+  if [[ -z ${OPENROUTER_API_KEY:-} ]]; then
+    log "no OPENROUTER_API_KEY, using the plain-text body"
+    return 1
+  fi
+  if ! resp=$(jq -n --arg model "$model" --arg cmd "$cmd" --arg status "$status" \
     --arg seconds "$seconds" --arg out "$out" '{
 		model: $model,
 		max_tokens: 60,
@@ -83,8 +151,15 @@ summarise() {
 			{role: "user", content: "Command: \($cmd)\nExit code: \($status)\nRan for: \($seconds)s\nOutput:\n\($out)"}
 		]
 	}' | curl -sS --max-time "$api_timeout" https://openrouter.ai/api/v1/chat/completions \
-    -H "Authorization: Bearer $OPENROUTER_API_KEY" -H 'Content-Type: application/json' -d @- |
-    jq -er '.choices[0].message.content | gsub("\\s+"; " ") | ltrimstr(" ") | rtrimstr(" ") | select(length > 0)'
+    -H "Authorization: Bearer $OPENROUTER_API_KEY" -H 'Content-Type: application/json' -d @- 2>&1); then
+    log "summary request failed, using the plain-text body: $resp"
+    return 1
+  fi
+  if ! answer=$(jq -er '.choices[0].message.content | gsub("\\s+"; " ") | ltrimstr(" ") | rtrimstr(" ") | select(length > 0)' <<<"$resp" 2>/dev/null); then
+    log "summary response had no answer, using the plain-text body: ${resp:0:300}"
+    return 1
+  fi
+  echo "$answer"
 }
 
 send() {
@@ -96,12 +171,21 @@ send() {
     echo "usage: shell-notify send [--model M] <exit> <seconds> <start-line> <command>" >&2
     exit 2
   }
-  local status=$1 seconds=$2 start=$3 cmd=$4 title=Shell body
-  visible && return 0
+  local status=$1 seconds=$2 start=$3 cmd=$4 title=Shell body name rc=0
+  visible || rc=$?
+  # 0: on screen, nothing to say. 1: not on screen. 2: unknown, already
+  # logged, and a notification too many beats one missed.
+  ((rc == 0)) && return 0
 
-  [[ -n ${TMUX_PANE:-} ]] && title="Shell $(tmux display -p -t "$TMUX_PANE" '#S:#P')"
+  if [[ -n ${TMUX_PANE:-} ]]; then
+    if name=$(tmux display -p -t "$TMUX_PANE" '#S:#P' 2>&1) && [[ $name =~ ^.+:[0-9]+$ ]]; then
+      title="Shell $name"
+    else
+      log "tmux gave no name for $TMUX_PANE ('$name'), titling it plain Shell"
+    fi
+  fi
   tmp=$(mktemp)
-  trap 'rm -f "$tmp"' EXIT
+  trap 'rm -f "$tmp" "$tmp.err" "$tmp.cut"' EXIT
   if ! body=$(summarise "$status" "$seconds" "$cmd" "$(output "$start")"); then
     if ((status == 0)); then
       body="Finished running $cmd"
@@ -114,23 +198,57 @@ send() {
 
 notify() {
   local id
-  id=$(notify-send -p "$@")
+  if ! id=$(notify-send -p "$@"); then
+    log "notify-send failed: $*"
+    return 1
+  fi
+  if [[ ! $id =~ ^[0-9]+$ ]]; then
+    log "notify-send printed no notification ID ('$id'), so it cannot be dismissed on focus"
+    return 1
+  fi
+  if ! mkdir -p "$ids"; then
+    log "notification $id: cannot create $ids, so it cannot be dismissed on focus"
+    return 1
+  fi
   [[ -n ${TMUX_PANE:-} ]] || return 0
-  mkdir -p "$ids"
-  echo "$id" >>"$ids/${TMUX_PANE#%}"
+  if ! echo "$id" >>"$ids/${TMUX_PANE#%}"; then
+    log "notification $id: cannot record it for pane $TMUX_PANE"
+    return 1
+  fi
+}
+
+# Close one notification. An ID caelestia no longer has closes without error,
+# so a failure here is the notification daemon itself, and the ID is kept.
+close() {
+  local out
+  if ! out=$(busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications \
+    org.freedesktop.Notifications CloseNotification u "$1" 2>&1); then
+    log "closing notification $1 failed, keeping it to retry: $out"
+    return 1
+  fi
 }
 
 dismiss() {
-  local pane=$1 file id
+  local pane=$1 file id rc=0 keep=()
   file="$ids/${pane#%}"
-  [[ -f $file ]] && visible "$pane" || return 0
+  # Nothing was sent from this pane.
+  [[ -f $file ]] || return 0
+  visible "$pane" || rc=$?
+  case $rc in
+    0) ;;
+    1) return 0 ;; # not on screen yet; the next focus tries again
+    *) return 1 ;; # logged by visible; the IDs stay for the next focus
+  esac
   # Pane and notification numbers restart with tmux and caelestia, so a file
   # kept across either could name someone else's notification; both live in
   # XDG_RUNTIME_DIR, which logout clears.
   while read -r id; do
-    busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications \
-      org.freedesktop.Notifications CloseNotification u "$id" || true
+    close "$id" || keep+=("$id")
   done <"$file"
+  if ((${#keep[@]})); then
+    printf '%s\n' "${keep[@]}" >"$file"
+    return 1
+  fi
   rm -f "$file"
 }
 
