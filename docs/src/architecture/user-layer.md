@@ -272,7 +272,7 @@ nixpkgs bumps the package.
 
 ## Notifications for long commands and Claude
 
-`pkgs/shell-notify.nix` packages `shell-notify`, which has three jobs:
+`pkgs/shell-notify.nix` packages `shell-notify`, which has four jobs:
 
 - **`shell-notify send`**: `.zshrc` calls it after any command that ran
   `SHELL_NOTIFY_MIN` (30) seconds or more, unless its first word, after an
@@ -296,17 +296,24 @@ nixpkgs bumps the package.
   send through `shell-notify notify`, which records each notification ID in
   `$XDG_RUNTIME_DIR/shell-notify/<pane number>`. tmux hooks in
   `dot-tmux.conf` (slot 50) call it when the terminal window gains focus
-  (`client-focus-in`) and on session, window and pane switches, so no Hyprland
-  listener is needed. A running tmux server picks them up on
-  `tmux source-file ~/.tmux.conf`.
+  (`client-focus-in`) and on session, window and pane switches. A running
+  tmux server picks them up on `tmux source-file ~/.tmux.conf`.
+- **`shell-notify watch`**: the same outside tmux, where no tmux hook sees the
+  focus change. `notify` records a notification sent outside tmux as
+  `pid-<id>`, listing the processes above its sender, the terminal window
+  among them. The `shell-notify-watch` user service (`home/apps/shell-notify.nix`)
+  follows Hyprland's event socket and closes those whose list holds the
+  newly focused window's pid. It restarts if the socket drops.
 - **Not `pane-focus-in`**: workmux sets its own `pane-focus-in` on each agent
   pane, and tmux runs the pane's hook instead of the global one, so Claude
   panes never dismissed. Learned 2026-10-16.
 - **Failures are logged, not swallowed**: `journalctl --user -t shell-notify`.
-  The hooks' stderr goes nowhere. Closing an ID caelestia no longer has
-  succeeds, so a failed close is the daemon itself, and the ID is kept to
-  retry. `tmux display` answers a pane that no longer exists with exit 0 and
-  blank fields, so its answers are checked, not its exit code.
+  The hooks' stderr goes nowhere, and until 2026-10-16 a notification sent
+  outside tmux was never recorded at all, so it could not be dismissed and
+  nothing said so. Closing an ID caelestia no longer has succeeds, so a failed
+  close is the daemon itself, and the ID is kept to retry. `tmux display`
+  answers a pane that no longer exists with exit 0 and blank fields, so its
+  answers are checked, not its exit code.
 
 - **The terminal icon is copied into hicolor** by `pkgs/app-icons.nix`, like
   the others there. caelestia drew the Papirus name as the missing-icon

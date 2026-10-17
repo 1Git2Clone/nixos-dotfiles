@@ -9,6 +9,7 @@
   gawk,
   jq,
   libnotify,
+  socat,
   tmux,
   util-linux,
 }:
@@ -20,6 +21,7 @@ writeShellApplication {
     gawk
     jq
     libnotify
+    socat
     tmux
     util-linux
   ];

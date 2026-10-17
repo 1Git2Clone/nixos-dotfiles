@@ -7,11 +7,15 @@
 #       told, so callers notify rather than stay quiet. notify.sh (Claude's
 #       hook) uses this too.
 #   shell-notify notify <notify-send args>
-#       notify-send that remembers the notification under the caller's pane,
-#       so `dismiss` can close it.
+#       notify-send that remembers the notification so it can be closed: under
+#       the caller's tmux pane, or outside tmux under the processes above the
+#       caller, one of which is the terminal window.
 #   shell-notify dismiss <pane>
 #       Close the pane's remembered notifications if it is on screen. tmux's
 #       hooks call it on terminal focus and session, window and pane switches.
+#   shell-notify watch
+#       Follow Hyprland's focus and close the notifications sent outside tmux
+#       from whichever window gains it. A user service runs it.
 #   shell-notify send [--model M] <exit> <seconds> <start-line> <command>
 #       Called by .zshrc for commands that ran long. Summarises the command
 #       and its output into one line through OpenRouter, falling back to plain
@@ -25,7 +29,9 @@ head_lines=20 # first and last lines of output sent to the model
 tail_lines=40
 api_timeout=15 # seconds before giving up on the summary
 sticky=3600000 # caelestia reads -t 0 as its 5s default; see notify.sh
-# One file of notification IDs per pane, named by its number (%27 -> 27).
+# One file of notification IDs per pane, named by its number (%27 -> 27), and
+# outside tmux one file per notification, pid-<id>, listing the processes
+# above its sender.
 ids="${XDG_RUNTIME_DIR:-/tmp}/shell-notify"
 
 log() {
@@ -35,15 +41,22 @@ log() {
     echo "shell-notify: logger failed too; the line above is the only record" >&2
 }
 
+# Every process from pid $1 up to init, one per line.
+ancestors() {
+  local pid=$1
+  while ((pid > 1)); do
+    echo "$pid"
+    # A process that exits mid-walk ends the chain; what was read stays true.
+    pid=$(awk '/^PPid:/ {print $2}' "/proc/$pid/status" 2>/dev/null) || return 0
+  done
+}
+
 # True when pid $1 is $2 or runs somewhere under it. A process that has
 # exited runs under nothing, so false is the right answer for it too.
 descends_from() {
-  local pid=$1
-  while ((pid > 1)); do
-    ((pid == $2)) && return 0
-    pid=$(awk '/^PPid:/ {print $2}' "/proc/$pid/status" 2>/dev/null) || return 1
-  done
-  return 1
+  # Not a pipe: grep -q stops reading at a match, and under pipefail the
+  # SIGPIPE that leaves ancestors with would turn the match into a failure.
+  grep -qx "$2" <<<"$(ancestors "$1")"
 }
 
 # The pid of the window with Hyprland's focus, or a logged failure.
@@ -197,7 +210,7 @@ send() {
 }
 
 notify() {
-  local id
+  local id chain
   if ! id=$(notify-send -p "$@"); then
     log "notify-send failed: $*"
     return 1
@@ -210,9 +223,22 @@ notify() {
     log "notification $id: cannot create $ids, so it cannot be dismissed on focus"
     return 1
   fi
-  [[ -n ${TMUX_PANE:-} ]] || return 0
-  if ! echo "$id" >>"$ids/${TMUX_PANE#%}"; then
-    log "notification $id: cannot record it for pane $TMUX_PANE"
+  if [[ -n ${TMUX_PANE:-} ]]; then
+    if ! echo "$id" >>"$ids/${TMUX_PANE#%}"; then
+      log "notification $id: cannot record it for pane $TMUX_PANE"
+      return 1
+    fi
+    return 0
+  fi
+  # No pane to file it under: keep the processes above the sender, and close
+  # it once one of them is the focused window.
+  chain=$(ancestors "$PPID")
+  if [[ -z $chain ]]; then
+    log "notification $id: sender $PPID already exited, so it cannot be dismissed on focus"
+    return 1
+  fi
+  if ! echo "$chain" >"$ids/pid-$id"; then
+    log "notification $id: cannot record it in $ids"
     return 1
   fi
 }
@@ -252,6 +278,51 @@ dismiss() {
   rm -f "$file"
 }
 
+# Close the notifications sent outside tmux from the focused window.
+dismiss_focused() {
+  local focused f rc=0 failed=0
+  focused=$(focused_pid) || rc=$?
+  case $rc in
+    0) ;;
+    2) return 0 ;; # nothing has focus
+    *) return 1 ;; # logged by focused_pid
+  esac
+  for f in "$ids"/pid-*; do
+    [[ -e $f ]] || continue # the glob matched nothing
+    grep -qx "$focused" "$f" || continue
+    if close "${f##*/pid-}"; then
+      rm -f "$f"
+    else
+      failed=1
+    fi
+  done
+  return "$failed"
+}
+
+watch() {
+  local sock="${XDG_RUNTIME_DIR:-}/hypr/${HYPRLAND_INSTANCE_SIGNATURE:-}/.socket2.sock" line
+  if [[ -z ${XDG_RUNTIME_DIR:-} || -z ${HYPRLAND_INSTANCE_SIGNATURE:-} ]]; then
+    log "watch: XDG_RUNTIME_DIR or HYPRLAND_INSTANCE_SIGNATURE is unset"
+    exit 1
+  fi
+  if [[ ! -S $sock ]]; then
+    log "watch: no Hyprland event socket at $sock"
+    exit 1
+  fi
+  if socat -U - "UNIX-CONNECT:$sock" | while read -r line; do
+    if [[ $line == 'activewindowv2>>'* ]]; then
+      # Failures are logged inside, and one bad focus must not end the watch.
+      dismiss_focused || :
+    fi
+  done; then
+    log "watch: Hyprland closed its event socket"
+  else
+    log "watch: reading Hyprland's event socket failed (exit $?)"
+  fi
+  # Either way the watch is over; exit non-zero so systemd restarts it.
+  exit 1
+}
+
 case "${1:-}" in
   visible) visible "${2:-}" ;;
   notify)
@@ -259,12 +330,13 @@ case "${1:-}" in
     notify "$@"
     ;;
   dismiss) dismiss "${2:?usage: shell-notify dismiss <pane>}" ;;
+  watch) watch ;;
   send)
     shift
     send "$@"
     ;;
   *)
-    echo "usage: shell-notify visible [pane] | notify <args> | dismiss <pane> | send [--model M] <exit> <seconds> <start-line> <command>" >&2
+    echo "usage: shell-notify visible [pane] | notify <args> | dismiss <pane> | watch | send [--model M] <exit> <seconds> <start-line> <command>" >&2
     exit 2
     ;;
 esac
