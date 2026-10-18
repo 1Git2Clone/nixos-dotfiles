@@ -135,6 +135,22 @@ Before amending any commit:
 - **Do not `git push` to any remote** without explicit user confirmation,
   regardless of branch.
 
+### Check for duplicate PRs first
+
+Before starting work meant for a PR, and again right before `pr create`,
+check whether someone already did it. Read every title in the target
+repo's open and recently closed PRs, and search them for the feature's
+keywords:
+
+```sh
+gh pr list -R <owner/repo> --state all -L 30
+gh pr list -R <owner/repo> --state all --search "<keywords>"
+```
+
+On Forgejo hosts, do the same with `fj`. Pay close attention to the most
+recent PRs, just before the number yours will get. If anything overlaps,
+stop and tell the user before writing code.
+
 ## Error Recovery
 
 When a tool, command, or operation fails, tier the response by how critical
