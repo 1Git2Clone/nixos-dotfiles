@@ -57,6 +57,8 @@
 
   time.timeZone = "Europe/Sofia";
   i18n.defaultLocale = "en_US.UTF-8";
+  # Weeks start on Monday, in caelestia's calendar too (it follows Qt's locale).
+  i18n.extraLocaleSettings.LC_TIME = "en_GB.UTF-8";
 
   networking.networkmanager.enable = true;
 
