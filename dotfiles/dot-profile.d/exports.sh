@@ -12,8 +12,6 @@ export VISUAL="nvim"
 export PAGER="nvim +Man!"
 export MANPAGER="nvim +Man!"
 
-export LC_ALL=en_US.UTF-8
-
 export DOTNET_ROOT=$HOME/.dotnet
 export PNPM_HOME="$HOME/.local/share/pnpm"
 
