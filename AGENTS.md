@@ -2,6 +2,39 @@
 
 Instructions for agents working in this repo.
 
+## Hard rule: no impure evaluation
+
+Evaluation in this repo stays pure. No `--impure` on a nix command, no
+`builtins.getEnv`, no `builtins.getFlake` pointed at a local path, no
+`allowUnfree` in the flake's own `nixConfig`, and no reading from outside the
+store.
+
+Impure evaluation buys one command and costs the guarantee behind it: CI
+evaluates the installer with no credential and no flags, and a rebuild on one
+machine is supposed to be the same rebuild as on another.
+
+- **Pin in `flake.lock`.** A moving ref is refreshed with `nix flake update
+  <input>`, not with `--override-input` at the prompt: a machine rebuilt only
+  with an override sits on a revision no other machine has.
+- **A dependency that wants impure evaluation is an input, not a hack.**
+  `fetchTarball` becomes a flake input, the way `modules/desktop/aagl.nix`
+  does it.
+- **`allowUnfree` belongs in `nixpkgs.config`**, in a module
+  (`modules/system.nix`), where it is pure.
+- **Secrets come from sops-nix.** A secret read with `builtins.getEnv` is part
+  of the evaluation.
+- **Find a derivation through the input**, `inputs.<name>.packages`, not
+  through `getFlake` on a checkout on disk.
+- **A dirty tree is not a revision.** Commit before rebuilding, or the machine
+  and CI are not evaluating the same thing.
+
+If a command only works with `--impure`, the fix is in the flake, not in the
+flag. The bar is CI's own check, with no flags and no credentials:
+
+```bash
+nix eval --raw '.#nixosConfigurations.installer.config.system.build.isoImage.drvPath'
+```
+
 ## Keep the docs in step
 
 At the end of every task, before calling it done, check the docs against what
