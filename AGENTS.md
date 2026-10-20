@@ -5,8 +5,8 @@ Instructions for agents working in this repo.
 ## Hard rule: no impure evaluation
 
 Evaluation in this repo stays pure. No `--impure` on a nix command, no
-`builtins.getEnv`, no `builtins.getFlake` pointed at a local path, no
-`allowUnfree` in the flake's own `nixConfig`, and no reading from outside the
+`builtins.getEnv`, no `NIXPKGS_ALLOW_UNFREE` in the environment, no
+`builtins.getFlake` pointed at a local path, and no reading from outside the
 store.
 
 Impure evaluation buys one command and costs the guarantee behind it: CI
@@ -20,7 +20,8 @@ machine is supposed to be the same rebuild as on another.
   `fetchTarball` becomes a flake input, the way `modules/desktop/aagl.nix`
   does it.
 - **`allowUnfree` belongs in `nixpkgs.config`**, in a module
-  (`modules/system.nix`), where it is pure.
+  (`modules/system.nix`), where it is pure. The environment variable route is
+  an impurity, and so is reading one.
 - **Secrets come from sops-nix.** A secret read with `builtins.getEnv` is part
   of the evaluation.
 - **Find a derivation through the input**, `inputs.<name>.packages`, not
