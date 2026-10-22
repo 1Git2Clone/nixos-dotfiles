@@ -312,6 +312,11 @@ nixpkgs bumps the package.
   `dot-tmux.conf` (slot 50) call it when the terminal window gains focus
   (`client-focus-in`) and on session, window and pane switches. A running
   tmux server picks them up on `tmux source-file ~/.tmux.conf`.
+- **A tmux server outlives Hyprland**: it keeps the signature it started
+  with, so after a Hyprland restart every hook's `hyprctl` hit a dead socket
+  and `dismiss` returned 1 on each focus (learned 2026-10-22). Hyprland's
+  autostart (`modules/autostart.lua`) now pushes its own
+  `HYPRLAND_INSTANCE_SIGNATURE` into tmux's global environment.
 - **`shell-notify watch`**: the same outside tmux, where no tmux hook sees the
   focus change. `notify` records a notification sent outside tmux as
   `pid-<id>`, listing the processes above its sender, the terminal window

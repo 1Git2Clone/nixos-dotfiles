@@ -12,6 +12,10 @@ function M.setup(programs)
         .. " && systemctl --user start nixos-fake-graphical-session.target"
     )
 
+    -- A tmux server outlives Hyprland restarts and keeps the dead instance's
+    -- signature, so its hooks' hyprctl calls (shell-notify dismiss) all fail.
+    hl.exec_cmd('tmux set-environment -g HYPRLAND_INSTANCE_SIGNATURE "$HYPRLAND_INSTANCE_SIGNATURE"')
+
     hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
     hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
 
