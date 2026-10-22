@@ -110,6 +110,20 @@ leaving no shell until one is started by hand. The eval uses `dofile`, not
 `require`, so it reads the new `programs.lua` rather than a module cached
 from before the switch.
 
+## Music downloads land in the library
+
+`yt-audio`, from cli-utils, downloads songs and playlists with yt-dlp and tags
+them itself: separate artist values, album, date, and the thumbnail cropped to
+a square cover. `dot-profile.d/exports.sh` sets `YT_AUDIO_ROOT` to
+`~/syncthing/Music`, the folder the VPS's navidrome serves, so
+`yt-audio <url>` from any directory writes `<album>/<title>.opus` or
+`<playlist title>/<title>.opus` there. `-o` writes somewhere else instead.
+
+Learned the hard way on 2026-10-22: an `LD_LIBRARY_PATH` that a dev shell
+leaves behind, pointing at a newer alsa-lib, stops the ffmpeg in yt-audio's
+wrapper from loading, and yt-dlp then says "ffprobe and ffmpeg not found".
+Run it from a plain shell, or with `env -u LD_LIBRARY_PATH`.
+
 ## tmux comes back after a restart
 
 `dot-tmux.conf` has resurrect save every session (continuum, every 15 minutes)

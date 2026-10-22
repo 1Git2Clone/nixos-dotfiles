@@ -15,6 +15,10 @@ export MANPAGER="nvim +Man!"
 export DOTNET_ROOT=$HOME/.dotnet
 export PNPM_HOME="$HOME/.local/share/pnpm"
 
+# cli-utils' yt-audio files albums and playlists here: the syncthing folder
+# navidrome serves as its library.
+export YT_AUDIO_ROOT="$HOME/syncthing/Music"
+
 # More likely than not. PATH is already an export.
 if [ -z "${PATH-}" ]; then
   export PATH=/usr/local/bin:/usr/bin:/bin
