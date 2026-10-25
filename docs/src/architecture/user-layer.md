@@ -56,6 +56,12 @@ handled on purpose:
 - **Spotify's `Apps`** is a writable copy in
   `~/.local/share/spotify-spicetify`, and spicetify's `config-xpui.ini` is
   edited rather than linked. See [Spotify and spicetify](#spotify-and-spicetify).
+- **`~/.config/mimeapps.list`** is not managed: browsers and "Open with"
+  write to it. Defaults the repo pins go in `xdg.mime.defaultApplications`
+  (`/etc/xdg/mimeapps.list`), which the user file overrides per type. Folders
+  open in Nautilus from there (`modules/desktop/portals.nix`); before that,
+  kitty's `kitty-open.desktop` claimed `inode/directory`, so a file dialog's
+  "open folder" launched a terminal. Learned 2026-10-25.
 - Everything else in `~/.config` is read-only. An app that saves settings there
   (fcitx5 does) cannot. To hack on the dotfiles in place, point `src` in
   `home/` at `mkOutOfStoreSymlink`.
