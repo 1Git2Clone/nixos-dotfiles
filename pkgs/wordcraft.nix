@@ -25,11 +25,11 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "wordcraft";
-  version = "0.5.0";
+  version = "0.11.0";
 
   src = fetchurl {
     url = "https://github.com/storytold/wordcraft/releases/download/v${finalAttrs.version}/wordcraft-${finalAttrs.version}-linux-x86_64.tar.gz";
-    hash = "sha256-mUuzdkee9tdnNc9AKeXvPC1SqFpMms3is3wzsZxXAgM=";
+    hash = "sha256-A0wke/basXKi7fsHZ96QZRJbhXgmxpFffvObn0OVHVo=";
   };
 
   nativeBuildInputs = [
