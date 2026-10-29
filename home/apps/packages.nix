@@ -11,6 +11,21 @@ let
   cadcraft = pkgs.callPackage ../../pkgs/cadcraft.nix { };
   deckcraft = pkgs.callPackage ../../pkgs/deckcraft.nix { };
   shell-notify = pkgs.callPackage ../../pkgs/shell-notify.nix { };
+  grok = pkgs.callPackage ../../pkgs/grok.nix { };
+
+  # The coding agents move faster than the system's nixpkgs; this is the
+  # newer one flake.nix pins for them. Imported rather than legacyPackages
+  # for allowUnfree: cursor-cli is unfree.
+  agents = import inputs.nixpkgs-opencode {
+    inherit (pkgs.stdenv.hostPlatform) system;
+    config.allowUnfree = true;
+  };
+  # cursor-cli's bundled node segfaults on anything, `--version` included
+  # (2026-10-30), so its code runs on nixpkgs' node instead.
+  cursor-agent = pkgs.writeShellScriptBin "cursor-agent" ''
+    export CURSOR_INVOKED_AS=cursor-agent
+    exec ${pkgs.nodejs_24}/bin/node --use-system-ca ${agents.cursor-cli}/share/cursor-agent/index.js "$@"
+  '';
 
   # CaelestiaFox (the extension, from AMO) recolours the browser with the
   # scheme, off a native app it talks to; each browser's wrapper registers it.
@@ -115,7 +130,12 @@ in
 
     # vibe coding
     claude-code
-    inputs.nixpkgs-opencode.legacyPackages.${pkgs.stdenv.hostPlatform.system}.opencode # flake.nix
+    # The rest of what bb can drive besides Claude Code.
+    agents.opencode
+    agents.codex
+    cursor-agent # agents.cursor-cli, on a working node
+    agents.pi-coding-agent # pi
+    grok # pkgs/grok.nix, xAI's -- not nixpkgs' grok-cli
     inputs.workmux.packages.${pkgs.system}.default
     inputs.cli-utils.packages.${pkgs.system}.default
 
