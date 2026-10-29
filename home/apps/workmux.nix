@@ -40,8 +40,27 @@ let
       };
     };
   };
+
+  # The sidebar is 45 columns, too much of a narrow window. dot-tmux.conf runs
+  # this on resizes: it hides the sidebar in the session when the window is
+  # under 190 columns (~73% of a full-screen kitty, 261) and brings it back
+  # once it is wider. `workmux sidebar --session` toggles the session in
+  # @workmux_sidebar_optout_sessions, so it only runs when that disagrees.
+  # ponytail: also undoes a by-hand `--session` hide on the next wide resize.
+  sidebar-fit = pkgs.writeShellScriptBin "tmux-sidebar-fit" ''
+    session=$1 width=$2 pane=$3
+    if tmux show -gqv @workmux_sidebar_optout_sessions | grep -o '\$[0-9]*' | grep -qxF "$session"; then
+      hidden=1
+    else
+      hidden=0
+    fi
+    if [ "$width" -lt 190 ]; then want=1; else want=0; fi
+    [ "$hidden" = "$want" ] || TMUX_PANE=$pane workmux sidebar --session
+  '';
 in
 {
+  home.packages = [ sidebar-fit ];
+
   # workmux writes config.yaml itself (`T` in the dashboard saves the scheme
   # there), so ours is merged over it on every rebuild rather than linked.
   home.activation.workmuxSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
