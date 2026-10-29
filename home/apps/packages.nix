@@ -251,6 +251,11 @@ in
     # the style wrapper; a `let` binding shadows `with pkgs`.
     ktailctl
 
+    # Minecraft launcher. Native Qt, so it idles near 0% CPU where the
+    # Modrinth app held a core busy. Imports a .mrpack directly, and ships its
+    # own JDKs (8 through 25) on PRISMLAUNCHER_JAVA_PATHS.
+    prismlauncher
+
     # misc from the Arch list
     xauth
     xhost
