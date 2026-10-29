@@ -35,8 +35,10 @@
   # Empty first: the cache above would answer with a stale token. The file is
   # the sops template git-credentials-hutao in modules/sops.nix: a PAT that
   # does not expire. GCM was here, and the first push each hour failed once.
+  # Lookups only: after a push git asks the helper to save, and plain `store`
+  # then fails to lock a file in root's /run/secrets/rendered.
   helper =
-  helper = store --file=/run/secrets/rendered/git-credentials-hutao
+  helper = "!f() { test \"$1\" = get && git credential-store --file=/run/secrets/rendered/git-credentials-hutao get; }; f"
 [commit]
   gpgSign = true
 [pull]
