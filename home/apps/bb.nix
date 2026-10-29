@@ -30,7 +30,13 @@ in
     Service = {
       Type = "simple";
       # The agents (`claude`, `opencode`) and git are found by bare name.
-      Environment = "PATH=${pkgs.nodejs_26}/bin:/etc/profiles/per-user/%u/bin:/run/current-system/sw/bin";
+      Environment = [
+        "PATH=${pkgs.nodejs_26}/bin:/etc/profiles/per-user/%u/bin:/run/current-system/sw/bin"
+        # Otherwise bb prefers ~/.local/bin/claude, where its "install Claude
+        # Code" button drops Anthropic's generic binary -- which NixOS cannot
+        # run ("Could not start dynamically linked executable").
+        "BB_CLAUDE_CODE_EXECUTABLE=/etc/profiles/per-user/%u/bin/claude"
+      ];
       # The LLM API keys (OpenRouter, MiniMax, ...) the shell gets from sops
       # (modules/sops.nix, templates."llm.env"); a user service does not
       # inherit the shell's environment, so opencode in bb had none.
