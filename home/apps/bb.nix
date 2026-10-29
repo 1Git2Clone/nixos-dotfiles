@@ -31,6 +31,10 @@ in
       Type = "simple";
       # The agents (`claude`, `opencode`) and git are found by bare name.
       Environment = "PATH=${pkgs.nodejs_26}/bin:/etc/profiles/per-user/%u/bin:/run/current-system/sw/bin";
+      # The LLM API keys (OpenRouter, MiniMax, ...) the shell gets from sops
+      # (modules/sops.nix, templates."llm.env"); a user service does not
+      # inherit the shell's environment, so opencode in bb had none.
+      EnvironmentFile = "/run/secrets/rendered/llm.env";
       ExecStart = "${npx} -y --allow-scripts=better-sqlite3,node-pty,@parcel/watcher bb-app@${version} --no-in-app-updates";
       Restart = "on-failure";
     };
