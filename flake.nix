@@ -3,6 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # opencode alone, from a newer unstable than the system's: bb talks to
+    # its server API, which 1.19 answered with 404s. `nix flake update
+    # nixpkgs-opencode` moves only opencode.
+    nixpkgs-opencode.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     disko = {
       url = "github:nix-community/disko";
