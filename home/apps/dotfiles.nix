@@ -328,11 +328,8 @@ let
       --replace-fail '/usr/lib/geoclue-2.0/demos/agent' \
         '${pkgs.geoclue2-with-demo-agent}/libexec/geoclue-2.0/demos/agent'
 
-    # gpg wants a ~/.password-store that does not exist here, and GCM then
-    # dies instead of prompting. secretservice is the running gnome-keyring.
     substituteInPlace $out/dot-gitconfig \
-      --replace-fail '/usr/bin/gh' '${pkgs.gh}/bin/gh' \
-      --replace-fail 'credentialStore = gpg' 'credentialStore = secretservice'
+      --replace-fail '/usr/bin/gh' '${pkgs.gh}/bin/gh'
 
     # TPM would clone these into ~/.tmux at runtime; nixpkgs already ships them.
     substituteInPlace $out/dot-tmux.conf \

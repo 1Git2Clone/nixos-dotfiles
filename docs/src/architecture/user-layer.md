@@ -19,7 +19,7 @@ upstream makes unnecessary is a failed build rather than a silent no-op:
 | `dot-profile.d/utils.sh`     | `/usr/bin/nvim` → `command nvim`                                       |
 | `hypr/modules/programs.lua`  | the hard-coded FHS `XDG_DATA_DIRS` that empties every launcher         |
 | `hypr/modules/autostart.lua` | the `/usr/lib` polkit and geoclue agent paths                          |
-| `dot-gitconfig`              | `/usr/bin/gh` → the store's `gh`; gpg credential store → secretservice |
+| `dot-gitconfig`              | `/usr/bin/gh` → the store's `gh`                                       |
 | `dot-tmux.conf`              | the `/usr/share` resurrect and continuum plugin paths                  |
 | `hypr/modules/programs.lua`  | cursor theme and size, from the system's stylix settings               |
 

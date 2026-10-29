@@ -55,8 +55,14 @@ read from the input.
 
 `dot-gitconfig`'s `[credential]` sets `helper = cache --timeout=3600` for every
 host, and git asks every helper in the list, that one first. A host section
-that adds its own helper (GCM for `git.hu-tao.dev`, `gh` for GitHub) has to
-start with an empty `helper =` to drop the cache, or the cache hands back an
-expired token: the first push fails, git erases it, and only the retry reaches
-the real helper. Learned 2026-09-30, from Forgejo pushes that always failed
-once.
+that adds its own helper (a sops store file for `git.hu-tao.dev`, `gh` for
+GitHub) has to start with an empty `helper =` to drop the cache, or the cache
+hands back an expired token: the first push fails, git erases it, and only the
+retry reaches the real helper. Learned 2026-09-30, from Forgejo pushes that
+always failed once.
+
+That was not the whole story for Forgejo. With GCM as the helper, the first
+push of every hour still failed once and the retry went through; which token
+went stale was never pinned down. `git.hu-tao.dev` now reads a PAT that does
+not expire from the `git-credentials-hutao` sops template, with no cache and
+no GCM in the path. Learned 2026-10-29.

@@ -211,11 +211,8 @@ in
     # The JREs are deliberately not here: any two temurin builds collide on
     # legal/jdk.localedata/cldr.md and buildEnv refuses. Both are linked below.
 
-    # GCM works here only because `df` rewrites credentialStore to
-    # secretservice; gpg wants a ~/.password-store that does not exist.
     gh
     forgejo-cli # `fj`
-    git-credential-manager
 
     # What programs.gnupg.agent already points its pinentryPackage at; here so
     # a signing prompt outside the agent still finds it.

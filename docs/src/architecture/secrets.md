@@ -14,16 +14,17 @@ key. `modules/sops.nix` declares every key and is the one place to add one.
 
 ## The keys
 
-| Key                                     | What                                                              | Consumer                                  |
-| --------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------- |
-| `root_password`                         | crypt(3) hash, `mkpasswd -m yescrypt`                             | `modules/users.nix`                       |
-| `user_password`                         | crypt(3) hash, `mkpasswd -m yescrypt`                             | `modules/users.nix`                       |
-| `luks_passphrase`                       | the passphrase itself, in the clear                               | `install.sh` only, never declared         |
-| `tailscale_authkey`                     | reusable, pre-authorized, **not** ephemeral                       | `modules/tailscale.nix`                   |
-| `syncthing_gui_password`                | plaintext; syncthing-init bcrypts it                              | `modules/syncthing.nix`                   |
-| `sunshine_password`                     | plaintext; `sunshine --creds` hashes it                           | `hosts/hutao-desktop`                     |
-| `llm.*` (see `llmKeys`)                 | provider API keys (openrouter, opencode, vercel, minimax)         | rendered into one `llm.env`               |
-| `nix.forgejo_token`, `nix.github_token` | read tokens for private flake inputs                              | rendered into root's git credential store |
+| Key                                     | What                                                      | Consumer                                   |
+| --------------------------------------- | --------------------------------------------------------- | ------------------------------------------ |
+| `root_password`                         | crypt(3) hash, `mkpasswd -m yescrypt`                     | `modules/users.nix`                        |
+| `user_password`                         | crypt(3) hash, `mkpasswd -m yescrypt`                     | `modules/users.nix`                        |
+| `luks_passphrase`                       | the passphrase itself, in the clear                       | `install.sh` only, never declared          |
+| `tailscale_authkey`                     | reusable, pre-authorized, **not** ephemeral               | `modules/tailscale.nix`                    |
+| `syncthing_gui_password`                | plaintext; syncthing-init bcrypts it                      | `modules/syncthing.nix`                    |
+| `sunshine_password`                     | plaintext; `sunshine --creds` hashes it                   | `hosts/hutao-desktop`                      |
+| `llm.*` (see `llmKeys`)                 | provider API keys (openrouter, opencode, vercel, minimax) | rendered into one `llm.env`                |
+| `nix.forgejo_token`, `nix.github_token` | read tokens for private flake inputs                      | rendered into root's git credential store  |
+| `git.forgejo_push_token`                | a Forgejo PAT with write:repository (fj's will do)        | rendered into hutao's git credential store |
 
 **Every declared key must exist**, on every host, before anything builds.
 sops-nix checks the manifest at build time, and a missing key is a failed
@@ -54,14 +55,15 @@ inside `nixos-install` on a wiped disk.
 
 ## Templates
 
-`modules/sops.nix` also renders three files out of those keys, because the
+`modules/sops.nix` also renders four files out of those keys, because the
 consumers want a file of a particular shape rather than a bare value:
 
-| Template          | Shape                                    | Why                                                        |
-| ----------------- | ---------------------------------------- | ---------------------------------------------------------- |
-| `llm.env`         | `VAR=value` lines                        | `dot-profile.d/environment.sh` sources it into every shell |
-| `git-credentials` | git's credential-store format, root-only | `sudo nixos-rebuild` fetches private inputs as root        |
-| `sunshine-netrc`  | a curl netrc                             | the desktop's disconnect watcher, without argv exposure    |
+| Template                | Shape                                     | Why                                                        |
+| ----------------------- | ----------------------------------------- | ---------------------------------------------------------- |
+| `llm.env`               | `VAR=value` lines                         | `dot-profile.d/environment.sh` sources it into every shell |
+| `git-credentials`       | git's credential-store format, root-only  | `sudo nixos-rebuild` fetches private inputs as root        |
+| `git-credentials-hutao` | git's credential-store format, hutao-only | hutao pushes to `git.hu-tao.dev` through it                |
+| `sunshine-netrc`        | a curl netrc                              | the desktop's disconnect watcher, without argv exposure    |
 
 ## Keys and recipients
 

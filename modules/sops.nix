@@ -70,6 +70,9 @@ in
 
       tailscale_authkey = { };
 
+      # Read only by the git-credentials-hutao template below.
+      "git/forgejo_push_token" = { };
+
       # Plaintext, not a hash: syncthing-init bcrypts it at activation. owner
       # because that unit runs as hutao.
       syncthing_gui_password = {
@@ -122,6 +125,16 @@ in
           name: token: "https://${token.login}:${config.sops.placeholder."nix/${name}"}@${token.host}"
         ) nixTokens
       );
+    };
+
+    # hutao's own pushes to Forgejo, read by the store helper dot-gitconfig
+    # names for git.hu-tao.dev. A PAT with write scope, unlike the read-only
+    # nix/forgejo_token above. dot-gitconfig names its default path,
+    # /run/secrets/rendered/git-credentials-hutao, so a rename edits both.
+    templates."git-credentials-hutao" = {
+      owner = "hutao";
+      mode = "0400";
+      content = "https://hutao:${config.sops.placeholder."git/forgejo_push_token"}@git.hu-tao.dev";
     };
   };
 
