@@ -4,7 +4,6 @@
   "plugin": [
     "oh-my-opencode-slim",
     "superpowers@git+https://github.com/obra/superpowers.git",
-    "@knikolov/opencode-plugin-simple-memory",
     "opencode-pty",
     "opencode-morph-fast-apply",
     "~/.config/opencode/ponytail.mjs",
