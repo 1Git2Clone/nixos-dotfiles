@@ -11,7 +11,6 @@ let
   cadcraft = pkgs.callPackage ../../pkgs/cadcraft.nix { };
   deckcraft = pkgs.callPackage ../../pkgs/deckcraft.nix { };
   shell-notify = pkgs.callPackage ../../pkgs/shell-notify.nix { };
-  bb = pkgs.callPackage ../../pkgs/bb.nix { };
 
   # CaelestiaFox (the extension, from AMO) recolours the browser with the
   # scheme, off a native app it talks to; each browser's wrapper registers it.
@@ -116,8 +115,7 @@ in
 
     # vibe coding
     claude-code
-    opencode
-    bb # pkgs/bb.nix: an IDE over the two agents above
+    inputs.nixpkgs-opencode.legacyPackages.${pkgs.stdenv.hostPlatform.system}.opencode # flake.nix
     inputs.workmux.packages.${pkgs.system}.default
     inputs.cli-utils.packages.${pkgs.system}.default
 
