@@ -64,21 +64,18 @@
     },
     "playwright": {
       "enabled": true,
-      "type": "local",
-      "command": ["playwright-mcp"]
+      "type": "remote",
+      "url": "http://localhost:8931/mcp"
     },
     "sequential-thinking": {
       "enabled": true,
-      "type": "local",
-      "command": ["npx", "@gotza02/seq-thinking@latest"]
+      "type": "remote",
+      "url": "http://127.0.0.1:8932/servers/sequential-thinking/mcp"
     },
     "openrouter-image": {
       "enabled": true,
-      "type": "local",
-      "command": ["openrouter-image-mcp"],
-      "environment": {
-        "OPENROUTER_API_KEY": "{env:OPENROUTER_API_KEY}"
-      }
+      "type": "remote",
+      "url": "http://127.0.0.1:8932/servers/openrouter-image/mcp"
     }
   },
   "provider": {
