@@ -73,7 +73,7 @@ The config and the module that installs it live in
 `home/default.nix` as `inputs.nvim-config.homeModules.default`. The paths
 below are in that repo. A change there needs a push and
 `nix flake update nvim-config` before a rebuild sees it; to try one first,
-rebuild with `--override-input nvim-config git+file:///home/hutao/Projects/nvim-config`.
+rebuild with `--override-input nvim-config git+file:///home/hutao/Projects/git.hu-tao.dev/hutao/nvim-config`.
 
 mason is disabled: its prebuilt binaries cannot run on NixOS, so
 `nix/home.nix` provides the language servers instead. Add a server

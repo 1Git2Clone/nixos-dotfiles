@@ -213,6 +213,7 @@ in
 
     gh
     forgejo-cli # `fj`
+    ghq # clones into ~/Projects/<host>/<owner>/<repo>; root in dot-gitconfig
 
     # What programs.gnupg.agent already points its pinentryPackage at; here so
     # a signing prompt outside the agent still finds it.

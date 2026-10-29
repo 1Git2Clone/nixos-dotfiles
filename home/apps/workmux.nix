@@ -11,6 +11,14 @@
 let
   settings = (pkgs.formats.yaml { }).generate "workmux.yaml" {
     nerdfont = true;
+    # Inside the repo, not a <repo>__worktrees sibling: ghq owns the level
+    # beside it and would list each sibling worktree as a repo of its own.
+    worktree_dir = ".worktrees";
+    # info/exclude rather than a global ignore: it is per clone, so a fresh
+    # `ghq get` gets it on its first worktree.
+    post_create = [
+      ''e="$(git rev-parse --git-common-dir)/info/exclude"; grep -qxF .worktrees "$e" 2>/dev/null || echo .worktrees >> "$e"''
+    ];
     theme = {
       mode = "dark";
       custom = {

@@ -4,6 +4,8 @@
   signingkey = D7B6F6EB50C776B2A0ABFC2AE656E12B8EADC31C
 [credential]
   helper = cache --timeout=3600
+[ghq]
+  root = ~/Projects
 [init]
   defaultBranch = main
 [filter "lfs"]

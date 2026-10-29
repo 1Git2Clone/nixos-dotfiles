@@ -88,7 +88,7 @@
     # Nix flake inputs do not fail over, so this is the primary and the mirror is
     # the escape hatch -- one flag, no edit, no dirty tree:
     #
-    #   sudo nixos-rebuild switch --flake ~/Projects/nixos-dotfiles#hutao-desktop \
+    #   sudo nixos-rebuild switch --flake ~/Projects/git.hu-tao.dev/hutao/nixos-dotfiles#hutao-desktop \
     #     --override-input cli-utils git+https://github.com/1Git2Clone/cli-utils?ref=main
     #
     # It is a git input now, not `path:`, so it is locked to a revision: a push

@@ -107,7 +107,7 @@ commit.
 
 The hook finds the checkout through `$XDG_STATE_HOME/hutao/flake-path`, which
 activation writes from `hutao.flakePath` (default
-`~/Projects/nixos-dotfiles`). A clone elsewhere sets that option, or edits the
+`~/Projects/git.hu-tao.dev/hutao/nixos-dotfiles`). A clone elsewhere sets that option, or edits the
 file for a quick fix. With no checkout there it records nothing and says so in
 a notification. The path cannot be worked out: a flake is evaluated from its
 copy in the store.

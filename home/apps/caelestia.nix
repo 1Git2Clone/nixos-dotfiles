@@ -174,7 +174,7 @@ in
   options.hutao = {
     flakePath = lib.mkOption {
       type = lib.types.str;
-      default = "${config.home.homeDirectory}/Projects/nixos-dotfiles";
+      default = "${config.home.homeDirectory}/Projects/git.hu-tao.dev/hutao/nixos-dotfiles";
       description = ''
         The checkout of this flake, where caelestia-theme-hook records the
         picked scheme. Not derivable: a flake is evaluated from its copy in
