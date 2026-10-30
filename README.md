@@ -36,7 +36,7 @@ the home-manager module that installs it.
 ├── home/                  # home-manager: the dotfiles walk, one file per app
 ├── dotfiles/              # the user layer itself, including agent and MCP configs
 ├── palette.nix            # the picked caelestia scheme, for what needs a rebuild
-├── pkgs/                  # greeter, cursors, folder icons, app icons, CaelestiaFox, Claude Code, shell-notify, PhotoCraft and the other Crafts
+├── pkgs/                  # greeter, cursors, folder icons, app icons, CaelestiaFox, Claude Code, shell-notify, PhotoCraft, the other Crafts, Horizon
 ├── secrets/               # sops-encrypted values + a plaintext example
 ├── install.sh             # partition, encrypt, install, from the ISO
 ├── vm/                    # the install rehearsal
@@ -64,6 +64,7 @@ nix run .#docs
 | [The laptop as a third monitor](docs/src/architecture/third-monitor.md) | Sunshine, Moonlight, and the disconnect watcher     |
 | [Installing a machine](docs/src/operations/installing.md)               | `install.sh`, step by step, and new hardware        |
 | [Rebuilding and deploying](docs/src/operations/deploying.md)            | `nixos-rebuild` and deploy-rs over Tailscale        |
+| [Horizon Minecraft client](docs/src/operations/horizon.md)              | pinned 26.3 client, preparation and connecting      |
 | [Known hazards](docs/src/operations/hazards.md)                         | what will hurt if forgotten                         |
 
 Those links go to the source, which renders in Forgejo, diagrams included.
@@ -80,6 +81,7 @@ Those links go to the source, which renders in Forgejo, diagrams included.
 | `nix build .#installer-iso`                                                      | build the installer ISO                              |
 | `vm/install-test.sh all`                                                         | rehearse a full install against a blank virtual disk |
 | `nix run .#docs`                                                                 | serve the handbook with live reload                  |
+| `horizon-launcher`                                                               | open Horizon Minecraft 26.3                          |
 
 Every key `modules/sops.nix` declares must be in `secrets/secrets.yaml` before
 anything builds; `install.sh` checks the full list before it touches a disk.

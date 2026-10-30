@@ -254,6 +254,7 @@
         inherit (disko.packages.${system}) disko;
 
         sddm-hu-tao = pkgs.callPackage ./pkgs/sddm-hu-tao.nix { };
+        horizon = pkgs.callPackage ./pkgs/horizon { };
 
         laptop = self.nixosConfigurations.hutao-laptop.config.system.build.toplevel;
         desktop = self.nixosConfigurations.hutao-desktop.config.system.build.toplevel;
