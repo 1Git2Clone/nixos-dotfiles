@@ -1,6 +1,9 @@
 [mcp_servers.codebase-memory-mcp]
 command = "codebase-memory-mcp"
 
+[mcp_servers.chrome-devtools]
+url = "http://127.0.0.1:8932/servers/chrome-devtools/mcp"
+
 [mcp_servers.openrouter-image]
 url = "http://127.0.0.1:8932/servers/openrouter-image/mcp"
 

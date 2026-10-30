@@ -25,13 +25,20 @@ thread. These plugin installations live in each harness's own user state; the
 repo tracks the settings it supports declaratively.
 
 The same MCP servers are configured for Claude Code, Codex, Cursor, Grok Build,
-OpenCode, and Pi: `codebase-memory-mcp`, Playwright, sequential-thinking and
-`openrouter-image`. Only `codebase-memory-mcp` is stdio, one 15M process per
-session. The other three run once as the user services in `home/apps/mcp.nix`
+OpenCode, and Pi: `codebase-memory-mcp`, Playwright, sequential-thinking,
+`openrouter-image` and `chrome-devtools`. Only `codebase-memory-mcp` is stdio,
+one 15M process per session. The other four run once as the user services in `home/apps/mcp.nix`
 and every harness connects over HTTP, so a session no longer starts its own
 `npx` and Node copy of each (about 170M per server per session, measured
 2026-10-30). Playwright listens on `localhost` (IPv6 only), so point clients at
 `localhost`, not `127.0.0.1`.
+
+`chrome-devtools` (`pkgs/chrome-devtools-mcp.nix`, the npm tarball wrapped in
+node) replaces the Claude plugin of that name, which is disabled in
+`dot-claude/settings.json` because it started its own `npx` copy per session;
+that also drops the plugin's skills. Unlike Playwright it has no context per
+client, so agents using it at the same time share one browser and one selected
+page. Bump `version` and `hash` together.
 
 Claude Code reads user-scope servers only from the mutable `~/.claude.json`, so
 the `claude` in `home/apps/packages.nix` is wrapped to pass

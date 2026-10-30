@@ -8,8 +8,10 @@
 # fronts them, at http://127.0.0.1:8932/servers/<name>/mcp. codebase-memory-mcp
 # stays stdio: it is 15M and indexes the project it is started in. Every
 # harness (Claude Code, Codex, Cursor, Grok, OpenCode, Pi) points here.
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 let
+  chrome-devtools-mcp = pkgs.callPackage ../../pkgs/chrome-devtools-mcp.nix { };
+
   path = "PATH=${pkgs.nodejs_26}/bin:/etc/profiles/per-user/%u/bin:/run/current-system/sw/bin";
 
   servers = pkgs.writeText "mcp-servers.json" (
@@ -23,6 +25,9 @@ let
           ];
         };
         openrouter-image.command = "openrouter-image-mcp";
+        # One browser and one selected page for every agent, unlike
+        # playwright's context per client: agents driving it at once share it.
+        chrome-devtools.command = lib.getExe chrome-devtools-mcp;
       };
     }
   );

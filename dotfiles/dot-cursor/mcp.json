@@ -1,6 +1,7 @@
 {
   "mcpServers": {
     "codebase-memory-mcp": { "command": "codebase-memory-mcp", "type": "stdio" },
+    "chrome-devtools": { "url": "http://127.0.0.1:8932/servers/chrome-devtools/mcp" },
     "openrouter-image": { "url": "http://127.0.0.1:8932/servers/openrouter-image/mcp" },
     "playwright": { "url": "http://localhost:8931/mcp" },
     "sequential-thinking": { "url": "http://127.0.0.1:8932/servers/sequential-thinking/mcp" }
