@@ -6,6 +6,45 @@ result out of the store. Nothing is listed by hand, so a new dotfile needs no
 edit here. Each app that needs more than a link has its own file under
 `home/apps/`.
 
+## Coding agents
+
+Claude Code and OpenCode have Ponytail enabled in their tracked configurations.
+Pi declares the upstream Ponytail package in `~/.pi/agent/settings.json`, and
+Cursor gets Ponytail's always-on compact rules in `~/.cursor/rules/ponytail.mdc`.
+Grok Build's config enables Ponytail; install and trust it once with
+`grok plugin install DietrichGebert/ponytail --trust`. Codex's plugin marketplace
+also needs a one-time registration:
+
+```sh
+codex plugin marketplace add DietrichGebert/ponytail
+codex plugin add ponytail@ponytail
+```
+
+In Codex, review and trust Ponytail's hooks in `/hooks`, then start a new
+thread. These plugin installations live in each harness's own user state; the
+repo tracks the settings it supports declaratively.
+
+The same MCP servers are configured for Claude Code, Codex, Cursor, Grok Build,
+OpenCode, and Pi: `codebase-memory-mcp`, Playwright, sequential-thinking and
+`openrouter-image`. Only `codebase-memory-mcp` is stdio, one 15M process per
+session. The other three run once as the user services in `home/apps/mcp.nix`
+and every harness connects over HTTP, so a session no longer starts its own
+`npx` and Node copy of each (about 170M per server per session, measured
+2026-10-30). Playwright listens on `localhost` (IPv6 only), so point clients at
+`localhost`, not `127.0.0.1`.
+
+Claude Code reads user-scope servers only from the mutable `~/.claude.json`, so
+the `claude` in `home/apps/packages.nix` is wrapped to pass
+`--mcp-config ~/.claude/.mcp.json`. Pi has a built-in `mcp` extension that reads
+`~/.pi/agent/mcp.json`; do not add `pi-mcp-adapter`, which clashes with it and
+adds a Node process. Grok's MCP config is parsed (`grok mcp list`) but was not
+exercised live, as it needs `grok login`.
+
+The Codex, Cursor, Grok and Pi dotfile directories are in `expand` in
+`home/apps/dotfiles.nix`: linked whole they are store symlinks and the agents'
+own writes (sessions, locks) fail read-only, which left bb's Pi model picker
+empty (2026-10-30).
+
 ## On top of the plain tree
 
 `home/apps/dotfiles.nix` builds the tree as one derivation and changes it in

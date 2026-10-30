@@ -4,7 +4,16 @@
 let
   app-icons = pkgs.callPackage ../../pkgs/app-icons.nix { };
   openrouter-image-mcp = pkgs.callPackage ../../pkgs/openrouter-image-mcp.nix { };
-  claude-code = pkgs.callPackage ../../pkgs/claude-code.nix { };
+  # Claude Code only reads user-scope servers from ~/.claude.json, which is
+  # mutable state, so the declarative ~/.claude/.mcp.json is passed by flag.
+  claude-code = pkgs.symlinkJoin {
+    name = "claude-code-mcp";
+    paths = [ (pkgs.callPackage ../../pkgs/claude-code.nix { }) ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/claude --add-flags '--mcp-config "$HOME/.claude/.mcp.json"'
+    '';
+  };
   photocraft = pkgs.callPackage ../../pkgs/photocraft.nix { };
   gridcraft = pkgs.callPackage ../../pkgs/gridcraft.nix { };
   wordcraft = pkgs.callPackage ../../pkgs/wordcraft.nix { };

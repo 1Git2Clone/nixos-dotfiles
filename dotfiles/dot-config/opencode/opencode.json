@@ -6,7 +6,7 @@
     "superpowers@git+https://github.com/obra/superpowers.git",
     "opencode-pty",
     "opencode-morph-fast-apply",
-    "~/.config/opencode/ponytail.mjs",
+    "@dietrichgebert/ponytail",
     "@csuwl/opencode-memory-plugin",
     "@fpytloun/opencode-mnemory",
     "opencode-plugin-preload-skills"

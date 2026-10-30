@@ -6,7 +6,8 @@
 # playwright serves HTTP itself, with a browser context per client, so two
 # agents never drive the same tab. The other two are stdio-only, so mcp-proxy
 # fronts them, at http://127.0.0.1:8932/servers/<name>/mcp. codebase-memory-mcp
-# stays stdio: it is 15M and indexes the project it is started in.
+# stays stdio: it is 15M and indexes the project it is started in. Every
+# harness (Claude Code, Codex, Cursor, Grok, OpenCode, Pi) points here.
 { pkgs, ... }:
 let
   path = "PATH=${pkgs.nodejs_26}/bin:/etc/profiles/per-user/%u/bin:/run/current-system/sw/bin";
@@ -16,7 +17,10 @@ let
       mcpServers = {
         sequential-thinking = {
           command = "npx";
-          args = [ "-y" "@gotza02/seq-thinking@1.3.5" ];
+          args = [
+            "-y"
+            "@gotza02/seq-thinking@1.3.5"
+          ];
         };
         openrouter-image.command = "openrouter-image-mcp";
       };
@@ -39,9 +43,7 @@ let
   };
 in
 {
-  systemd.user.services.mcp-playwright =
-    service "Playwright MCP server" "/etc/profiles/per-user/%u/bin/playwright-mcp --port 8931 --isolated";
+  systemd.user.services.mcp-playwright = service "Playwright MCP server" "/etc/profiles/per-user/%u/bin/playwright-mcp --port 8931 --isolated";
 
-  systemd.user.services.mcp-proxy =
-    service "MCP proxy for the stdio servers" "${pkgs.mcp-proxy}/bin/mcp-proxy --port 8932 --pass-environment --named-server-config ${servers}";
+  systemd.user.services.mcp-proxy = service "MCP proxy for the stdio servers" "${pkgs.mcp-proxy}/bin/mcp-proxy --port 8932 --pass-environment --named-server-config ${servers}";
 }

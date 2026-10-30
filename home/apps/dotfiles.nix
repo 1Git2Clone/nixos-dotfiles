@@ -401,6 +401,13 @@ let
     "dot-cargo"
     "dot-claude"
     "dot-claude/hooks"
+    # The other agents keep auth, sessions and locks in their own dirs; linked
+    # whole, every one of those writes is EROFS (pi dies on its sessions dir).
+    "dot-codex"
+    "dot-cursor"
+    "dot-grok"
+    "dot-pi"
+    "dot-pi/agent"
     "dot-config"
     "dot-config/caelestia"
     # opencode writes a .gitignore into its config dir on every boot; linked

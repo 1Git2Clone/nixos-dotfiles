@@ -1,0 +1,11 @@
+[mcp_servers.codebase-memory-mcp]
+command = "codebase-memory-mcp"
+
+[mcp_servers.openrouter-image]
+url = "http://127.0.0.1:8932/servers/openrouter-image/mcp"
+
+[mcp_servers.playwright]
+url = "http://localhost:8931/mcp"
+
+[mcp_servers.sequential-thinking]
+url = "http://127.0.0.1:8932/servers/sequential-thinking/mcp"

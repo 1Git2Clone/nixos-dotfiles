@@ -34,7 +34,7 @@ the home-manager module that installs it.
 │   ├── disk-layout.nix    # disko: ESP + LUKS → LVM
 │   └── firewall.nix tailscale.nix syncthing.nix users.nix system.nix flatpak.nix
 ├── home/                  # home-manager: the dotfiles walk, one file per app
-├── dotfiles/              # the user layer itself
+├── dotfiles/              # the user layer itself, including agent and MCP configs
 ├── palette.nix            # the picked caelestia scheme, for what needs a rebuild
 ├── pkgs/                  # greeter, cursors, folder icons, app icons, CaelestiaFox, Claude Code, shell-notify, PhotoCraft and the other Crafts
 ├── secrets/               # sops-encrypted values + a plaintext example
