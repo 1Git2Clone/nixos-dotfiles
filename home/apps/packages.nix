@@ -273,6 +273,7 @@ in
     ente-auth
 
     kdePackages.kdenlive
+    kdePackages.filelight # what is eating /home and /
 
     # Tray GUI for tailscaled, kept for its exit-node menu (Mullvad nodes get
     # their own per-country submenu). Exit nodes are stored prefs, so picking
