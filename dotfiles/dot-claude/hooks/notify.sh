@@ -3,6 +3,8 @@
 # (Stop) or a question/permission prompt is waiting (Notification, AskUserQuestion).
 # Usage: notify.sh start|done|ask   (hook JSON on stdin)
 set -uo pipefail
+# bb sends its own push notifications for its threads.
+[[ -n ${BB_THREAD_ID:-} ]] && exit 0
 
 LONG=60 # seconds a turn must run before "done" is worth interrupting for
 # caelestia-shell reads -t 0 as "use the 5s default" and ignores urgency, so

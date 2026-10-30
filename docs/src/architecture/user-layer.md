@@ -364,7 +364,9 @@ nixpkgs bumps the package.
   meaning its tmux pane is the active one in an attached session and that
   client's window has Hyprland's focus. It exits 1 when it is not, and 2 when
   that cannot be told (Hyprland or the pane unreachable), and both `send` and
-  Claude's `dot-claude/hooks/notify.sh` notify on anything but 0.
+  Claude's `dot-claude/hooks/notify.sh` notify on anything but 0. The hook
+  sends nothing inside a bb thread (`BB_THREAD_ID` set), where bb's own push
+  notifications cover it.
 - **`shell-notify dismiss <pane>`**: closes the notifications sent from that
   pane once it is on screen by the same rule. Both `send` and Claude's hook
   send through `shell-notify notify`, which records each notification ID in
