@@ -37,8 +37,8 @@ Claude Code reads user-scope servers only from the mutable `~/.claude.json`, so
 the `claude` in `home/apps/packages.nix` is wrapped to pass
 `--mcp-config ~/.claude/.mcp.json`. Pi has a built-in `mcp` extension that reads
 `~/.pi/agent/mcp.json`; do not add `pi-mcp-adapter`, which clashes with it and
-adds a Node process. Grok's MCP config is parsed (`grok mcp list`) but was not
-exercised live, as it needs `grok login`.
+adds a Node process. `grok mcp doctor` connects to each server without a
+login, so use it to check Grok (2026-10-30: all four healthy).
 
 The Codex, Cursor, Grok and Pi dotfile directories are in `expand` in
 `home/apps/dotfiles.nix`: linked whole they are store symlinks and the agents'
