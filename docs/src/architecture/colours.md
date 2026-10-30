@@ -57,6 +57,7 @@ flavour, which is why ours is `hu-tao/red/dark` and not `hu-tao/default/dark-red
 | preview reload           | markdown-preview.nvim                                               | `plugins/markdown-preview.lua` rewrites its CSS from the same watch, while Neovim runs             |
 | next time the app starts | GTK and Qt apps                                                     | caelestia's `enableGtk`, `enableQt`: `gtk.css`, `~/.config/qtengine`                               |
 | next time the app starts | lazygit, wofi, wlogout, swaylock, MangoHud, KDE apps (`kdeglobals`) | a template                                                                                         |
+| next time the app starts | Prism Launcher                                                      | a template (`prism.nix`); pick Caelestia once under Settings > Appearance                          |
 | next rebuild             | grub, plymouth, the tty, SDDM                                       | `palette.nix`, off `current.json`                                                                  |
 | next rebuild             | the Limine and SDDM backgrounds, the wallpaper                      | `stylix.image`, off `current.json`'s `wallpaper`, looked up in third-party-assets                  |
 
@@ -75,7 +76,7 @@ scheme key it means, substituted with `palette.template`'s fields instead
 of hex. The literals stay in the files, so the configs remain valid when
 `~/.config` points at the raw tree, and `--replace-fail` still turns a moved
 literal into a failed build. `theme.nix` adds `kdeglobals`, and
-`ccstatusline.nix` the status line's settings.
+`ccstatusline.nix` the status line's settings, `prism.nix` Prism's theme.
 
 A rebuild can change a template without the scheme changing, and caelestia
 only renders on a switch, so activation renders them too
