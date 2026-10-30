@@ -10,7 +10,7 @@
 # before Minecraft.
 { pkgs, ... }:
 let
-  version = "0.48.0";
+  version = "0.48.1";
   npx = "${pkgs.nodejs_26}/bin/npx";
 
   bb = pkgs.writeShellScriptBin "bb" ''
