@@ -40,13 +40,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # The an-anime-team launchers. Its own binary cache is the point --
-    # see modules/desktop/aagl.nix.
-    aagl = {
-      url = "github:ezKEa/aagl-gtk-on-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Sober is Flatpak-only by upstream's choice, and this keeps that
     # declarative rather than a `flatpak install` nobody records.
     nix-flatpak.url = "github:gmodena/nix-flatpak";
