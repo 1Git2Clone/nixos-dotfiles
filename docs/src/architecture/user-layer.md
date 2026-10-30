@@ -314,6 +314,14 @@ has to be owned and installed through Steam.
   scene stops still and a video stays black. `fullscreenPauseOnlyActive`
   narrows that to a focused fullscreen window, which is still a pause.
   Learned 2026-10-06 from a fullscreen Sober.
+- **caelestia's game mode freezes it.** `wallpaper-game-pause`, a user service,
+  polls `hyprctl getoption animations:enabled` every 2 seconds, because game
+  mode only sets that to 0 and emits no event. While it is off the renderers
+  get `SIGSTOP`, and `SIGCONT` when it is back on: a frozen renderer keeps its
+  last frame and uses no CPU or GPU, but keeps its ~150M. Two scenes at 60fps
+  measured about 32% GPU busy and 13% of a core against 1% and 0 frozen
+  (2026-10-30). Animations off for any other reason pauses them too. Tested
+  with `caelestia shell gameMode enable` and `disable`.
 
 ## Claude Code ahead of nixpkgs
 

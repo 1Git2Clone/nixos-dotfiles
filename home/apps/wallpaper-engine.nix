@@ -52,9 +52,50 @@ let
     # what starts it.
     autostart = false;
   };
+
+  # caelestia's game mode only sets Hyprland's animations:enabled to 0 and
+  # emits nothing, so the value is polled. A stopped renderer keeps its last
+  # frame on screen and uses no CPU or GPU; its memory stays.
+  pauseInGameMode = pkgs.writeShellApplication {
+    name = "wallpaper-game-pause";
+    runtimeInputs = [
+      pkgs.hyprland
+      pkgs.jq
+      pkgs.procps
+    ];
+    text = ''
+      # The service's environment has no Hyprland socket to find.
+      HYPRLAND_INSTANCE_SIGNATURE=$(basename "$(find "$XDG_RUNTIME_DIR/hypr" -mindepth 1 -maxdepth 1 -type d | head -n1)")
+      export HYPRLAND_INSTANCE_SIGNATURE
+      # Applied every tick, not on change, so a renderer restarted during game
+      # mode (a new wallpaper) is stopped too.
+      while sleep 2; do
+        if [[ $(hyprctl getoption animations:enabled -j | jq -r .bool) == false ]]; then
+          pkill -STOP -f '^linux-wallpaperengine ' || true
+        else
+          pkill -CONT -f '^linux-wallpaperengine ' || true
+        fi
+      done
+    '';
+  };
 in
 {
   home.packages = [ gui ];
+
+  # Animations off for any other reason pauses the wallpapers too; caelestia
+  # has the same blind spot.
+  systemd.user.services.wallpaper-game-pause = {
+    Unit = {
+      Description = "Freeze the wallpaper renderers while caelestia game mode is on";
+      After = [ "linux-wallpaperengine-gui.service" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+    Service = {
+      ExecStart = lib.getExe pauseInGameMode;
+      Restart = "on-failure";
+    };
+  };
 
   # jq's * replaces arrays whole, so `screens` is exactly the set above; a
   # wallpaper picked in the GUI lasts until the next rebuild. The GUI rereads
