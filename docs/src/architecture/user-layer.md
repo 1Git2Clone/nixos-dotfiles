@@ -162,6 +162,11 @@ leaving no shell until one is started by hand. The eval uses `dofile`, not
 `require`, so it reads the new `programs.lua` rather than a module cached
 from before the switch.
 
+The shell package is patched too: caelestia's game mode zeroes the gaps and
+hard-codes `decoration:rounding 0`, so square windows cut across the frame's
+rounded inner corners. The patch sets it to the frame's own radius,
+`border.rounding` from `home/caelestia-shell.json`.
+
 ## Music downloads land in the library
 
 `yt-audio`, from cli-utils, downloads songs and playlists with yt-dlp and tags

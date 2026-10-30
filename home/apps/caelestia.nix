@@ -214,7 +214,14 @@ in
       # Without the CLI bundled in: that copy would come first on the shell's
       # PATH and list only upstream's schemes, and rebuilding the shell for
       # every scheme edit is a C++ build. The shell finds `cli` below on PATH.
-      package = caelestiaPkgs.default;
+      # Game mode zeroes gaps and window rounding, so square windows cut across
+      # the frame's rounded inner corners; round them to the frame's radius.
+      package = caelestiaPkgs.default.overrideAttrs (old: {
+        postPatch = (old.postPatch or "") + ''
+          substituteInPlace daemons/GameMode.qml \
+            --replace-fail '"decoration:rounding": 0' '"decoration:rounding": ${toString (lib.importJSON ../caelestia-shell.json).border.rounding}'
+        '';
+      });
       cli.enable = true;
       cli.package = cli;
       # autostart.lua already execs it; true here double-starts.
