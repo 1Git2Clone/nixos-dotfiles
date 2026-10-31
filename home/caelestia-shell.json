@@ -368,8 +368,7 @@
         "command": [
           "hyprctl",
           "dispatch",
-          "exit",
-          "0"
+          "hl.dsp.exit()"
         ],
         "dangerous": true,
         "description": "Log out of the current session",
@@ -490,8 +489,7 @@
       "logout": [
         "hyprctl",
         "dispatch",
-        "exit",
-        "0"
+        "hl.dsp.exit()"
       ],
       "reboot": [
         "systemctl",

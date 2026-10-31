@@ -66,3 +66,11 @@ push of every hour still failed once and the retry went through; which token
 went stale was never pinned down. `git.hu-tao.dev` now reads a PAT that does
 not expire from the `git-credentials-hutao` sops template, with no cache and
 no GCM in the path. Learned 2026-10-29.
+
+## `hyprctl dispatch` takes Lua
+
+With the Lua config, `hyprctl dispatch <args>` runs `hl.dispatch(<args>)`, so
+the old syntax is a Lua parse error and nothing happens: `hyprctl dispatch exit
+0` fails with `')' expected near '0'`. Write the dispatcher as Lua instead,
+`hyprctl dispatch 'hl.dsp.exit()'`, as Hyprland's own `example/hyprland.lua`
+does. Learned 2026-10-31, when caelestia's and wlogout's logout did nothing.
