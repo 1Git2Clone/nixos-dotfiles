@@ -5,7 +5,7 @@
 # to this list. `palette` is passed down rather than re-imported per file --
 # it is the single scheme every themed service reads.
 #
-# hyprland.lua needs Hyprland 0.55+, which is why this tracks unstable.
+# Hyprland and HyprCapture use a shared pinned input (hyprland.nix).
 { lib, inputs, ... }:
 {
   imports = import ../../lib/auto.nix { inherit lib; } ./.;

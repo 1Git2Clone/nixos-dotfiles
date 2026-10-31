@@ -8,6 +8,14 @@
     # nixpkgs-opencode` moves only opencode.
     nixpkgs-opencode.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+    # Update the compositor and capture plugin together; nixpkgs updates must
+    # not silently change the ABI of the compositor running this plugin.
+    hyprland.url = "github:hyprwm/Hyprland/v0.57.0";
+    hyprcapture = {
+      url = "github:gfhdhytghd/HyprCapture";
+      inputs.hyprland.follows = "hyprland";
+    };
+
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";

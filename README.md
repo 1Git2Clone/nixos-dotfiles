@@ -14,6 +14,10 @@
 NixOS config on `nixos-unstable` for a laptop and a desktop: LVM-on-LUKS,
 immutable users from sops, Hyprland + caelestia, Limine.
 
+Screenshots and recording use HyprCapture, pinned with Hyprland: Super+S opens
+the capture editor and Ctrl+Alt+S captures the focused window with transparency.
+BB's Caelestia palette follows desktop colour changes live, including on mobile.
+
 The user layer is `dotfiles/`, symlinked into `$HOME` by home-manager, with no
 stow. The neovim config is its own repo,
 [nvim-config](https://git.hu-tao.dev/hutao/nvim-config), whose flake exports
@@ -36,7 +40,7 @@ the home-manager module that installs it.
 ├── home/                  # home-manager: the dotfiles walk, one file per app
 ├── dotfiles/              # the user layer itself, including agent and MCP configs
 ├── palette.nix            # the picked caelestia scheme, for what needs a rebuild
-├── pkgs/                  # greeter, cursors, folder icons, app icons, CaelestiaFox, Claude Code, shell-notify, PhotoCraft, the other Crafts, Horizon
+├── pkgs/                  # app packages, themes, HyprCapture and Caelestia capture adapters
 ├── secrets/               # sops-encrypted values + a plaintext example
 ├── install.sh             # partition, encrypt, install, from the ISO
 ├── vm/                    # the install rehearsal
@@ -64,6 +68,7 @@ nix run .#docs
 | [The laptop as a third monitor](docs/src/architecture/third-monitor.md) | Sunshine, Moonlight, and the disconnect watcher     |
 | [Installing a machine](docs/src/operations/installing.md)               | `install.sh`, step by step, and new hardware        |
 | [Rebuilding and deploying](docs/src/operations/deploying.md)            | `nixos-rebuild` and deploy-rs over Tailscale        |
+| [Screenshots and recording](docs/src/operations/screenshots.md)         | HyprCapture shortcuts and updating its compositor   |
 | [Horizon Minecraft client](docs/src/operations/horizon.md)              | pinned 26.3 client, preparation and connecting      |
 | [Known hazards](docs/src/operations/hazards.md)                         | what will hurt if forgotten                         |
 
@@ -82,6 +87,7 @@ Those links go to the source, which renders in Forgejo, diagrams included.
 | `vm/install-test.sh all`                                                         | rehearse a full install against a blank virtual disk |
 | `nix run .#docs`                                                                 | serve the handbook with live reload                  |
 | `horizon-launcher`                                                               | open Horizon Minecraft 26.3                          |
+| `bb-caelestia-sync`                                                              | reapply the desktop's palette to BB                  |
 
 Every key `modules/sops.nix` declares must be in `secrets/secrets.yaml` before
 anything builds; `install.sh` checks the full list before it touches a disk.

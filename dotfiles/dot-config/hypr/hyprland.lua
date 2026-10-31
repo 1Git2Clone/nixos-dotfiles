@@ -2,6 +2,7 @@
 
 local programs = require("modules.programs")
 
+require("modules.capture")
 require("modules.animations")
 require("modules.autostart").setup(programs)
 require("modules.env").setup(programs)

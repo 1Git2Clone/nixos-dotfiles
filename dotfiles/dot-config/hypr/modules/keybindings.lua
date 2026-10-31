@@ -4,6 +4,17 @@ local function exec(cmd)
   return hl.dsp.exec_cmd(cmd)
 end
 
+local function capture(action, mode)
+  return function()
+    local plugin = hl.plugin.hyprcapture
+    if plugin then
+      plugin[action](mode)
+    else
+      hl.exec_cmd([[notify-send "Screenshots pending session restart" "Log out and back in when your work is saved to enable HyprCapture."]])
+    end
+  end
+end
+
 -- I hate having a mac
 local function mac_bind(key, shift)
   hl.bind(
@@ -133,19 +144,19 @@ function M.setup(programs)
     firefox_emacs_bind("ALT + K", "CTRL", "K")
 
     hl.bind(main_mod .. " + F", hl.dsp.window.fullscreen())
-    hl.bind(main_mod .. " + S", exec("screenshot-selection-copy.sh"))
-    hl.bind(
-      main_mod .. " + SHIFT + S",
-      exec("screenshot-focused-monitor.sh")
-    )
+    hl.bind(main_mod .. " + s", capture("open_editor"))
+    hl.bind(main_mod .. " + SHIFT + s", capture("quick", "fullscreen"))
+    hl.bind("CTRL + ALT + s", capture("quick", "window"))
+    hl.bind("Print", capture("open_editor"))
+    hl.bind("ALT + Print", capture("record_toggle"))
     hl.bind(main_mod .. " + CTRL + V", exec("cliphist list | wofi -dmenu | cliphist decode | wl-copy"))
     hl.bind(main_mod .. " + CTRL + C", exec("cliphist-remove-entry.sh"))
     -- hl.bind("CTRL + ALT + C", exec("get-cursor-pos.sh"))
     hl.bind("CTRL + ALT + T", exec([[kitty --class "floating-term"]]))
-    hl.bind(main_mod .. " + T", exec("tesseract-screenshot.sh"))
+    hl.bind(main_mod .. " + t", exec("screenshot-ocr"))
     hl.bind(
-      main_mod .. " + SHIFT + T",
-      exec("tesseract-screenshot.sh eng")
+      main_mod .. " + SHIFT + t",
+      exec("screenshot-ocr eng")
     )
     hl.bind("ALT + E", exec("caelestia emoji -p"))
     hl.bind(main_mod .. " + SHIFT + P", exec("power-mode.sh"))

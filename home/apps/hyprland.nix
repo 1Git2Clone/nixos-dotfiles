@@ -4,9 +4,46 @@
   lib,
   osConfig,
   dotfiles,
+  inputs,
+  pkgs,
   ...
 }:
+let
+  clipboardOcr = pkgs.writeShellApplication {
+    name = "screenshot-ocr";
+    runtimeInputs = [
+      pkgs.wl-clipboard
+      pkgs.tesseract
+      pkgs.wofi
+      pkgs.libnotify
+    ];
+    text = ''
+      work=$(mktemp -d)
+      trap 'rm -rf "$work"' EXIT
+      if ! wl-paste --type image/png > "$work/capture.png"; then
+        notify-send "Screenshot OCR" "Capture an image with HyprCapture first."
+        exit 1
+      fi
+      language="''${1:-}"
+      if [[ -z "$language" ]]; then
+        language=$(tesseract --list-langs 2>/dev/null | tail -n +2 | \
+          wofi --dmenu --prompt "OCR language") || exit 0
+      fi
+      [[ -n "$language" ]] || exit 0
+      tesseract "$work/capture.png" stdout -l "$language" > "$work/text"
+      if [[ ! -s "$work/text" ]]; then
+        notify-send "Screenshot OCR" "No text found."
+        exit 0
+      fi
+      wl-copy --type text/plain < "$work/text"
+      notify-send "Screenshot OCR" "Text copied to clipboard."
+    '';
+  };
+in
 {
+  _module.args.hyprcapture = import ../../pkgs/hyprcapture.nix { inherit inputs pkgs; };
+  home.packages = [ clipboardOcr ];
+
   # Patched and given its monitors.lua by `df`.
   xdg.configFile."hypr".source = "${dotfiles}/dot-config/hypr";
 

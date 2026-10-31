@@ -6,7 +6,14 @@ result out of the store. Nothing is listed by hand, so a new dotfile needs no
 edit here. Each app that needs more than a link has its own file under
 `home/apps/`.
 
+Desktop capture uses HyprCapture with a separately pinned Hyprland and portal.
+See [Screenshots and recording](../operations/screenshots.md) for shortcuts,
+transparency and updating the pair.
+
 ## Coding agents
+
+BB runs as a user service. Its UI, terminal and code preview palette follows
+Caelestia live on all clients; see [BB's live palette](colours.md#bbs-live-palette).
 
 Claude Code and OpenCode have Ponytail enabled in their tracked configurations.
 Pi declares the upstream Ponytail package in `~/.pi/agent/settings.json`, and
@@ -68,6 +75,7 @@ upstream makes unnecessary is a failed build rather than a silent no-op:
 | `dot-gitconfig`              | `/usr/bin/gh` → the store's `gh`                                       |
 | `dot-tmux.conf`              | the `/usr/share` resurrect and continuum plugin paths                  |
 | `hypr/modules/programs.lua`  | cursor theme and size, from the system's stylix settings               |
+| `hypr/modules/capture.lua`   | the pinned HyprCapture plugin's store path                             |
 
 **Path rewrites.** Configs that hard-coded `$HOME/dotfiles/...` under stow are
 repointed by `repath` at the `~/.config`, `~/.local` and `~/.profile.d` the

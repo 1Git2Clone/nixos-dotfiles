@@ -1,0 +1,19 @@
+--- a/src/ui/capture_overlay.cpp
++++ b/src/ui/capture_overlay.cpp
+@@ -1366,6 +1366,17 @@
+     initializeOverlay(preferredOverlayLogicalGeometry());
+     traceTiming(QStringLiteral("overlay_construct"), constructorTimer.elapsed());
++    // Keyboard quick capture follows focus, independently of the pointer.
++    if (m_quick && m_mode == hyprcapture::CaptureMode::Window) {
++        const auto focused = std::ranges::find_if(m_windowArtifacts,
++            [](const WindowArtifact& window) { return window.focused; });
++        if (focused == m_windowArtifacts.end()) {
++            QTimer::singleShot(0, qApp, &QCoreApplication::quit);
++            return;
++        }
++        m_selectedWindowIndex = static_cast<int>(
++            std::distance(m_windowArtifacts.begin(), focused));
++    }
+     if (m_quick)
+         QTimer::singleShot(0, this, &CaptureOverlay::finishCapture);
+ }

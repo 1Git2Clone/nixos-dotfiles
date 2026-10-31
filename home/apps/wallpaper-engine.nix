@@ -10,6 +10,7 @@
   config,
   lib,
   pkgs,
+  osConfig,
   ...
 }:
 let
@@ -59,7 +60,7 @@ let
   pauseInGameMode = pkgs.writeShellApplication {
     name = "wallpaper-game-pause";
     runtimeInputs = [
-      pkgs.hyprland
+      osConfig.programs.hyprland.package
       pkgs.jq
       pkgs.procps
     ];

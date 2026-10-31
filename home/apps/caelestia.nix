@@ -31,8 +31,21 @@ let
   # switch, so the template is where it changes. qtengine hands weight to
   # QFont as is: 300 is QFont::Light.
   cli =
-    inputs.caelestia-shell.inputs.caelestia-cli.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs
+    (
+      inputs.caelestia-shell.inputs.caelestia-cli.packages.${pkgs.stdenv.hostPlatform.system}.default.override
+        {
+          # The screenshot command delegates to HyprCapture below. Slurp remains
+          # a dependency of Caelestia's separate recording command.
+          grim = pkgs.emptyDirectory;
+          swappy = pkgs.emptyDirectory;
+        }
+    ).overrideAttrs
       (old: {
+        postPatch = (old.postPatch or "") + ''
+          cp ${../../pkgs/caelestia-hyprcapture-screenshot.py} src/caelestia/subcommands/screenshot.py
+          substituteInPlace src/caelestia/subcommands/screenshot.py \
+            --replace-fail '@HYPRCTL@' '${osConfig.programs.hyprland.package}/bin/hyprctl'
+        '';
         # Upstream's has no trailing newline.
         postInstall =
           (old.postInstall or "")
@@ -151,6 +164,7 @@ let
       fi
 
       # Best-effort, each: an app that is not running has nothing to reload.
+      if command -v bb-caelestia-sync > /dev/null; then bb-caelestia-sync > /dev/null || true; fi
       pkill -USR1 -x kitty || true
       pkill -USR2 -x waybar || true
       if command -v makoctl > /dev/null; then makoctl reload || true; fi
@@ -216,12 +230,22 @@ in
       # every scheme edit is a C++ build. The shell finds `cli` below on PATH.
       # Game mode zeroes gaps and window rounding, so square windows cut across
       # the frame's rounded inner corners; round them to the frame's radius.
-      package = caelestiaPkgs.default.overrideAttrs (old: {
-        postPatch = (old.postPatch or "") + ''
-          substituteInPlace daemons/GameMode.qml \
-            --replace-fail '"decoration:rounding": 0' '"decoration:rounding": ${toString (lib.importJSON ../caelestia-shell.json).border.rounding}'
-        '';
-      });
+      package =
+        (caelestiaPkgs.default.override {
+          # Its picker no longer launches Swappy. Keep the shell's hyprctl on
+          # the same compositor stack as the system and HyprCapture.
+          swappy = pkgs.emptyDirectory;
+          hyprland = osConfig.programs.hyprland.package;
+        }).overrideAttrs
+          (old: {
+            postPatch = (old.postPatch or "") + ''
+              cp ${../../pkgs/caelestia-hyprcapture-picker.qml} modules/areapicker/AreaPicker.qml
+              substituteInPlace modules/areapicker/AreaPicker.qml \
+                --replace-fail '@HYPRCTL@' '${osConfig.programs.hyprland.package}/bin/hyprctl'
+              substituteInPlace daemons/GameMode.qml \
+                --replace-fail '"decoration:rounding": 0' '"decoration:rounding": ${toString (lib.importJSON ../caelestia-shell.json).border.rounding}'
+            '';
+          });
       cli.enable = true;
       cli.package = cli;
       # autostart.lua already execs it; true here double-starts.

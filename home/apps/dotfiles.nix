@@ -11,6 +11,7 @@
   osConfig,
   palette,
   inputs,
+  hyprcapture,
   ...
 }:
 let
@@ -303,6 +304,12 @@ let
   df = pkgs.runCommandLocal "hutao-dotfiles-${hostName}" { } ''
     cp -r ${src} $out
     chmod -R u+w $out
+
+    substituteInPlace $out/dot-config/hypr/modules/capture.lua \
+      --replace-fail '@HYPRLAND_RELEASE@' \
+        '${builtins.head (lib.splitString "+" osConfig.programs.hyprland.package.version)}' \
+      --replace-fail '@HYPRCAPTURE_PLUGIN@' \
+        '${hyprcapture}/lib/libhyprcapture.so'
 
     # Someone else's art, so the private third-party-assets input carries it.
     # Copied back to where the tree used to hold it, which is the path

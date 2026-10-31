@@ -17,6 +17,7 @@
 
 - [Installing a machine](operations/installing.md)
 - [Rebuilding and deploying](operations/deploying.md)
+- [Screenshots and recording](operations/screenshots.md)
 - [Horizon Minecraft client](operations/horizon.md)
 - [The VM and the install rehearsal](operations/vm.md)
 - [CI and pages](operations/ci.md)

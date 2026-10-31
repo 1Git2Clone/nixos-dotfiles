@@ -53,6 +53,7 @@ flavour, which is why ours is `hu-tao/red/dark` and not `hu-tao/default/dark-red
 | at once                  | Floorp, Firefox                                                     | CaelestiaFox from AMO, fed by its native app (`pkgs/caelestia-firefox-theme.nix`)                  |
 | at once                  | Zen's window                                                        | caelestia-tab's Zen mod, reloaded live by the autoconfig `lib.wrapZen` adds                        |
 | at once                  | Spotify                                                             | caelestia's `enableSpicetify`, then the hook's `spicetify refresh`; `theme.js` re-links the CSS    |
+| at once                  | BB, including remote clients and code previews                      | the hook runs `bb-caelestia-sync`, which regenerates and reapplies its custom palette              |
 | at once                  | workmux's dashboard and sidebar, but their text                     | ANSI names in `config.yaml`, so kitty's palette; the text, `primaryFixedDim`, on a rebuild         |
 | preview reload           | markdown-preview.nvim                                               | `plugins/markdown-preview.lua` rewrites its CSS from the same watch, while Neovim runs             |
 | next time the app starts | GTK and Qt apps                                                     | caelestia's `enableGtk`, `enableQt`: `gtk.css`, `~/.config/qtengine`                               |
@@ -91,6 +92,36 @@ Off in `cli.json`, because something here does the job: `enableTerm` (kitty
 reloads `mocha.conf`, where caelestia's escape sequences would paint its own
 terminal mapping over it), `enableHypr` and `enableDiscord` (both templates
 here).
+
+## BB's live palette
+
+`home/apps/bb.nix` installs `bb-caelestia-sync`. Caelestia's post-switch hook
+runs it after writing `scheme.json`; activation runs it too. The helper uses
+`pkgs/bb-caelestia-theme.py` to write the custom `caelestia` palette under
+`~/.bb/theme/caelestia` (or `$BB_DATA_DIR/theme/caelestia`), then calls
+`bb theme set caelestia`. BB broadcasts the new palette to all open clients,
+including mobile clients, without restarting the server or reloading pages.
+
+The CSS includes the desktop's surface, foreground, primary colour, status
+colours and ANSI terminal palette. The matching light/dark mode uses the
+selected scheme's colours; the other mode derives its anchors from Caelestia's
+inverse roles and adjusts text colours for contrast. Each browser keeps its
+own light/dark preference. `pierre-dark.json` and `pierre-light.json` supply
+matching code colours for diffs and file previews.
+
+Generated theme files remain writable runtime state. Every scheme switch
+regenerates and activates this palette; manual edits to these files are
+overwritten. Change the generator to change the mapping. To resync manually:
+
+```sh
+bb-caelestia-sync
+```
+
+The helper uses BB's pinned npm package from its existing npx cache in offline
+mode. A scheme switch does not fetch packages. The separate
+`bb-caelestia-theme.service` applies it when `bb.service` starts, with bounded
+retries while the server becomes ready. Adding this helper does not change
+or restart the existing BB server unit.
 
 ## Recording the pick
 

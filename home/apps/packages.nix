@@ -1,7 +1,25 @@
 # Everything the keybinds, scripts and dotfiles call that is not an app with
 # config of its own -- those have their own file beside this one.
-{ inputs, pkgs, ... }:
+{
+  inputs,
+  pkgs,
+  lib,
+  hyprcapture,
+  ...
+}:
 let
+  # Exclude at the bundle's input list, so the retired capture backends leave
+  # the closure as well as PATH. Keep the unrelated CLI tools.
+  cli-utils = inputs.cli-utils.packages.${pkgs.system}.default.overrideAttrs (old: {
+    paths = builtins.filter (
+      tool:
+      !(lib.any (name: lib.hasSuffix "-${name}" (toString tool)) [
+        "screenshot-selection-copy.sh"
+        "screenshot-focused-monitor.sh"
+        "tesseract-screenshot.sh"
+      ])
+    ) old.paths;
+  });
   app-icons = pkgs.callPackage ../../pkgs/app-icons.nix { };
   openrouter-image-mcp = pkgs.callPackage ../../pkgs/openrouter-image-mcp.nix { };
   # Claude Code only reads user-scope servers from ~/.claude.json, which is
@@ -134,7 +152,6 @@ in
 
     # hypr tooling
     hyprpaper
-    hyprshot
     hyprpicker
 
     # vibe coding
@@ -146,7 +163,7 @@ in
     agents.pi-coding-agent # pi
     grok # pkgs/grok.nix, xAI's -- not nixpkgs' grok-cli
     inputs.workmux.packages.${pkgs.system}.default
-    inputs.cli-utils.packages.${pkgs.system}.default
+    cli-utils
 
     # MCP servers. Both agents spawn these by bare name -- neither expands `~`
     # in a command, so a path in their config is a path that never resolves.
@@ -158,11 +175,8 @@ in
     wl-clipboard
     cliphist
 
-    # screenshots + OCR  (screenshot-*.sh, tesseract-screenshot.sh)
-    grim
-    slurp
-    swappy
-    tesseract
+    # The plugin and Qt helper come from the same pinned compositor stack.
+    hyprcapture
 
     # notifications, 12 call sites across the scripts
     libnotify
