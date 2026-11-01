@@ -16,7 +16,7 @@ let
     version = gameVersion;
     src = fetchurl {
       url = "https://github.com/horizon-rust/horizon/releases/download/${gameVersion}/horizon-linux-x86_64.tar.gz";
-      hash = "sha256-DW1EgAB5rPJRTF4OamDHxuPIygcMaZCyRXqSWDiyTU4=";
+      hash = "sha256-611hHStukpWjWrkU5KCVBT4jl4sOzIGVpkOjw+6/9o0=";
     };
     dontBuild = true;
     dontFixup = true;
