@@ -251,6 +251,7 @@ in
     # gaming
     mangohud
     osu-lazer-bin
+    heroic
     # The JREs are deliberately not here: any two temurin builds collide on
     # legal/jdk.localedata/cldr.md and buildEnv refuses. Both are linked below.
 
