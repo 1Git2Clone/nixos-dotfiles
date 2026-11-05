@@ -28,6 +28,12 @@ let
 
   src = ../../dotfiles;
 
+  # kitty has no bell volume, only a sound file: the freedesktop bell it
+  # plays by default, at a tenth of the amplitude (-20 dB).
+  quietBell = pkgs.runCommand "bell-quiet.oga" { nativeBuildInputs = [ pkgs.sox ]; } ''
+    sox ${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/bell.oga -t ogg $out vol 0.1
+  '';
+
   kittyColours = pkgs.writeText "mocha.conf" ''
     # vim:ft=kitty
     #
@@ -372,6 +378,7 @@ let
 
     # ── Colours ──────────────────────────────────────────────────────────
     cp ${kittyColours} $out/dot-config/mocha/mocha.conf
+    echo 'bell_path ${quietBell}' >> $out/dot-config/kitty/kitty.conf
 
     ${substPhase recolour}
 
