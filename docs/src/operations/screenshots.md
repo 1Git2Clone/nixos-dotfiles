@@ -52,14 +52,15 @@ unchanged. `pkgs/hyprcapture.nix` applies it to the upstream package.
 
 ## Updating the compositor and plugin
 
-`flake.nix` pins Hyprland to a release tag and locks HyprCapture, whose Hyprland
-input follows the same input. `modules/desktop/hyprland.nix` selects that
+`flake.nix` pins Hyprland and HyprCapture to release tags (HyprCapture's tags
+name the Hyprland release they target, as in `v0.6.0-v0.57.0`), and
+HyprCapture's Hyprland input follows the same input. `modules/desktop/hyprland.nix` selects that
 compositor and its matching portal, independently of the system's nixpkgs
 revision. It also enables Hyprland's official Cachix binary cache. The
 wallpaper pause service uses this compositor's `hyprctl` too.
 
-When upgrading, choose a Hyprland release supported by HyprCapture, edit the
-release tag, then update and build both together:
+When upgrading, choose a HyprCapture tag and the Hyprland release it names,
+edit both tags, then update and build them together:
 
 ```sh
 nix flake update hyprland hyprcapture

@@ -12,7 +12,7 @@
     # not silently change the ABI of the compositor running this plugin.
     hyprland.url = "github:hyprwm/Hyprland/v0.57.0";
     hyprcapture = {
-      url = "github:gfhdhytghd/HyprCapture";
+      url = "github:gfhdhytghd/HyprCapture/v0.6.0-v0.57.0";
       inputs.hyprland.follows = "hyprland";
     };
 
