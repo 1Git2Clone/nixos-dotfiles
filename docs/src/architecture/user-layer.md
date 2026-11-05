@@ -492,6 +492,13 @@ starts a helper through `pkexec` that reads `/dev/input` as root.
 - **It sees passwords too.** Turn it off before typing a secret on a
   recording.
 
+## EasyEffects
+
+`home/apps/easyeffects.nix` runs EasyEffects as a user service, an equaliser
+and effects chain on PipeWire's output. Presets are not declared: make or
+import them in its GUI (an AutoEQ preset for the headphones, for example) and
+they stay in `~/.local/share/easyeffects`, untouched by rebuilds.
+
 ## Not linted
 
 `dotfiles/` is exempt from markdownlint and shellcheck, because that tree's
