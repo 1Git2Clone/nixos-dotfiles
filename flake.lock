@@ -787,6 +787,17 @@
         "type": "github"
       }
     },
+    "mcp-config": {
+      "locked": {
+        "path": "./mcp",
+        "type": "path"
+      },
+      "original": {
+        "path": "./mcp",
+        "type": "path"
+      },
+      "parent": []
+    },
     "nix-flatpak": {
       "locked": {
         "lastModified": 1791644268,
@@ -976,6 +987,7 @@
         "home-manager": "home-manager",
         "hyprcapture": "hyprcapture",
         "hyprland": "hyprland",
+        "mcp-config": "mcp-config",
         "nix-flatpak": "nix-flatpak",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_3",

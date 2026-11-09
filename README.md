@@ -38,7 +38,8 @@ the home-manager module that installs it.
 │   ├── disk-layout.nix    # disko: ESP + LUKS → LVM
 │   └── firewall.nix tailscale.nix syncthing.nix users.nix system.nix flatpak.nix
 ├── home/                  # home-manager: the dotfiles walk, one file per app
-├── dotfiles/              # the user layer itself, including agent and MCP configs
+├── dotfiles/              # the user layer itself, including agent settings
+├── mcp/                   # local flake: one MCP catalog, six generated agent configs
 ├── palette.nix            # the picked caelestia scheme, for what needs a rebuild
 ├── pkgs/                  # app packages, themes, HyprCapture and Caelestia capture adapters
 ├── secrets/               # sops-encrypted values + a plaintext example
@@ -62,6 +63,7 @@ nix run .#docs
 | ----------------------------------------------------------------------- | --------------------------------------------------- |
 | [Hosts and layers](docs/src/architecture/hosts.md)                      | where a change goes, and what each machine has      |
 | [The user layer](docs/src/architecture/user-layer.md)                   | the dotfiles walk, its patches, what stays writable |
+| [MCP servers](docs/src/architecture/mcp.md)                             | catalog, agent formats, services and OAuth          |
 | [Colours](docs/src/architecture/colours.md)                             | pick a scheme in caelestia, and what follows it     |
 | [Secrets](docs/src/architecture/secrets.md)                             | every key, its shape, and the build-time check      |
 | [Network and the tailnet](docs/src/architecture/network.md)             | one open port, Tailscale, MagicDNS, Syncthing       |
@@ -86,6 +88,7 @@ Those links go to the source, which renders in Forgejo, diagrams included.
 | `nix build .#installer-iso`                                                      | build the installer ISO                              |
 | `vm/install-test.sh all`                                                         | rehearse a full install against a blank virtual disk |
 | `nix run .#docs`                                                                 | serve the handbook with live reload                  |
+| `nix build .#mcp-configs`                                                        | generate all six agents’ MCP configs                 |
 | `horizon-launcher`                                                               | open Horizon Minecraft 26.3                          |
 | `bb-caelestia-sync`                                                              | reapply the desktop's palette to BB                  |
 

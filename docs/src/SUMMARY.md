@@ -8,6 +8,7 @@
 
 - [Hosts and layers](architecture/hosts.md)
 - [The user layer](architecture/user-layer.md)
+- [MCP servers](architecture/mcp.md)
 - [Colours](architecture/colours.md)
 - [Secrets](architecture/secrets.md)
 - [Network and the tailnet](architecture/network.md)

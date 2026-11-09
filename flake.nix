@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Local library flake: one MCP catalog, six native agent configurations.
+    mcp-config.url = "path:./mcp";
     # opencode alone, from a newer unstable than the system's: bb talks to
     # its server API, which 1.19 answered with 404s. `nix flake update
     # nixpkgs-opencode` moves only opencode.
@@ -251,6 +253,10 @@
       };
 
       packages.${system} = {
+        mcp-configs = inputs.mcp-config.lib.mkConfigs {
+          inherit pkgs;
+          chromeDevtoolsCommand = nixpkgs.lib.getExe (pkgs.callPackage ./pkgs/chrome-devtools-mcp.nix { });
+        };
         installer-iso = self.nixosConfigurations.installer.config.system.build.isoImage;
 
         inherit (self.nixosConfigurations.hutao-vm.config.system.build) vm;
