@@ -125,10 +125,10 @@
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
   '';
 
-  # Replaces the hand-written scx-lavd.service.
-  services.scx = {
+  # Start lavd through the scheduler loader.
+  services.scx-loader = {
     enable = true;
-    scheduler = "scx_lavd";
+    config.default_sched = "scx_lavd";
   };
 
   # Root's floor, and nothing more: enough to edit and fetch a file on a

@@ -53,6 +53,7 @@ flavour, which is why ours is `hu-tao/red/dark` and not `hu-tao/default/dark-red
 | at once                  | Floorp, Firefox                                                     | CaelestiaFox from AMO, fed by its native app (`pkgs/caelestia-firefox-theme.nix`)                  |
 | at once                  | Zen's window                                                        | caelestia-tab's Zen mod, reloaded live by the autoconfig `lib.wrapZen` adds                        |
 | at once                  | Spotify                                                             | caelestia's `enableSpicetify`, then the hook's `spicetify refresh`; `theme.js` re-links the CSS    |
+| at once                  | Spotifast                                                           | template, copied by `spotifast-caelestia-sync`; `reload-themes` applies it                         |
 | at once                  | BB, including remote clients and code previews                      | the hook runs `bb-caelestia-sync`, which regenerates and reapplies its custom palette              |
 | at once                  | workmux's dashboard and sidebar, but their text                     | ANSI names in `config.yaml`, so kitty's palette; the text, `primaryFixedDim`, on a rebuild         |
 | preview reload           | markdown-preview.nvim                                               | `plugins/markdown-preview.lua` rewrites its CSS from the same watch, while Neovim runs             |

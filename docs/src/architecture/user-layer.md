@@ -224,6 +224,36 @@ fontconfig's defaults stay stylix's `sansSerif` and `serif`, so web pages and
 LibreOffice documents keep a proportional face: a document asking for Calibri
 falls back to sans-serif, and that should not be a monospace.
 
+## Spotifast
+
+`home/apps/spotifast.nix` installs Spotifast alongside Spotify and Spicetify.
+`pkgs/spotifast/` replaces its bundled primary interface faces with JetBrains
+Mono Nerd Font at regular, medium, semibold and bold weights. The launcher
+adds Noto CJK's `share` directory to `XDG_DATA_DIRS` for Japanese fallback:
+Spotifast's bounded font scan misses NixOS's deeper CJK package layout when
+starting at the package root (2026-11-11).
+
+It runs through `steam-run` so the downloaded Soloist executable can run on
+NixOS. Without that runtime, Soloist’s install-time version check fails
+against the NixOS stub loader (2026-11-11).
+Its launcher selects `Caelestia.json`, disables album-art accents, and sets
+`keep_playing_in_background` to false, so closing the window exits the app.
+Other settings remain writable and are preserved. These three preferences
+are reapplied whenever the launcher starts the app; quit an existing instance
+before relaunching to pick them up.
+
+The Caelestia template supplies the palette. `spotifast-caelestia-sync` copies
+it into a regular file in `~/.config/spotifast/themes/` and takes its light/dark
+base from the active scheme. The theme hook runs the sync and `reload-themes`
+on scheme changes. Spotifast rejects symlinked theme files, so the theme is
+copied rather than linked.
+
+## Viber
+
+`home/apps/packages.nix` pins Viber 29.4.0.7's upstream Debian archive
+and hash. On 2026-11-11 the older nixpkgs archive mirror returned HTTP 429,
+blocking the system rebuild.
+
 ## Spotify and spicetify
 
 spicetify patches Spotify's `Apps` directory in place, and the store copy is
@@ -251,6 +281,9 @@ storage rather than a prefs file, so `home/spicetify-settings.js`, a
 spicetify extension, turns it off on every launch.
 
 ## Firefox and Floorp userChrome
+
+The `caelestia-tab` native helper includes `pkg-config` and system AWS-LC in
+its build inputs: the nixpkgs Rust hook requires system AWS-LC as of 2026-11-11.
 
 Both come from home-manager's `programs.firefox` and `programs.floorp` in
 `home/apps/packages.nix`, not `home.packages`, so one `userChrome` string

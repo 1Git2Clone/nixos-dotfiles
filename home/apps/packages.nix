@@ -62,7 +62,10 @@ let
   # `caelestia-tab install`.
   nativeMessagingHosts = [
     (pkgs.callPackage ../../pkgs/caelestia-firefox-theme.nix { })
-    inputs.caelestia-tab.packages.${pkgs.system}.default
+    (inputs.caelestia-tab.packages.${pkgs.system}.default.overrideAttrs (old: {
+      nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.pkg-config ];
+      buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.aws-lc ];
+    }))
   ];
   floorp = pkgs.floorp-bin.override { inherit nativeMessagingHosts; };
   firefox = pkgs.firefox.override { inherit nativeMessagingHosts; };
@@ -196,9 +199,6 @@ in
     # Google
     google-chrome
 
-    # music
-    spotifast
-
     # media + brightness keys
     playerctl
     brightnessctl
@@ -277,8 +277,14 @@ in
     # caelestia's launcher favourites reference both.
     vesktop
 
-    # Has issues with missing files at times
-    viber
+    # The nixpkgs archive mirror is rate-limited; pin the current upstream deb.
+    (viber.overrideAttrs {
+      version = "29.4.0.7";
+      src = fetchurl {
+        url = "https://download.cdn.viber.com/cdn/desktop/Linux/viber.deb";
+        hash = "sha256-NLPBj11EGpgTBmgR0DfpceEgfUOcJGdmq9KOGFp+zTc=";
+      };
+    })
 
     # The background service only: `stremio` itself was removed from nixpkgs
     # for depending on the outdated qt5 webengine, and the web app is what

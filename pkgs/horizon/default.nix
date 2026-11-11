@@ -9,14 +9,14 @@
   makeDesktopItem,
 }:
 let
-  gameVersion = "nightly-2026-10-30";
+  gameVersion = "v0.2.97";
   launcherVersion = "0.2.29";
   game = stdenvNoCC.mkDerivation {
     pname = "horizon-game-bin";
     version = gameVersion;
     src = fetchurl {
       url = "https://github.com/horizon-rust/horizon/releases/download/${gameVersion}/horizon-linux-x86_64.tar.gz";
-      hash = "sha256-611hHStukpWjWrkU5KCVBT4jl4sOzIGVpkOjw+6/9o0=";
+      hash = "sha256-FuYveprJXWvniOks1ftQpWmSbSN4UxpODqOgcze3nBE=";
     };
     dontBuild = true;
     dontFixup = true;

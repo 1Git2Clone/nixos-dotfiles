@@ -20,7 +20,7 @@ To prepare explicitly from an existing Prism install:
 
 ```sh
 horizon-launcher prepare --minecraft "$HOME/.local/share/PrismLauncher" \
-  --version nightly-2026-10-30
+  --version v0.2.97
 ```
 
 Preparation reads the owned client jar, libraries and assets. It obtains the
@@ -32,8 +32,9 @@ worlds are not imported by this configuration.
 ## What is declarative
 
 `pkgs/horizon/default.nix` fetches upstream Linux x86-64 binary archives with
-fixed SHA-256 hashes: game **nightly-2026-10-30**, source commit
-`1da354b67a509812c4141b67de2affd6de65c342`, and launcher **0.2.29**.
+fixed SHA-256 hashes: game **v0.2.97**, source commit
+`a3acb5f0d2f59d2d5ff21a5aa000809ba1e35e2f`, matching the VPS server pin,
+and launcher **0.2.29**.
 No Rust compilation is needed. `nix build .#horizon` builds this package alone.
 The FHS wrapper supplies the graphics, audio, windowing and keyring libraries,
 Java 25 and the helper programs needed by the launcher and its child processes.
@@ -53,7 +54,7 @@ creation is disabled. Update the package and rebuild to change the managed
 versions; the version selection is restored on the next wrapper invocation.
 
 Prepared Minecraft resources live privately under
-`horizon-launcher-nixos/versions/nightly-2026-10-30/.local/horizon-client/26.3/`.
+`horizon-launcher-nixos/versions/v0.2.97/.local/horizon-client/26.3/`.
 They, the imported jars, and account/session credentials must stay outside Git
 and the Nix store. The launcher stores credentials through the desktop's secret
 service; do not copy accounts or sessions to the server.
@@ -65,9 +66,14 @@ release with the VPS server, and update the version in this chapter. The
 launcher has its own version and hash. Upstream publishes `SHA256SUMS` beside
 both releases. There is no moving `nightly` URL in this package.
 
-Verified 2026-10-31: the pinned game source implements session authentication
+2026-11-11: upstream deleted `nightly-2026-10-30`, causing clean rebuilds to
+fail with HTTP 404. The client now uses the stable `v0.2.97` release, matching
+the VPS server; its archive hash was checked against the GitHub asset digest
+and upstream's `SHA256SUMS`.
+
+Verified 2026-10-31: the former nightly game source implements session authentication
 for online-mode servers, and launcher 0.2.29's release binary contains an Azure
-application ID accepted by Microsoft's device-code endpoint. The pinned
+application ID accepted by Microsoft's device-code endpoint. That nightly's
 `docs/hosting.md` still claims authentication is unavailable; that contradicts
 its implementation and `docs/microsoft-account.md`. A successful device-code
 request alone does not verify Mojang app approval or a complete account login;
@@ -76,7 +82,7 @@ around that stale document.
 
 Upstream references:
 
-- [Game release](https://github.com/horizon-rust/horizon/releases/tag/nightly-2026-10-30)
+- [Game release](https://github.com/horizon-rust/horizon/releases/tag/v0.2.97)
 - [Launcher release](https://github.com/horizon-rust/horizon/releases/tag/launcher%400.2.29)
 - [Pinned authentication design](https://github.com/horizon-rust/horizon/blob/1da354b67a509812c4141b67de2affd6de65c342/docs/microsoft-account.md)
 - [Install guide](https://playhorizon.dev/docs/install)

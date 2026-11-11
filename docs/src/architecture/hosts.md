@@ -19,6 +19,12 @@ desktop, which is why `hutao-vm` boots without an install.
 hardware. The two machines are meant to feel identical, so a package added to
 one host is usually a package the other is missing.
 
+`modules/system.nix` enables `services.scx-loader` with `scx_lavd` as its
+default scheduler. The loader starts at `multi-user.target` and provides
+`scxctl` for managing schedulers. As of 2026-11-11, the pinned nixpkgs rejects
+the former `services.scx` option; use `services.scx-loader.config.default_sched`
+to select the scheduler.
+
 ## The machines
 
 | Host            | Hardware                                                         |

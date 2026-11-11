@@ -165,6 +165,10 @@ let
 
       # Best-effort, each: an app that is not running has nothing to reload.
       if command -v bb-caelestia-sync > /dev/null; then bb-caelestia-sync > /dev/null || true; fi
+      if command -v spotifast-caelestia-sync > /dev/null; then
+        spotifast-caelestia-sync
+        ${lib.getExe pkgs.spotifast} reload-themes > /dev/null || true
+      fi
       pkill -USR1 -x kitty || true
       pkill -USR2 -x waybar || true
       if command -v makoctl > /dev/null; then makoctl reload || true; fi

@@ -17,6 +17,10 @@ immutable users from sops, Hyprland + caelestia, Limine.
 Screenshots and recording use HyprCapture, pinned with Hyprland: Super+S opens
 the capture editor and Ctrl+Alt+S captures the focused window with transparency.
 BB's Caelestia palette follows desktop colour changes live, including on mobile.
+Spotifast follows the Caelestia palette too; its launcher makes window close
+exit the app instead of leaving it in the tray. It runs through `steam-run`
+for Soloist playback compatibility on NixOS, with JetBrains Mono Nerd Font
+as its primary interface font and Noto CJK for Japanese fallback.
 
 The user layer is `dotfiles/`, symlinked into `$HOME` by home-manager, with no
 stow. The neovim config is its own repo,
