@@ -196,6 +196,9 @@ in
     # Google
     google-chrome
 
+    # music
+    spotifast
+
     # media + brightness keys
     playerctl
     brightnessctl
