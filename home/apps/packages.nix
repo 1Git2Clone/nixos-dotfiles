@@ -294,6 +294,8 @@ in
     # GTK4 Client for Stremio
     stremio-linux-shell
 
+    qbittorrent
+
     ente-auth
 
     kdePackages.kdenlive
