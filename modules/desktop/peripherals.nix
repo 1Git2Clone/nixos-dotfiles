@@ -1,9 +1,10 @@
-# RGB and the Logitech mouse. The options, not the packages: both need udev
-# rules for non-root access, and OpenRGB its i2c modules and server.
+# The Logitech mouse. The option, not the package: Solaar needs its udev rules
+# for non-root access.
+#
+# No OpenRGB: with its root server running from boot, the G502's LEDs stayed
+# dark under Solaar; stopping it was part of what brought them back.
 {
-  services.hardware.openrgb.enable = true;
-
-  # Solaar, for the G502 X Plus's DPI, buttons and Lightspeed receiver.
+  # Solaar, for the G502 X Plus's DPI, buttons, lighting and Lightspeed receiver.
   hardware.logitech.wireless = {
     enable = true;
     enableGraphical = true;

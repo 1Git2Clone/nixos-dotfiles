@@ -25,9 +25,11 @@ default scheduler. The loader starts at `multi-user.target` and provides
 the former `services.scx` option; use `services.scx-loader.config.default_sched`
 to select the scheduler.
 
-`modules/desktop/peripherals.nix` enables OpenRGB (`openrgb`, with its server
-on the default port) and Solaar (`solaar`) for the Logitech G502 X Plus. Both
-go through their NixOS options for the udev rules, so neither needs root.
+`modules/desktop/peripherals.nix` enables Solaar (`solaar`) for the Logitech
+G502 X Plus, through its NixOS option for the udev rules, so it needs no root.
+There is no OpenRGB: learned 2026-11-13, with its root server running from boot
+the mouse's LEDs stayed dark under Solaar, and they came back once it was
+stopped.
 Hyprland starts Solaar hidden (`autostart.lua`), because the per-key colours
 and host-mode DPI live in `~/.config/solaar/config.yaml`, not on the mouse:
 learned 2026-11-13, they go dark the moment Solaar exits. In that file
