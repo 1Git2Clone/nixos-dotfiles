@@ -18,8 +18,9 @@ repos:
       - id: check-merge-conflict
       - id: check-yaml
         # Nothing here acts on sops output. The *.example.yaml files are
-        # plaintext, so they stay checked.
-        exclude: ^secrets/(?!.*\.example\.yaml$).*\.yaml$
+        # plaintext, so they stay checked. The G502 profile uses Solaar's own
+        # YAML tags, which only Solaar can construct.
+        exclude: ^(secrets/(?!.*\.example\.yaml$).*|assets/g502-profile)\.yaml$
       # The default ceiling. Images are what used to need more, and art that
       # is not ours now lives in the private third-party-assets repo.
       - id: check-added-large-files

@@ -1,0 +1,85 @@
+# The G502 X Plus's onboard profile: buttons and DPI, stored on the mouse.
+# It has no Key/Button Actions in Solaar, so this is the only way to remap.
+#
+#   solaar profiles G502 assets/g502-profile.yaml
+#
+# then pick "Profile 1" under Onboard Profiles in Solaar. Writes to flash only
+# if something changed. The per-key colours are not in here: Solaar keeps them
+# in ~/.config/solaar/config.yaml and repaints them while it runs.
+#
+# A copy of the factory profile (Read-Only Profile 1, sector 257) moved to
+# writable sector 1, since Solaar refuses to write sectors >= `sectors`.
+!OnboardProfiles
+buttons: 11
+count: 5
+gbuttons: 11
+name: G502 X PLUS
+profiles:
+  1: !OnboardProfile
+    angle_snap: 0
+    blue: 255
+    # Each entry is one of:
+    #   !Button {behavior: 8, type: 1, value: N}    mouse button, a bitmask:
+    #       1 left, 2 right, 4 middle, 8 back, 16 forward, 32 button 6, 64 button 7, ...
+    #   !Button {behavior: 8, type: 2, modifiers: M, value: K}    key combo:
+    #       K a USB HID keycode (4 = a ... 29 = z, 58 = F1 ... 69 = F12, 104 = F13 ...),
+    #       M a bitmask: 1 Ctrl, 2 Shift, 4 Alt, 8 Super
+    #   !Button {behavior: 9, data: 0, value: F}    function:
+    #       0 nothing, 1/2 tilt left/right, 3/4 next/previous DPI, 5 cycle DPI,
+    #       6 default DPI, 7 shift DPI (hold), 8/9/10 next/previous/cycle profile
+    buttons:
+    - !Button {behavior: 8, type: 1, value: 1} # left click
+    - !Button {behavior: 8, type: 1, value: 2} # right click
+    - !Button {behavior: 8, type: 1, value: 4} # wheel click
+    - !Button {behavior: 8, type: 1, value: 8} # thumb, back
+    - !Button {behavior: 9, data: 0, value: 7} # hot-swappable side paddle: shift DPI
+    - !Button {behavior: 8, type: 1, value: 16} # thumb, forward
+    - !Button {behavior: 9, data: 0, value: 1} # wheel tilt left
+    - !Button {behavior: 9, data: 0, value: 2} # wheel tilt right
+    - !Button {behavior: 9, data: 0, value: 10} # behind the wheel: cycle profile
+    - !Button {behavior: 9, data: 0, value: 3} # left of left click, one of the two: next DPI
+    - !Button {behavior: 9, data: 0, value: 4} # left of left click, the other: previous DPI
+    enabled: 1
+    # The same 11 buttons while G-shift is held; unused (all 0xff).
+    gbuttons:
+    - !Button {behavior: 15, bytes: !!binary "/////w==\n"}
+    - !Button {behavior: 15, bytes: !!binary "/////w==\n"}
+    - !Button {behavior: 15, bytes: !!binary "/////w==\n"}
+    - !Button {behavior: 15, bytes: !!binary "/////w==\n"}
+    - !Button {behavior: 15, bytes: !!binary "/////w==\n"}
+    - !Button {behavior: 15, bytes: !!binary "/////w==\n"}
+    - !Button {behavior: 15, bytes: !!binary "/////w==\n"}
+    - !Button {behavior: 15, bytes: !!binary "/////w==\n"}
+    - !Button {behavior: 15, bytes: !!binary "/////w==\n"}
+    - !Button {behavior: 15, bytes: !!binary "/////w==\n"}
+    - !Button {behavior: 15, bytes: !!binary "/////w==\n"}
+    green: 255
+    # The factory effects, shown only while Solaar is not running.
+    lighting:
+    - !LEDEffectSetting {ID: 15, intensity: 100, period: 0}
+    - !LEDEffectSetting {ID: 15, intensity: 100, period: 0}
+    - !LEDEffectSetting {ID: 16, intensity: 100, period: 0}
+    - !LEDEffectSetting {ID: 16, intensity: 100, period: 0}
+    name: ''
+    po_timeout: 300
+    power_mode: 255
+    ps_timeout: 60
+    red: 255
+    report_rate: 1
+    reserved: !!binary |
+      //////////8=
+    # Starts at resolutions[default_index]; next/previous DPI step through the
+    # list; shift DPI drops to resolutions[shift_index] while held.
+    resolution_default_index: 0
+    resolution_shift_index: 0
+    resolutions:
+    - 700
+    - 1200
+    - 1600
+    - 2400
+    - 3200
+    sector: 1
+    write_count: 65535
+sectors: 16
+size: 255
+version: 3

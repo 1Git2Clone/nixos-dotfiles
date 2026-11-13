@@ -28,7 +28,18 @@ to select the scheduler.
 `modules/desktop/peripherals.nix` enables OpenRGB (`openrgb`, with its server
 on the default port) and Solaar (`solaar`) for the Logitech G502 X Plus. Both
 go through their NixOS options for the udev rules, so neither needs root.
-Solaar has to be running to reapply its settings when the mouse reconnects.
+Hyprland starts Solaar hidden (`autostart.lua`), because the per-key colours
+and host-mode DPI live in `~/.config/solaar/config.yaml`, not on the mouse:
+learned 2026-11-13, they go dark the moment Solaar exits. In that file
+`per-key-lighting` maps the editor's zones 1-8 to colours written as decimal
+`0xRRGGBB` (16746598 is `0xff8866`).
+
+The mouse has no Key/Button Actions, so its buttons are remapped in an onboard
+profile, `assets/g502-profile.yaml`, whose comments name each button. Load it
+with `solaar profiles G502 assets/g502-profile.yaml` and select Profile 1 under
+Onboard Profiles; DPI then comes from the profile's `resolutions`. Solaar only
+writes sectors below the device's `sectors` (16), so the factory profiles at
+257 and 258 cannot be edited in place.
 
 ## The machines
 

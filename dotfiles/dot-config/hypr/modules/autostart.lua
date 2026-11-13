@@ -36,6 +36,10 @@ function M.setup(programs)
 
     hl.exec_cmd("mpris-proxy")
 
+    -- The mouse's per-key colours and DPI live in Solaar, not on the mouse:
+    -- they go dark the moment it exits.
+    hl.exec_cmd("solaar --window=hide")
+
     hl.exec_cmd("caelestia resizer -d")
     hl.exec_cmd(programs.shell)
 
