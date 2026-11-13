@@ -25,6 +25,11 @@ default scheduler. The loader starts at `multi-user.target` and provides
 the former `services.scx` option; use `services.scx-loader.config.default_sched`
 to select the scheduler.
 
+`modules/desktop/peripherals.nix` enables OpenRGB (`openrgb`, with its server
+on the default port) and Solaar (`solaar`) for the Logitech G502 X Plus. Both
+go through their NixOS options for the udev rules, so neither needs root.
+Solaar has to be running to reapply its settings when the mouse reconnects.
+
 ## The machines
 
 | Host            | Hardware                                                         |
