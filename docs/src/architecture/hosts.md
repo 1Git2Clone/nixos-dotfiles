@@ -41,6 +41,12 @@ Onboard Profiles; DPI then comes from the profile's `resolutions`. Solaar only
 writes sectors below the device's `sectors` (16), so the factory profiles at
 257 and 258 cannot be edited in place.
 
+The same module turns off libinput's button debouncing for the mouse
+(`ModelBouncingKeys` in `/etc/libinput/local-overrides.quirks`): learned
+2026-11-13, it dropped or merged fast slide clicks as switch bounce. Hyprland's
+log records every debounce decision; after a re-login,
+`grep -c DOWN_DELAYING $XDG_RUNTIME_DIR/hypr/*/hyprland.log` should stay 0.
+
 ## The machines
 
 | Host            | Hardware                                                         |
