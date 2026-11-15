@@ -38,6 +38,7 @@ the home-manager module that installs it.
 │   └── installer/         # the ISO install.sh runs from
 ├── modules/
 │   ├── desktop/           # the desktop environment, shared by every host
+│   ├── device-coredumps.nix # persist kernel device dumps in /var/lib/devcoredumps
 │   ├── sops.nix           # every secret, declared
 │   ├── disk-layout.nix    # disko: ESP + LUKS → LVM
 │   └── firewall.nix tailscale.nix syncthing.nix users.nix system.nix flatpak.nix
@@ -76,6 +77,7 @@ nix run .#docs
 | [Rebuilding and deploying](docs/src/operations/deploying.md)            | `nixos-rebuild` and deploy-rs over Tailscale        |
 | [Screenshots and recording](docs/src/operations/screenshots.md)         | HyprCapture shortcuts and updating its compositor   |
 | [Horizon Minecraft client](docs/src/operations/horizon.md)              | pinned 26.3 client, preparation and connecting      |
+| [Kernel device crash dumps](docs/src/operations/device-coredumps.md)    | automatic GPU/device dump capture and retrieval     |
 | [Known hazards](docs/src/operations/hazards.md)                         | what will hurt if forgotten                         |
 
 Those links go to the source, which renders in Forgejo, diagrams included.

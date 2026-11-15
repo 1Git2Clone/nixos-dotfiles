@@ -2,6 +2,8 @@
 # repo used to carry.
 { pkgs, ... }:
 {
+  imports = [ ./device-coredumps.nix ];
+
   nixpkgs.config.allowUnfree = true;
 
   nix.settings = {

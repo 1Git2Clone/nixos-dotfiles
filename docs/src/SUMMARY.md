@@ -22,4 +22,5 @@
 - [Horizon Minecraft client](operations/horizon.md)
 - [The VM and the install rehearsal](operations/vm.md)
 - [CI and pages](operations/ci.md)
+- [Kernel device crash dumps](operations/device-coredumps.md)
 - [Known hazards](operations/hazards.md)
