@@ -153,7 +153,9 @@ Both variables apply to the shell command, rather than the whole session.
 After a rebuild, inspect the newest Caelestia `log.log` under
 `/run/user/1000/quickshell/by-id/` for the Qt scene graph backend report.
 To return to OpenGL, change that launcher setting to `QSG_RHI_BACKEND=opengl`
-and rebuild. This is a backend trial, not a confirmed fix for GPU hangs.
+and rebuild. The [2026-11-16 measurements](../operations/caelestia-vulkan.md)
+found substantially lower Caelestia CPU use during dashboard toggles with
+Vulkan. Those measurements do not establish a fix for GPU hangs.
 
 Learned the hard way on 2026-09-26: started from the activation service, the
 shell inherits `QT_QPA_PLATFORM=offscreen`, finds no display, and exits,

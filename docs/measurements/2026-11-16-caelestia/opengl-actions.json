@@ -1,0 +1,92 @@
+[
+  {
+    "elapsed_s": 10.0,
+    "action": "launcher toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 12.072,
+    "action": "launcher toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 14.136,
+    "action": "launcher toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 16.198,
+    "action": "launcher toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 18.278,
+    "action": "launcher toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 20.343,
+    "action": "launcher toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 22.4,
+    "action": "dashboard toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 24.539,
+    "action": "dashboard toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 26.608,
+    "action": "dashboard toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 28.752,
+    "action": "dashboard toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 30.822,
+    "action": "dashboard toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 32.92,
+    "action": "dashboard toggle",
+    "response": ""
+  },
+  {
+    "elapsed_s": 34.984,
+    "action": "workspace 1",
+    "response": "ok"
+  },
+  {
+    "elapsed_s": 37.004,
+    "action": "workspace 2",
+    "response": "ok"
+  },
+  {
+    "elapsed_s": 39.026,
+    "action": "workspace 1",
+    "response": "ok"
+  },
+  {
+    "elapsed_s": 41.051,
+    "action": "workspace 2",
+    "response": "ok"
+  },
+  {
+    "elapsed_s": 43.074,
+    "action": "workspace 1",
+    "response": "ok"
+  },
+  {
+    "elapsed_s": 45.1,
+    "action": "workspace 2",
+    "response": "ok"
+  }
+]

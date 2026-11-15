@@ -17,7 +17,8 @@ immutable users from sops, Hyprland + caelestia, Limine.
 Screenshots and recording use HyprCapture, pinned with Hyprland: Super+S opens
 the capture editor and Ctrl+Alt+S captures the focused window with transparency.
 Caelestia's launcher requests Vulkan for Qt Quick and logs the selected backend;
-see [the shell launcher](docs/src/architecture/user-layer.md#the-shell-restarts-on-rebuild).
+the [2026-11-16 comparison](docs/src/operations/caelestia-vulkan.md) records
+lower dashboard CPU use, the measurement method and raw samples.
 BB's Caelestia palette follows desktop colour changes live, including on mobile.
 Spotifast follows the Caelestia palette too; its launcher makes window close
 exit the app instead of leaving it in the tray. It runs through `steam-run`
@@ -79,6 +80,7 @@ nix run .#docs
 | [Rebuilding and deploying](docs/src/operations/deploying.md)            | `nixos-rebuild` and deploy-rs over Tailscale        |
 | [Screenshots and recording](docs/src/operations/screenshots.md)         | HyprCapture shortcuts and updating its compositor   |
 | [Horizon Minecraft client](docs/src/operations/horizon.md)              | pinned 26.3 client, preparation and connecting      |
+| [Caelestia Vulkan](docs/src/operations/caelestia-vulkan.md)             | results, method and reproducible samples            |
 | [Kernel device crash dumps](docs/src/operations/device-coredumps.md)    | automatic GPU/device dump capture and retrieval     |
 | [Known hazards](docs/src/operations/hazards.md)                         | what will hurt if forgotten                         |
 

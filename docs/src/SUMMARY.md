@@ -22,5 +22,6 @@
 - [Horizon Minecraft client](operations/horizon.md)
 - [The VM and the install rehearsal](operations/vm.md)
 - [CI and pages](operations/ci.md)
+- [Caelestia Vulkan measurements](operations/caelestia-vulkan.md)
 - [Kernel device crash dumps](operations/device-coredumps.md)
 - [Known hazards](operations/hazards.md)

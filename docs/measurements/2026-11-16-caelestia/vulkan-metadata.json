@@ -1,0 +1,63 @@
+{
+  "label": "vulkan",
+  "started": "2026-11-16T00:41:35.162893+02:00",
+  "sampling_seconds": 0.5,
+  "cpu_units": "percent of one logical CPU; 100 = one full core",
+  "graphics_env": {
+    "QT_QPA_PLATFORMTHEME": "hyprqt6engine",
+    "QT_QPA_PLATFORM": "wayland",
+    "QSG_RHI_BACKEND": "vulkan",
+    "QSG_INFO": "1"
+  },
+  "original_workspace": 2,
+  "spare_workspace": 1,
+  "note": "No video capture; counters do not measure frame times. Same background apps required for comparison.",
+  "shell_graphics_libraries": [
+    "/nix/store/12sd69v2zqs0x4xys6af45hcck74mjhl-qtbase-6.12.0/lib/libQt6OpenGL.so.6.12.0",
+    "/nix/store/1l0a4cq8ahhpgwx0byq2zcsi316mlzm1-vulkan-loader-1.4.363.0/lib/libvulkan.so.1.4.363",
+    "/nix/store/4viqn5pi9c3j6kklc8z4y8bfw075s3fa-mesa-26.2.6/lib/libgallium-26.2.6.so",
+    "/nix/store/4viqn5pi9c3j6kklc8z4y8bfw075s3fa-mesa-26.2.6/lib/libvulkan_dzn.so",
+    "/nix/store/4viqn5pi9c3j6kklc8z4y8bfw075s3fa-mesa-26.2.6/lib/libvulkan_lvp.so",
+    "/nix/store/4viqn5pi9c3j6kklc8z4y8bfw075s3fa-mesa-26.2.6/lib/libvulkan_radeon.so",
+    "/nix/store/j6crvk2m147s1wp0gs26iyqm26srchxz-libglvnd-1.7.0/lib/libEGL.so.1.1.0"
+  ],
+  "process_counts": {
+    "shell": 1,
+    "hyprland": 1,
+    "floorp": 17
+  },
+  "monitors": [
+    {
+      "name": "DP-1",
+      "make": "AOC",
+      "model": "24G2WG3-",
+      "width": 1920,
+      "height": 1080,
+      "refreshRate": 165.00301,
+      "scale": 1,
+      "focused": true
+    },
+    {
+      "name": "HDMI-A-1",
+      "make": "Samsung Electric Company",
+      "model": "T24E390",
+      "width": 1920,
+      "height": 1080,
+      "refreshRate": 60.0,
+      "scale": 1,
+      "focused": false
+    }
+  ],
+  "applications": [
+    {
+      "class": "floorp",
+      "monitor": 1,
+      "workspace": 10
+    },
+    {
+      "class": "floorp",
+      "monitor": 0,
+      "workspace": 2
+    }
+  ]
+}
