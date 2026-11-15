@@ -16,6 +16,8 @@ immutable users from sops, Hyprland + caelestia, Limine.
 
 Screenshots and recording use HyprCapture, pinned with Hyprland: Super+S opens
 the capture editor and Ctrl+Alt+S captures the focused window with transparency.
+Caelestia's launcher requests Vulkan for Qt Quick and logs the selected backend;
+see [the shell launcher](docs/src/architecture/user-layer.md#the-shell-restarts-on-rebuild).
 BB's Caelestia palette follows desktop colour changes live, including on mobile.
 Spotifast follows the Caelestia palette too; its launcher makes window close
 exit the app instead of leaving it in the tray. It runs through `steam-run`
