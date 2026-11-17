@@ -25,6 +25,13 @@ default scheduler. The loader starts at `multi-user.target` and provides
 the former `services.scx` option; use `services.scx-loader.config.default_sched`
 to select the scheduler.
 
+`modules/desktop/peripherals.nix` also has a udev rule for the fifine USB mic
+(`3142:a010`) that turns off `Mic Playback Switch` whenever the mic appears.
+That switch is the mic's hardware monitor, which feeds the mic into headphones
+plugged into it. Learned 2026-11-17: the firmware turns it back on at every
+replug, and the kernel reads back the wrong mixer values (`broken mixer
+GET_CUR`), so `amixer` showing its volume at 0 does not mean it is silent.
+
 `modules/desktop/peripherals.nix` enables Solaar (`solaar`) for the Logitech
 G502 X Plus, through its NixOS option for the udev rules, so it needs no root.
 There is no OpenRGB: learned 2026-11-13, with its root server running from boot
