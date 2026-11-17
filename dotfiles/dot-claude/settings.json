@@ -233,7 +233,7 @@
     "sentry@claude-plugins-official": false,
     "shell-scripting@claude-code-workflows": false,
     "skill-creator@claude-plugins-official": false,
-    "superpowers@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": false,
     "typescript-lsp@claude-plugins-official": true,
     "ui-design@claude-code-workflows": false,
     "unit-testing@claude-code-workflows": false,

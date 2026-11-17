@@ -30,13 +30,15 @@ class Provider(ABC):
     path: str
     section: str = "mcpServers"
     base: str | None = None
+    # Catalog entries this agent never sees; each tool schema costs context on every call.
+    skip: frozenset[str] = frozenset()
 
     @abstractmethod
     def encode(self, server: Transport) -> Object:
         """Translate one transport to this provider's native fields."""
 
     def render(self, servers: Mapping[str, Transport]) -> Object:
-        entries: Object = {name: self.encode(server) for name, server in servers.items()}
+        entries: Object = {name: self.encode(server) for name, server in servers.items() if name not in self.skip}
         return {self.section: entries}
 
 
@@ -55,6 +57,7 @@ class Pi(Provider):
 
 class Claude(Provider):
     path = ".claude/.mcp.json"
+    skip = frozenset({"openrouter-image", "playwright", "sequential-thinking"})
 
     def encode(self, server: Transport) -> Object:
         match server:
