@@ -26,11 +26,11 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "deckcraft";
-  version = "0.11.1";
+  version = "0.18.1";
 
   src = fetchurl {
     url = "https://github.com/storytold/deckcraft/releases/download/v${finalAttrs.version}/deckcraft-${finalAttrs.version}-linux-x86_64.tar.gz";
-    hash = "sha256-e/V6EKT892c+y2abZODlRUdXgO8+Tua/YDrrAPVE5pw=";
+    hash = "sha256-W659VWZjhiRBHvlo8lMqszWNwoCIQURYPkl8VjHbiiY=";
   };
 
   nativeBuildInputs = [

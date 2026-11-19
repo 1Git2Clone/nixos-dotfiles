@@ -38,6 +38,11 @@ pinned Python packages and chrome-devtools executable; Nix builds the files,
 and `home/apps/mcp.nix` links them through Home Manager. No activation merge
 or additional MCP-specific CI hook is involved.
 
+`pkgs/chrome-devtools-mcp.nix` wraps the prebuilt npm release with Node.
+2026-11-19: release 1.13.0 moved its bundled JavaScript from `build/` to
+`out/Default/gen/src/`; both the copied directory and wrapper entry point must
+follow that layout when updating the pin.
+
 | Agent | Home path |
 | ----- | --------- |
 | Claude Code | `~/.claude/.mcp.json` |

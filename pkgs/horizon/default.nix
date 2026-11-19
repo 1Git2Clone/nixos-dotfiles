@@ -10,7 +10,7 @@
 }:
 let
   gameVersion = "v0.2.97";
-  launcherVersion = "0.2.29";
+  launcherVersion = "0.2.81";
   game = stdenvNoCC.mkDerivation {
     pname = "horizon-game-bin";
     version = gameVersion;
@@ -30,7 +30,7 @@ let
     version = launcherVersion;
     src = fetchurl {
       url = "https://github.com/horizon-rust/horizon/releases/download/launcher%40${launcherVersion}/horizon-launcher-linux-x86_64.tar.gz";
-      hash = "sha256-ZUQ2MxRyf5KLBK88r+uNJa2+FU4y3ywDPTekyUcC7Kc=";
+      hash = "sha256-jhmFSivPKlNwqXyTfFe40uQtzB1VrbYIwRrjL4fSUK0=";
     };
     sourceRoot = ".";
     dontBuild = true;

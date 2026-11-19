@@ -9,11 +9,11 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "grok";
-  version = "1.0.70";
+  version = "1.0.89";
 
   src = fetchurl {
     url = "https://x.ai/cli/grok-${version}-linux-x86_64";
-    hash = "sha256-ItKBxZZMVEQUcygJa6KiIfPwh0xoWOJ8glZWqA9uWOk=";
+    hash = "sha256-o9+s5R2b3HH9Eh4Egd0C2bRqch96a4kvdWSA6WZuuh8=";
   };
 
   dontUnpack = true;

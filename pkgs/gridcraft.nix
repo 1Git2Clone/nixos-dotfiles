@@ -25,11 +25,11 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "gridcraft";
-  version = "0.12.1";
+  version = "0.19.1";
 
   src = fetchurl {
     url = "https://github.com/storytold/gridcraft/releases/download/v${finalAttrs.version}/gridcraft-${finalAttrs.version}-linux-x86_64.tar.gz";
-    hash = "sha256-HBdQ3W0mN2z4yK8itG3A7T2NXLsRXlVfD8fQz3qa6po=";
+    hash = "sha256-jZe7otW7AP1p7VUGSFLB/ZFN5A1ezVXKAcjfgbgolG0=";
   };
 
   nativeBuildInputs = [

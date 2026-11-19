@@ -1,7 +1,6 @@
 # AzPepoze's GUI for linux-wallpaperengine: a Go backend in the tray and an
-# Electron window only while it is open. Upstream ships Linux builds as an
-# AppImage and nothing else, and a source build would need both toolchains
-# plus bun, so this wraps the release.
+# Electron window only while it is open. This wraps upstream's prebuilt
+# AppImage; a source build would need both toolchains plus bun.
 #
 # The backend shells out by bare name, so what it calls has to be inside the
 # FHS env: the engine itself, xrandr for the screens, killall to stop
@@ -16,11 +15,11 @@
 }:
 let
   pname = "linux-wallpaperengine-gui";
-  version = "0.5.2";
+  version = "0.6.1";
 
   src = fetchurl {
     url = "https://github.com/AzPepoze/linux-wallpaperengine-gui/releases/download/v${version}/linux-wallpaperengine-gui.AppImage";
-    hash = "sha256-UKURQDPH07WB/QlyFNOI6SEjPCP63Hg9a35pu48UPSM=";
+    hash = "sha256-qWAjRD5+CMRdflaCk9UkG0ob+T4ZKcMOdNq8Y7th4TI=";
   };
 
   contents = appimageTools.extract { inherit pname version src; };

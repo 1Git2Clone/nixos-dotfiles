@@ -10,11 +10,11 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "chrome-devtools-mcp";
-  version = "1.11.0";
+  version = "1.13.0";
 
   src = fetchurl {
     url = "https://registry.npmjs.org/${pname}/-/${pname}-${version}.tgz";
-    hash = "sha256-6fCrl62VFZJ8fZ8KPfvbnqSF0oENVy5KZOuEsZLIvww=";
+    hash = "sha256-kVjEtKh5LLUirkb3buqpSRzgRhajrpcimhYnfgKkrqQ=";
   };
 
   nativeBuildInputs = [ makeWrapper ];
@@ -22,9 +22,9 @@ stdenvNoCC.mkDerivation rec {
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/${pname}
-    cp -r build package.json $out/lib/${pname}/
+    cp -r out package.json $out/lib/${pname}/
     makeWrapper ${lib.getExe nodejs} $out/bin/${pname} \
-      --add-flags $out/lib/${pname}/build/src/bin/${pname}.js
+      --add-flags $out/lib/${pname}/out/Default/gen/src/bin/${pname}.js
     runHook postInstall
   '';
 

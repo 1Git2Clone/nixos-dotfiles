@@ -232,8 +232,6 @@ in
       # Without the CLI bundled in: that copy would come first on the shell's
       # PATH and list only upstream's schemes, and rebuilding the shell for
       # every scheme edit is a C++ build. The shell finds `cli` below on PATH.
-      # Game mode zeroes gaps and window rounding, so square windows cut across
-      # the frame's rounded inner corners; round them to the frame's radius.
       package =
         (caelestiaPkgs.default.override {
           # Its picker no longer launches Swappy. Keep the shell's hyprctl on
@@ -246,8 +244,6 @@ in
               cp ${../../pkgs/caelestia-hyprcapture-picker.qml} modules/areapicker/AreaPicker.qml
               substituteInPlace modules/areapicker/AreaPicker.qml \
                 --replace-fail '@HYPRCTL@' '${osConfig.programs.hyprland.package}/bin/hyprctl'
-              substituteInPlace daemons/GameMode.qml \
-                --replace-fail '"decoration:rounding": 0' '"decoration:rounding": ${toString (lib.importJSON ../caelestia-shell.json).border.rounding}'
             '';
           });
       cli.enable = true;
@@ -255,7 +251,26 @@ in
       # autostart.lua already execs it; true here double-starts.
       systemd.enable = false;
       # shell.json is gitignored upstream, so it is vendored here.
-      extraConfig = builtins.readFile ../caelestia-shell.json;
+      extraConfig =
+        let
+          shellConfig = lib.importJSON ../caelestia-shell.json;
+        in
+        builtins.toJSON (
+          lib.recursiveUpdate shellConfig {
+            # This map replaces upstream's defaults. Preserve its game-mode
+            # options while keeping windows round inside the shell's frame.
+            utilities.gameMode.options = {
+              "animations:enabled" = 0;
+              "decoration:shadow:enabled" = 0;
+              "decoration:blur:enabled" = 0;
+              "general:gaps_in" = 0;
+              "general:gaps_out" = 0;
+              "general:border_size" = 1;
+              "decoration:rounding" = shellConfig.border.rounding;
+              "general:allow_tearing" = 1;
+            };
+          }
+        );
     };
 
     # The CLI reads cli.json; extraConfig above is the shell's shell.json, and

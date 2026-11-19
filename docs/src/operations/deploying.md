@@ -17,6 +17,15 @@ but it does not start user units that did not exist before. A new
 `systemd.user.services` entry needs `systemctl --user start` once, or a new
 login.
 
+2026-11-19: `nixos-rebuild-ng` 26.11 resolves `<nixos-system>` before
+using `--flake`. A slow legacy search-path fetch can therefore delay even a
+flake rebuild. Resolve that unused lookup locally for this invocation:
+
+```bash
+sudo env NIX_PATH="nixos-system=$PWD/flake.nix" \
+  nixos-rebuild switch --flake .#hutao-desktop
+```
+
 ## To another machine, with rollback
 
 `deploy.nodes` in `flake.nix` drives deploy-rs over Tailscale SSH. It declares
@@ -78,3 +87,25 @@ nix flake update nvim-config           # a pushed neovim config change
 
 The cursor and folder-icon packs come from the private `third-party-assets`
 input, so a new pack there is invisible until that input is updated.
+
+`nix flake update` refreshes moving inputs, including nixpkgs and its packaged
+apps. Release tags in `flake.nix` stay on those tags: check upstream releases
+and bump them explicitly. Keep Hyprland and HyprCapture on the compatible pair
+described in [Screenshots and recording](screenshots.md#updating-the-compositor-and-plugin).
+
+Applications pinned outside the lock also need explicit version and hash bumps:
+`home/apps/bb.nix`, the binary packages in `pkgs/`, and Viber's override in
+`home/apps/packages.nix`. Horizon's game and launcher pins are separate; follow
+[Horizon's update procedure](horizon.md#updates-and-authentication).
+
+Flatpak apps and runtimes have their own update step; a flake update does not
+update their installed deployments:
+
+```bash
+sudo flatpak update --system --noninteractive -y
+flatpak update --user --noninteractive -y
+nix develop -c pre-commit run --all-files
+sudo nixos-rebuild switch --flake .#hutao-desktop
+```
+
+Commit and push the updated pins only after the checks and rebuild succeed.

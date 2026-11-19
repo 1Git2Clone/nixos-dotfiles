@@ -25,11 +25,11 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "cadcraft";
-  version = "0.13.0";
+  version = "0.20.1";
 
   src = fetchurl {
     url = "https://github.com/storytold/cadcraft/releases/download/v${finalAttrs.version}/cadcraft-${finalAttrs.version}-linux-x86_64.tar.gz";
-    hash = "sha256-04dVvrYYiXVr69k430kebuDeeMLzX9NRBaR5kJ/RypI=";
+    hash = "sha256-V7bxtBtPPFQqgvEDIC7Rp3lEDl/40lwI72ar2hqMsbk=";
   };
 
   nativeBuildInputs = [

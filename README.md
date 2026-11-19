@@ -102,6 +102,9 @@ Those links go to the source, which renders in Forgejo, diagrams included.
 | `horizon-launcher`                                                               | open Horizon Minecraft 26.3                          |
 | `bb-caelestia-sync`                                                              | reapply the desktop's palette to BB                  |
 
+For a full update, refresh the flake inputs, explicit application pins and
+Flatpaks before rebuilding; see [Updating inputs](docs/src/operations/deploying.md#updating-inputs).
+
 Every key `modules/sops.nix` declares must be in `secrets/secrets.yaml` before
 anything builds; `install.sh` checks the full list before it touches a disk.
 See [Secrets](docs/src/architecture/secrets.md).

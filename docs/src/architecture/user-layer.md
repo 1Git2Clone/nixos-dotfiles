@@ -163,10 +163,16 @@ leaving no shell until one is started by hand. The eval uses `dofile`, not
 `require`, so it reads the new `programs.lua` rather than a module cached
 from before the switch.
 
-The shell package is patched too: caelestia's game mode zeroes the gaps and
-hard-codes `decoration:rounding 0`, so square windows cut across the frame's
-rounded inner corners. The patch sets it to the frame's own radius,
-`border.rounding` from `home/caelestia-shell.json`.
+Game mode zeroes gaps and window rounding by default, so square windows cut
+across the frame's rounded inner corners. `home/apps/caelestia.nix` supplies
+`utilities.gameMode.options` through the shell configuration, retaining the
+upstream game-mode options while setting window rounding to `border.rounding`
+from `home/caelestia-shell.json`.
+
+2026-11-19: upstream moved these defaults out of `daemons/GameMode.qml` into
+its C++ configuration plugin. The old source substitution stopped building;
+the supported configuration map replaces that patch. The map replaces the
+upstream default map, so all game-mode options are declared together.
 
 ## Music downloads land in the library
 

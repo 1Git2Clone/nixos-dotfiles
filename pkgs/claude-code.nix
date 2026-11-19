@@ -1,19 +1,19 @@
 { claude-code }:
 claude-code.override {
   manifest = {
-    version = "2.1.312";
+    version = "2.1.328";
     platforms = {
       linux-x64 = {
         binary = "claude.zst";
-        checksum = "6fb9e329947c003740be888f98db1aecaa238d6c7d9ceef8581eb71d5a59480b";
+        checksum = "10f24c9cfcbf3c586e6d281815dce9b561eb8acc6b8c0f26b8f0af5e56fa7605";
       };
       linux-arm64 = {
         binary = "claude.zst";
-        checksum = "863ee1d2a91a39ee22fa13322582e4c3fb45bfb4739b22ec7e396dde694d8581";
+        checksum = "c92f528d76713f97e5c7f443fc2459670a833182cb4314575ec939dadb4c77b5";
       };
       darwin-arm64 = {
         binary = "claude.zst";
-        checksum = "7d759495d011057b6e8b8ee911c5be3cd36e9491c71a4ab194a425cdb1418073";
+        checksum = "5c1e357bada5a66373e0705cb0e1213d3e49d086de0dcc11892e3063bc9da5dc";
       };
     };
   };

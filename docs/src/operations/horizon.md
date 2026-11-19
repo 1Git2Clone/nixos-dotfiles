@@ -34,7 +34,7 @@ worlds are not imported by this configuration.
 `pkgs/horizon/default.nix` fetches upstream Linux x86-64 binary archives with
 fixed SHA-256 hashes: game **v0.2.97**, source commit
 `a3acb5f0d2f59d2d5ff21a5aa000809ba1e35e2f`, matching the VPS server pin,
-and launcher **0.2.29**.
+and launcher **0.2.81**.
 No Rust compilation is needed. `nix build .#horizon` builds this package alone.
 The FHS wrapper supplies the graphics, audio, windowing and keyring libraries,
 Java 25 and the helper programs needed by the launcher and its child processes.
@@ -83,6 +83,6 @@ around that stale document.
 Upstream references:
 
 - [Game release](https://github.com/horizon-rust/horizon/releases/tag/v0.2.97)
-- [Launcher release](https://github.com/horizon-rust/horizon/releases/tag/launcher%400.2.29)
+- [Launcher release](https://github.com/horizon-rust/horizon/releases/tag/launcher%400.2.81)
 - [Pinned authentication design](https://github.com/horizon-rust/horizon/blob/1da354b67a509812c4141b67de2affd6de65c342/docs/microsoft-account.md)
 - [Install guide](https://playhorizon.dev/docs/install)

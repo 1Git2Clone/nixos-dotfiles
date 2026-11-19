@@ -58,7 +58,7 @@
     # ships a flake, so this is their package rather than a build of ours --
     # pinned to a tag, because the config names a binary this has to provide.
     codebase-memory-mcp = {
-      url = "github:DeusData/codebase-memory-mcp/v0.11.0";
+      url = "github:DeusData/codebase-memory-mcp/v0.12.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -66,7 +66,7 @@
     # it releases several times a day, and a moving ref would rebuild the
     # binary on every `nix flake update`.
     workmux = {
-      url = "github:raine/workmux/v0.1.264";
+      url = "github:raine/workmux/v0.1.283";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
