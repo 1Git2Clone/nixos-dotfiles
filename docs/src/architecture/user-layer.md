@@ -423,7 +423,11 @@ nixpkgs bumps the package.
   with, so after a Hyprland restart every hook's `hyprctl` hit a dead socket
   and `dismiss` returned 1 on each focus (learned 2026-10-22). Hyprland's
   autostart (`modules/autostart.lua`) now pushes its own
-  `HYPRLAND_INSTANCE_SIGNATURE` into tmux's global environment.
+  `HYPRLAND_INSTANCE_SIGNATURE` into tmux's global environment. A crash
+  restarts Hyprland in safe mode, which runs no autostart, and the stale
+  signature came back (2026-11-20). So `shell-notify` itself switches to the
+  newest instance `hyprctl instances` lists when the inherited one is not
+  running.
 - **`shell-notify watch`**: the same outside tmux, where no tmux hook sees the
   focus change. `notify` records a notification sent outside tmux as
   `pid-<id>`, listing the processes above its sender, the terminal window

@@ -34,6 +34,16 @@ sticky=3600000 # caelestia reads -t 0 as its 5s default; see notify.sh
 # above its sender.
 ids="${XDG_RUNTIME_DIR:-/tmp}/shell-notify"
 
+# The tmux server and the watch service outlive Hyprland, and keep the dead
+# instance's signature when it restarts. autostart.lua hands tmux the new one,
+# but a crash restarts Hyprland in safe mode, which runs no autostart
+# (2026-11-20). So when the inherited instance is not running, use the newest
+# one that is. Without Hyprland at all this finds nothing and changes nothing.
+live=$(hyprctl instances -j 2>/dev/null | jq -r 'sort_by(-.time) | .[].instance' 2>/dev/null) || live=
+if [[ -n $live ]] && ! grep -qxF -- "${HYPRLAND_INSTANCE_SIGNATURE:-}" <<<"$live"; then
+  export HYPRLAND_INSTANCE_SIGNATURE=${live%%$'\n'*}
+fi
+
 log() {
   echo "shell-notify: $*" >&2
   # Under systemd stderr is already the journal; elsewhere it is not.
