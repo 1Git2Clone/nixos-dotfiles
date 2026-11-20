@@ -222,6 +222,8 @@ in
     plugins = [ pkgs.evolution-ews ];
   };
 
+  virtualisation.podman.enable = true;
+
   # Never change after install.
   system.stateVersion = "26.05";
 }
