@@ -25,3 +25,5 @@ secrets/*.yaml.tmp
 docs/book/
 docs/mermaid.min.js
 docs/mermaid-init.js
+
+__pycache__
